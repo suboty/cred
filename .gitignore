@@ -1,0 +1,5 @@
+# PyCharm service folder
+.idea
+
+# Python virtual environment
+.venv
