@@ -3,3 +3,6 @@
 
 # Python virtual environment
 .venv
+
+# File for storage temporary regexes
+*.json
