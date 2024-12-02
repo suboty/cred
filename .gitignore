@@ -6,3 +6,6 @@
 
 # File for storage temporary regexes
 *.json
+
+# dbs
+*.db
