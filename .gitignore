@@ -9,3 +9,6 @@
 
 # dbs
 *.db
+
+# research
+*.ipynb_checkpoints

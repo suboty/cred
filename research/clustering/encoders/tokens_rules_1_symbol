@@ -1,0 +1,16 @@
+| -> alt
+. -> any
+? -> quant_0_1
++ -> quant_1_more
+* -> greedy_quant_0_more
+[ -> start_range
+] -> end_range
+( -> start_group
+) -> end_group
+{ -> start_quant
+} -> end_quant
+<esc>\ -> escape
+^ -> start_strig
+$ -> end_string
+- -> range_character
+, -> quant_character
