@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Dict, Union, List, Tuple
 
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -47,10 +48,26 @@ TOKENS_RULES = load_tokens_rules(
 )
 
 TOKENS_SEP = 'SEP-SYMBOL'
+IS_NEED_SCALING = False
 
 
 class TfidfMatrix:
+
+    scaler = MinMaxScaler()
+
     @staticmethod
+    def scaling_decorator(func):
+        def wrapper(*args, **kwargs):
+            encoder, csr_matrix = func(*args, **kwargs)
+            csr_matrix = csr_matrix.toarray()
+            if IS_NEED_SCALING:
+                csr_matrix = TfidfMatrix.scaler.fit_transform(csr_matrix)
+            return encoder, csr_matrix
+
+        return wrapper
+
+    @staticmethod
+    @scaling_decorator
     def get_matrix_tokenize_by_chars(
             list_of_regexes,
     ):
@@ -60,6 +77,7 @@ class TfidfMatrix:
         return chars_tfidf_encoder, chars_tfidf_matrix
 
     @staticmethod
+    @scaling_decorator
     def get_matrix_tokenize_by_non_terminals(
             list_of_regexes,
             special_chars,
@@ -77,6 +95,7 @@ class TfidfMatrix:
         return non_terminals_tfidf_encoder, non_terminals_tfidf_matrix
 
     @staticmethod
+    @scaling_decorator
     def get_matrix_tokenize_by_regex_tokens(
             list_of_regexes,
     ):

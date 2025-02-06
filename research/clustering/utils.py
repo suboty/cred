@@ -93,11 +93,14 @@ def high_dimensional_visualization(
         legend="full",
         alpha=0.3
     )
-    emb_plot_pca.set_title(
-        f"TF-IDF matrix by {name.replace('tf_idf_', '')} PCA visualization"
-    )
-    fig_pca = emb_plot_pca.get_figure()
-    fig_pca.savefig(Path('assets', f"{name}_pca.png"))
+    if 'tf_idf' in name:
+        emb_plot_pca.set_title(
+            f"TF-IDF matrix by {name.replace('tf_idf_', '')} PCA visualization"
+        )
+        fig_pca = emb_plot_pca.get_figure()
+        fig_pca.savefig(Path('assets', 'tf_idf', f"{name}_pca.png"))
+    else:
+        raise NotImplementedError
 
     # UMAP visualization
 
@@ -121,5 +124,8 @@ def high_dimensional_visualization(
         s=5
     )
     plt.gca().set_aspect('equal', 'datalim')
-    plt.title(f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization")
-    plt.savefig(Path('assets', f"{name}_umap.png"))
+    if 'tf_idf' in name:
+        plt.title(f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization")
+        plt.savefig(Path('assets', 'tf_idf', f"{name}_umap.png"))
+    else:
+        raise NotImplementedError
