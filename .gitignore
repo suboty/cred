@@ -1,5 +1,6 @@
 # PyCharm service folder
 .idea
+*__pycache__
 
 # Python virtual environment
 .venv
