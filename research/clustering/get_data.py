@@ -1,17 +1,26 @@
 from pathlib import Path
+from typing import Optional
 
 import sqlite3
 
 
-def get_data_from_regex101():
+def get_data_from_regex101(
+        filter_word: Optional[str] = None
+):
     sql_query = """
-        select 
-            r.regex,
-            r.dialect,
-            r.title,
-            r.description
-        from regexes r;
-        """
+    select 
+        r.regex,
+        r.dialect,
+        r.title,
+        r.description
+    from regexes r
+    """
+
+    if filter_word:
+        filter_word = filter_word.lower()
+        sql_query += f"where lower(r.description) like '%{filter_word}%' or lower(r.title) like '%{filter_word}%';"
+    else:
+        sql_query += ';'
 
     db = sqlite3.connect(Path('..', '..', 'regex101.db'))
     cursor = db.cursor()

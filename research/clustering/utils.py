@@ -21,7 +21,10 @@ def get_tf_idf_keywords(
         document_index = random.randint(0, len(_list_of_regexes))
 
     feature_names = _tfidf_vectorizer.get_feature_names_out()
-    tfidf_scores = _tfidf_matrix.toarray()[document_index]
+    if isinstance(_tfidf_matrix, (np.ndarray, np.generic)):
+        tfidf_scores = _tfidf_matrix[document_index]
+    else:
+        tfidf_scores = _tfidf_matrix.toarray()[document_index]
 
     # sort by TF-IDF values
     sorted_keywords = [
@@ -74,6 +77,12 @@ def high_dimensional_visualization(
     :type data: list or numpy array
     """
     plt.figure(figsize=(5, 5))
+    
+    # Turn interactive plotting off
+    plt.ioff()
+
+    if isinstance(data, List):
+        data = np.squeeze(np.array(data))
 
     rndprm = np.random.permutation(data.shape[0])
 
@@ -99,6 +108,12 @@ def high_dimensional_visualization(
         )
         fig_pca = emb_plot_pca.get_figure()
         fig_pca.savefig(Path('assets', 'tf_idf', f"{name}_pca.png"))
+    elif 'bert' in name:
+        emb_plot_pca.set_title(
+            f"BERT embeddings by {name.replace('bert_', '')} PCA visualization"
+        )
+        fig_pca = emb_plot_pca.get_figure()
+        fig_pca.savefig(Path('assets', 'bert', f"{name}_pca.png"))
     else:
         raise NotImplementedError
 
@@ -127,5 +142,8 @@ def high_dimensional_visualization(
     if 'tf_idf' in name:
         plt.title(f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization")
         plt.savefig(Path('assets', 'tf_idf', f"{name}_umap.png"))
+    elif 'bert' in name:
+        plt.title(f"BERT embeddings by {name.replace('tf_idf_', '')} UMAP visualization")
+        plt.savefig(Path('assets', 'bert', f"{name}_umap.png"))
     else:
         raise NotImplementedError
