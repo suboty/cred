@@ -15,3 +15,7 @@
 *.ipynb_checkpoints
 *.xlsx
 *.csv
+
+# other
+*.DS_Store
+
