@@ -13,7 +13,5 @@ python3 clustering.py -v -u --algname encoder_name --filter filter_word_for_inpu
 - --algname: "bert" or "tf_idf"
 - --filter for filtering input data (looking for in description on title regexes)
 
-## Encoders
-
-- TF-IDF as an encoder is shown in <a href="tf_idf_results.md">tf_idf_results.md</a>
-- BERT as an encoder is shown in <a href="bert_results.md">bert_results.md</a>
+## Clustering results
+In *clustering_reports*

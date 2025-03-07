@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Experiment</title>
+    <style>
+        body {background-color: powderblue;}
+        h1   {color: blue;}
+        p    {color: darkblue;}
+        .section-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<section class="section-container">
+    <div>
+        <h1>exp_tf_idf_chars_sql</h1>
+        <p>
+            Encoder: <b>tf_idf_chars</b>
+        </p>
+        <p>
+            Clustering Algorithm: <b>kmeans++</b>
+        </p>
+        <p>
+            Filter Word: <b>sql</b>
+        </p>
+        <h2>Embeddings</h2>
+        <h3>PCA visualization</h3>
+        <p float="left">
+          <img src="../assets/exp_tf_idf_chars_sql/tf_idf_chars_pca.png" width="400" />
+        </p>
+
+        <h3>UMAP visualization</h3>
+        <p float="left">
+          <img src="../assets/exp_tf_idf_chars_sql/tf_idf_chars_umap.png" width="400" />
+        </p>
+        <h2>Clustering</h2>
+        <h3>Silhouette analysis</h3>
+        <p float="left">
+          <img src="../assets/exp_tf_idf_chars_sql/tf_idf_chars_silhouette.png" width="400" />
+        </p>
+    </div>

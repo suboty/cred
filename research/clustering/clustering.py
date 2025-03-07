@@ -6,12 +6,17 @@ from utils import *
 from encoders.get_tf_idf_matrix import TfidfMatrix
 from encoders.get_bert_embeddings import BertEmbeddings
 from get_data import get_data_from_regex101
-from utils import high_dimensional_visualization
 from algorithms.kmeans import KMeansAlgorithm
+from utils import (
+    high_dimensional_visualization, 
+    get_experiment_name, 
+    make_clustering_report
+)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='cred-clustering')
+
     # is need verbose print
     parser.add_argument(
         '-v', '--verbose',
@@ -22,8 +27,9 @@ if __name__ == '__main__':
         '-u', '--update',
         action='store_true'
     )
-
+    # encoder
     parser.add_argument('--algname', type=str, default='bert')
+    # filter word for getting data
     parser.add_argument('--filter', type=str, default=None)
 
     args = parser.parse_args()
@@ -55,12 +61,19 @@ if __name__ == '__main__':
             in enumerate(random.sample(list_of_regexes, 3))
         ]
 
+    os.makedirs('clustering_reports', exist_ok=True)
+
     # prepare assets folder
     if 'tf_idf' in args.algname:
-        os.makedirs(Path('assets', 'tf_idf'), exist_ok=True)
-
         # get TF-IDF matrix (tokenize chars)
         print('### TF-IDF + Chars Tokenizing')
+        exp_name = get_experiment_name(
+            alg_name='tf_idf_chars',
+            filter_word=args.filter
+        )
+        savepath = Path('assets', exp_name)
+        os.makedirs(savepath, exist_ok=True)
+
         chars_t, chars_m = TfidfMatrix.get_matrix_tokenize_by_chars(list_of_regexes)
         if args.verbose:
             get_tf_idf_keywords(
@@ -76,15 +89,33 @@ if __name__ == '__main__':
                 dialects=dialects,
                 n_neighbors=50,
                 umap_min_dist=0.25,
+                savepath=savepath,
             )
         km(
             data=chars_m,
             pipeline_name='tf_idf_chars',
-            verbose=False
+            verbose=False,
+            savepath=savepath,
+        )
+
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder='tf_idf_chars',
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
         )
 
         # get TF-IDF matrix (tokenize non-terminals)
         print('### TF-IDF + Non-terminals Tokenizing')
+        exp_name = get_experiment_name(
+            alg_name='tf_idf_non_terminals',
+            filter_word=args.filter
+        )
+        savepath = Path('assets', exp_name)
+        os.makedirs(savepath, exist_ok=True)
+
         # select special characters, which used in regular expressions as a non-terminal symbols
         special_chars = []
         # from "space" to "slash"
@@ -114,15 +145,33 @@ if __name__ == '__main__':
                 dialects=dialects,
                 n_neighbors=50,
                 umap_min_dist=0.25,
+                savepath=savepath,
             )
         km(
             data=non_terminals_m,
             pipeline_name='tf_idf_non_terminals',
-            verbose=False
+            verbose=False,
+            savepath=savepath,
+        )
+
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder='tf_idf_non_terminals',
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
         )
 
         # get TF-IDF matrix (tokenize with custom tokens)
         print('### TF-IDF + Custom Regex Tokenizing')
+        exp_name = get_experiment_name(
+            alg_name='tf_idf_tokens',
+            filter_word=args.filter
+        )
+        savepath = Path('assets', exp_name)
+        os.makedirs(savepath, exist_ok=True)
+
         tokens_t, tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
             list_of_regexes
         )
@@ -140,18 +189,34 @@ if __name__ == '__main__':
                 dialects=dialects,
                 n_neighbors=50,
                 umap_min_dist=0.25,
+                savepath=savepath,
             )
         km(
             data=tokens_m,
             pipeline_name='tf_idf_tokens',
-            verbose=False
+            verbose=False,
+            savepath=savepath,
+        )
+
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder='tf_idf_tokens',
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
         )
 
     elif 'bert' in args.algname:
-        os.makedirs(Path('assets', 'bert'), exist_ok=True)
-
         # create BERT inference
         be = BertEmbeddings()
+
+        exp_name = get_experiment_name(
+            alg_name=be.__repr__(),
+            filter_word=args.filter
+        )
+        savepath = Path('assets', exp_name)
+        os.makedirs(savepath, exist_ok=True)
 
         # get BERT embeddings (100k_REGEX)
         print(f'### BERT embeddings ({be.name})')
@@ -163,9 +228,20 @@ if __name__ == '__main__':
                 dialects=dialects,
                 n_neighbors=50,
                 umap_min_dist=0.25,
+                savepath=savepath,
             )
         km(
             data=embeddings,
             pipeline_name=be.name,
-            verbose=False
+            verbose=False,
+            savepath=savepath,
+        )
+
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder=be.__repr__(),
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
         )

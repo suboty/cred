@@ -1,3 +1,5 @@
+import os
+
 import torch
 from transformers import AutoTokenizer, AutoModel
 
@@ -16,6 +18,8 @@ class BertEmbeddings:
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
+
+        os.environ['TOKENIZERS_PARALLELISM'] = 'True'
 
     def __repr__(self):
         return self.name

@@ -1,6 +1,6 @@
 import time
-from typing import List
 from pathlib import Path
+from typing import List, Union
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,6 +23,7 @@ class KMeansAlgorithm:
         self, 
         data, 
         pipeline_name,
+        savepath: Union[str, Path],
         verbose: bool,
         *args, **kwargs,
     ):
@@ -70,10 +71,10 @@ class KMeansAlgorithm:
             ax.set_ylabel('Kmeans score')
             if 'tf_idf' in pipeline_name:
                 ax.set_title(f"Kmeans (elbow method) score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix")
-                ax.figure.savefig(Path('assets', 'tf_idf', f"{pipeline_name}_elbow.png"))
+                ax.figure.savefig(Path(savepath, f"{pipeline_name}_elbow.png"))
             elif 'bert' in pipeline_name:
                 ax.set_title(f"Kmeans (elbow method) score {pipeline_name.replace('bert_', '')} for BERT embeddings")
-                ax.figure.savefig(Path('assets', 'bert', f"{pipeline_name}_elbow.png"))
+                ax.figure.savefig(Path(savepath, f"{pipeline_name}_elbow.png"))
             else:
                 raise NotImplementedError
 
@@ -85,10 +86,10 @@ class KMeansAlgorithm:
             ax.set_ylabel('Silhouette score')
             if 'tf_idf' in pipeline_name:
                 ax.set_title(f"Kmeans silhouette score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix")
-                ax.figure.savefig(Path('assets', 'tf_idf', f"{pipeline_name}_silhouette.png"))
+                ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
             elif 'bert' in pipeline_name:
                 ax.set_title(f"Kmeans silhouette score {pipeline_name.replace('bert_', '')} for BERT embeddings")
-                ax.figure.savefig(Path('assets', 'bert', f"{pipeline_name}_silhouette.png"))
+                ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
             else:
                 raise NotImplementedError
 
@@ -100,9 +101,9 @@ class KMeansAlgorithm:
             ax.set_ylabel('Davies Bouldin score')
             if 'tf_idf' in pipeline_name:
                 ax.set_title(f"Kmeans Davies Bouldin score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix")
-                ax.figure.savefig(Path('assets', 'tf_idf', f"{pipeline_name}_db.png"))
+                ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
             elif 'bert' in pipeline_name:
                 ax.set_title(f"Kmeans Davies Bouldin score {pipeline_name.replace('bert_', '')} for BERT embeddings")
-                ax.figure.savefig(Path('assets', 'bert', f"{pipeline_name}_db.png"))
+                ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
             else:
                 raise NotImplementedError

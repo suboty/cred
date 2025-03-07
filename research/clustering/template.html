@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>__EXPERIMENT_NAME__</title>
+    <style>
+        body {background-color: powderblue;}
+        h1   {color: blue;}
+        p    {color: darkblue;}
+        .section-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<section class="section-container">
+    <div>
+        <h1>__EXPERIMENT_NAME__</h1>
+        <p>
+            Encoder: <b>__ENCODER_NAME__</b>
+        </p>
+        <p>
+            Clustering Algorithm: <b>__CLUSTERING_NAME__</b>
+        </p>
+        <p>
+            Filter Word: <b>__FILTER_WORD__</b>
+        </p>
+        <h2>Embeddings</h2>
+        <h3>PCA visualization</h3>
+        <p float="left">
+          <img src="__SAVEPATH__/__ENCODER_NAME___pca.png" width="400" />
+        </p>
+
+        <h3>UMAP visualization</h3>
+        <p float="left">
+          <img src="__SAVEPATH__/__ENCODER_NAME___umap.png" width="400" />
+        </p>
+        <h2>Clustering</h2>
+        <h3>Silhouette analysis</h3>
+        <p float="left">
+          <img src="__SAVEPATH__/__ENCODER_NAME___silhouette.png" width="400" />
+        </p>
+    </div>

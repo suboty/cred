@@ -61,6 +61,7 @@ def high_dimensional_visualization(
         data: Union[List, np.array],
         name: str,
         dialects: List,
+        savepath: Union[str, Path],
         umap_min_dist: float = 0.1,
         n_components: int = 2,
         n_neighbors: int = 100,
@@ -74,10 +75,11 @@ def high_dimensional_visualization(
     :param int n_neighbors: The number of neighbors for UMAP method
     :param float umap_min_dist: The minimal distance between points for UMAP method
     :param List dialects: The list of dialects of input regexes
+    :param Union[str, Path] savepath: path for saving plots
     :type data: list or numpy array
     """
     plt.figure(figsize=(5, 5))
-    
+
     # Turn interactive plotting off
     plt.ioff()
 
@@ -107,13 +109,13 @@ def high_dimensional_visualization(
             f"TF-IDF matrix by {name.replace('tf_idf_', '')} PCA visualization"
         )
         fig_pca = emb_plot_pca.get_figure()
-        fig_pca.savefig(Path('assets', 'tf_idf', f"{name}_pca.png"))
+        fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
     elif 'bert' in name:
         emb_plot_pca.set_title(
             f"BERT embeddings by {name.replace('bert_', '')} PCA visualization"
         )
         fig_pca = emb_plot_pca.get_figure()
-        fig_pca.savefig(Path('assets', 'bert', f"{name}_pca.png"))
+        fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
     else:
         raise NotImplementedError
 
@@ -141,9 +143,59 @@ def high_dimensional_visualization(
     plt.gca().set_aspect('equal', 'datalim')
     if 'tf_idf' in name:
         plt.title(f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization")
-        plt.savefig(Path('assets', 'tf_idf', f"{name}_umap.png"))
+        plt.savefig(Path(savepath, f"{name}_umap.png"))
     elif 'bert' in name:
         plt.title(f"BERT embeddings by {name.replace('tf_idf_', '')} UMAP visualization")
-        plt.savefig(Path('assets', 'bert', f"{name}_umap.png"))
+        plt.savefig(Path(savepath, f"{name}_umap.png"))
     else:
         raise NotImplementedError
+
+
+def get_experiment_name(
+    alg_name: str,
+    filter_word: Optional[str] = None
+): 
+    _name = f'exp_{alg_name}'
+    if filter_word: _name += f"_{filter_word.lower().replace(' ', '_').replace('-', '_')}"
+    return _name
+
+
+def make_clustering_report(
+    experiment_name: str,
+    encoder: str,
+    clustering: str,
+    img_savepath: Union[str, Path],
+    savepath: Union[str, Path],
+    visible: bool = True,
+    filter_word: Optional[str] = None,
+    template_path: Path = Path('template.html')
+):
+    # TODO: fix algorithm`s reports and variables
+
+    with open(template_path, 'r') as template_file:
+        template = template_file.read()
+
+    # change experiment name
+    template = template.replace('__EXPERIMENT_NAME__', experiment_name)
+
+    # change encoder name
+    template = template.replace('__ENCODER_NAME__', encoder)
+
+    # change clustering algorithm name
+    template = template.replace('__CLUSTERING_NAME__', clustering)
+
+    # if filter word existing
+    # change filter word in template
+    if filter_word:
+        template = template.replace('__FILTER_WORD__', filter_word)
+    else:
+        template = template.replace(
+            '\t\t<p>\n\t\t\tFilter Word: <b>__FILTER_WORD__</b>\n\t\t</p>', 
+            ''
+        )
+
+    # change savepath (for plots)
+    template = template.replace('__SAVEPATH__', str(img_savepath))
+
+    with open(Path(savepath, f'{experiment_name}.html'), 'w') as report_file:
+        report_file.write(template)
