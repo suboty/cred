@@ -82,20 +82,21 @@ if __name__ == '__main__':
                 document_index=random_n,
                 _list_of_regexes=list_of_regexes
             )
-        if args.update:
-            high_dimensional_visualization(
-                data=chars_m,
-                name='tf_idf_chars',
-                dialects=dialects,
-                n_neighbors=50,
-                umap_min_dist=0.25,
-                savepath=savepath,
-            )
+        pca, umap = high_dimensional_visualization(
+            data=chars_m,
+            name='tf_idf_chars',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
         km(
             data=chars_m,
             pipeline_name='tf_idf_chars',
             verbose=False,
             savepath=savepath,
+            data_2d=umap
         )
 
         make_clustering_report(
@@ -138,20 +139,21 @@ if __name__ == '__main__':
                 document_index=random_n,
                 _list_of_regexes=list_of_regexes
             )
-        if args.update:
-            high_dimensional_visualization(
-                data=non_terminals_m,
-                name='tf_idf_non_terminals',
-                dialects=dialects,
-                n_neighbors=50,
-                umap_min_dist=0.25,
-                savepath=savepath,
-            )
+        pca, umap = high_dimensional_visualization(
+            data=non_terminals_m,
+            name='tf_idf_non_terminals',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
         km(
             data=non_terminals_m,
             pipeline_name='tf_idf_non_terminals',
             verbose=False,
             savepath=savepath,
+            data_2d=umap
         )
 
         make_clustering_report(
@@ -182,20 +184,21 @@ if __name__ == '__main__':
                 document_index=random_n,
                 _list_of_regexes=list_of_regexes
             )
-        if args.update:
-            high_dimensional_visualization(
-                data=tokens_m,
-                name='tf_idf_tokens',
-                dialects=dialects,
-                n_neighbors=50,
-                umap_min_dist=0.25,
-                savepath=savepath,
-            )
+        pca, umap = high_dimensional_visualization(
+            data=tokens_m,
+            name='tf_idf_tokens',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
         km(
             data=tokens_m,
             pipeline_name='tf_idf_tokens',
             verbose=False,
             savepath=savepath,
+            data_2d=umap
         )
 
         make_clustering_report(
@@ -218,23 +221,25 @@ if __name__ == '__main__':
         savepath = Path('assets', exp_name)
         os.makedirs(savepath, exist_ok=True)
 
-        # get BERT embeddings (100k_REGEX)
+        # get BERT embeddings (bert_base_uncased)
         print(f'### BERT embeddings ({be.name})')
         embeddings = be.get_bert_regex(list_of_regexes)
-        if args.update:
-            high_dimensional_visualization(
-                data=embeddings,
-                name=be.name,
-                dialects=dialects,
-                n_neighbors=50,
-                umap_min_dist=0.25,
-                savepath=savepath,
-            )
+        
+        pca, umap = high_dimensional_visualization(
+            data=embeddings,
+            name=be.name,
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
         km(
             data=embeddings,
             pipeline_name=be.name,
             verbose=False,
             savepath=savepath,
+            data_2d=umap
         )
 
         make_clustering_report(

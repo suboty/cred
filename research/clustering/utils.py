@@ -1,3 +1,4 @@
+import os
 import random
 from pathlib import Path
 from typing import Optional, List, Union
@@ -150,6 +151,8 @@ def high_dimensional_visualization(
     else:
         raise NotImplementedError
 
+    return pca_result, umap_result
+
 
 def get_experiment_name(
     alg_name: str,
@@ -197,5 +200,17 @@ def make_clustering_report(
     # change savepath (for plots)
     template = template.replace('__SAVEPATH__', str(img_savepath))
 
+    # clustering analysis
+    silh_plots = [x for x in os.listdir(
+        str(img_savepath).replace('../', '')
+        ) if 'silh_' in x
+    ]
+    silh_vis = []
+    for silh_plot in silh_plots:
+        silh_vis.append(f'\t\t<p float="left"><img src="{str(img_savepath)}/{silh_plot}" width="800" /></p>')
+    silh_vis = '\n'.join(silh_vis)
+    template = template.replace('__CLUSTERS_VISUALISATION__', silh_vis)
+
+    # create report
     with open(Path(savepath, f'{experiment_name}.html'), 'w') as report_file:
         report_file.write(template)

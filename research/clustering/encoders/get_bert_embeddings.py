@@ -7,12 +7,12 @@ from transformers import AutoTokenizer, AutoModel
 class BertEmbeddings:
     def __init__(
             self,
-            model: str = '100k_REGEX'
+            model: str = 'bert_base_uncased'
     ):
 
-        if '100k_REGEX' in model:
-            model_name = 'yzimmermann/BERT-100k_REGEX'
-            self.name = 'bert_100k_regex'
+        if 'bert_base_uncased' in model:
+            model_name = 'bert-base-uncased'
+            self.name = 'bert_base_uncased'
         else:
             raise NotImplementedError
 

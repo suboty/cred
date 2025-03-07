@@ -4,7 +4,13 @@ python_activate() {
   . "../../.venv/bin/activate" || exit
 }
 
+clear_old_reports() {
+	sudo rm -r assets || sudo rm -r clustering_reports
+}
+
 python_activate
+
+clear_old_reports
 
 str="="
 lineStr=$(printf "$str%.0s" {1..30})

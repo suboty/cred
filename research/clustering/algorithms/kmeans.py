@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 
+from silhouette_analysis import make_silhouette_analysis
+
 
 class KMeansAlgorithm:
     def __init__(
@@ -25,6 +27,7 @@ class KMeansAlgorithm:
         pipeline_name,
         savepath: Union[str, Path],
         verbose: bool,
+        data_2d,
         *args, **kwargs,
     ):
 
@@ -54,6 +57,15 @@ class KMeansAlgorithm:
                 silhouette = silhouette_score(data, preds)
                 km_silhouette.append(silhouette)
                 if verbose: print(f"Silhouette score for number of cluster(s) {k}: {silhouette}")
+
+                make_silhouette_analysis(
+                    X=data_2d,
+                    clusterer=kmeans,
+                    savepath=savepath,
+                    cluster_labels=preds,
+                    n_clusters=k,
+                    pipeline_name=pipeline_name,
+                )
 
             if 'db' not in self.excluded_metrics:
                 db = davies_bouldin_score(data, preds)
