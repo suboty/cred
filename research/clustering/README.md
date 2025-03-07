@@ -15,3 +15,8 @@ python3 clustering.py -v -u --algname encoder_name --filter filter_word_for_inpu
 
 ## Clustering results
 In *clustering_reports*
+
+For getting it, run this command with desired filter words:
+```shell
+exp_pipeline.sh word1 word2 ...
+```

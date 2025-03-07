@@ -7,7 +7,7 @@ python_activate() {
 python_activate
 
 str="="
-lineStr=$(printf "$str%.0s" {1..10})
+lineStr=$(printf "$str%.0s" {1..30})
 
 for arg in "$@"; do
     echo "Experiment with <$arg> filter word"
