@@ -16,7 +16,7 @@
 *.xlsx
 *.csv
 research/clustering/assets
-reearch/clustering/clustering_reports
+research/clustering/clustering_reports
 
 # other
 *.DS_Store
