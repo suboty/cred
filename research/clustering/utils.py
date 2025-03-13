@@ -201,13 +201,22 @@ def make_clustering_report(
     template = template.replace('__SAVEPATH__', str(img_savepath))
 
     # clustering analysis
-    silh_plots = [x for x in os.listdir(
+    silh_plots = sorted([x for x in os.listdir(
         str(img_savepath).replace('../', '')
-        ) if 'silh_' in x
-    ]
+        ) if 'silh_' in x and 'pre_' not in x
+    ])
+    pre_silh_plots = sorted([x for x in os.listdir(
+        str(img_savepath).replace('../', '')
+    ) if 'silh_' in x and 'pre_' in x
+    ])
     silh_vis = []
-    for silh_plot in silh_plots:
-        silh_vis.append(f'\t\t<p float="left"><img src="{str(img_savepath)}/{silh_plot}" width="800" /></p>')
+    for i, silh_plot in enumerate(silh_plots):
+        _row = '\t\t<p float="left">'
+        _row += f'<img src="{str(img_savepath)}/{silh_plot}" width="700" />'
+        if len(pre_silh_plots) != 0:
+            _row += f'<img src="{str(img_savepath)}/{pre_silh_plots[i]}" width="700" />'
+        _row += '</p>'
+        silh_vis.append(_row)
     silh_vis = '\n'.join(silh_vis)
     template = template.replace('__CLUSTERS_VISUALISATION__', silh_vis)
 

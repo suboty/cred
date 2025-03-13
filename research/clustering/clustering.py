@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     list_of_regexes = dataset['regex'].tolist()
 
-    list_of_regexes = repl(
+    pre_list_of_regexes = repl(
         regex_list=list_of_regexes,
         need_equivalent=args.equivalent,
         need_nearly_equivalent=args.nearly_equivalent
@@ -95,6 +95,7 @@ if __name__ == '__main__':
         os.makedirs(savepath, exist_ok=True)
 
         chars_t, chars_m = TfidfMatrix.get_matrix_tokenize_by_chars(list_of_regexes)
+        pre_chars_t, pre_chars_m = TfidfMatrix.get_matrix_tokenize_by_chars(pre_list_of_regexes)
         if args.verbose:
             get_tf_idf_keywords(
                 _tfidf_vectorizer=chars_t,
@@ -102,6 +103,8 @@ if __name__ == '__main__':
                 document_index=random_n,
                 _list_of_regexes=list_of_regexes
             )
+
+        # original
         pca, umap = high_dimensional_visualization(
             data=chars_m,
             name='tf_idf_chars',
@@ -110,7 +113,6 @@ if __name__ == '__main__':
             umap_min_dist=0.25,
             savepath=savepath,
         )
-
         km(
             data=chars_m,
             pipeline_name='tf_idf_chars',
@@ -118,10 +120,34 @@ if __name__ == '__main__':
             savepath=savepath,
             data_2d=umap
         )
-
         make_clustering_report(
             experiment_name=exp_name,
             encoder='tf_idf_chars',
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
+        )
+
+        # preprocessing
+        pre_pca, pre_umap = high_dimensional_visualization(
+            data=pre_chars_m,
+            name='pre_tf_idf_chars',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+        km(
+            data=pre_chars_m,
+            pipeline_name='pre_tf_idf_chars',
+            verbose=False,
+            savepath=savepath,
+            data_2d=pre_umap
+        )
+        make_clustering_report(
+            experiment_name="pre_"+exp_name,
+            encoder='pre_tf_idf_chars',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
             savepath='clustering_reports',
@@ -152,6 +178,10 @@ if __name__ == '__main__':
             list_of_regexes=list_of_regexes,
             special_chars=special_chars
         )
+        pre_non_terminals_t, pre_non_terminals_m = TfidfMatrix.get_matrix_tokenize_by_non_terminals(
+            list_of_regexes=pre_list_of_regexes,
+            special_chars=special_chars
+        )
         if args.verbose:
             get_tf_idf_keywords(
                 _tfidf_vectorizer=non_terminals_t,
@@ -159,6 +189,8 @@ if __name__ == '__main__':
                 document_index=random_n,
                 _list_of_regexes=list_of_regexes
             )
+
+        # original
         pca, umap = high_dimensional_visualization(
             data=non_terminals_m,
             name='tf_idf_non_terminals',
@@ -185,6 +217,33 @@ if __name__ == '__main__':
             filter_word=args.filter
         )
 
+        # preprocessing
+        pre_pca, pre_umap = high_dimensional_visualization(
+            data=pre_non_terminals_m,
+            name='pre_tf_idf_non_terminals',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        km(
+            data=pre_non_terminals_m,
+            pipeline_name='pre_tf_idf_non_terminals',
+            verbose=False,
+            savepath=savepath,
+            data_2d=pre_umap
+        )
+
+        make_clustering_report(
+            experiment_name="pre_"+exp_name,
+            encoder='pre_tf_idf_non_terminals',
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
+        )
+
         # get TF-IDF matrix (tokenize with custom tokens)
         print('### TF-IDF + Custom Regex Tokenizing')
         exp_name = get_experiment_name(
@@ -197,6 +256,9 @@ if __name__ == '__main__':
         tokens_t, tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
             list_of_regexes
         )
+        pre_tokens_t, pre_tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
+            pre_list_of_regexes
+        )
         if args.verbose:
             get_tf_idf_keywords(
                 _tfidf_vectorizer=tokens_t,
@@ -204,6 +266,8 @@ if __name__ == '__main__':
                 document_index=random_n,
                 _list_of_regexes=list_of_regexes
             )
+
+        # original
         pca, umap = high_dimensional_visualization(
             data=tokens_m,
             name='tf_idf_tokens',
@@ -230,6 +294,33 @@ if __name__ == '__main__':
             filter_word=args.filter
         )
 
+        # preprocessing
+        pre_pca, pre_umap = high_dimensional_visualization(
+            data=pre_tokens_m,
+            name='pre_tf_idf_tokens',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        km(
+            data=pre_tokens_m,
+            pipeline_name='pre_tf_idf_tokens',
+            verbose=False,
+            savepath=savepath,
+            data_2d=pre_umap
+        )
+
+        make_clustering_report(
+            experiment_name="pre_"+exp_name,
+            encoder='pre_tf_idf_tokens',
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
+        )
+
     elif 'bert' in args.algname:
         # create BERT inference
         be = BertEmbeddings()
@@ -244,7 +335,9 @@ if __name__ == '__main__':
         # get BERT embeddings (bert_base_uncased)
         print(f'### BERT embeddings ({be.name})')
         embeddings = be.get_bert_regex(list_of_regexes)
-        
+        pre_embeddings = be.get_bert_regex(pre_list_of_regexes)
+
+        # original
         pca, umap = high_dimensional_visualization(
             data=embeddings,
             name=be.name,
@@ -265,6 +358,33 @@ if __name__ == '__main__':
         make_clustering_report(
             experiment_name=exp_name,
             encoder=be.__repr__(),
+            clustering='kmeans++',
+            img_savepath=Path('..', savepath),
+            savepath='clustering_reports',
+            filter_word=args.filter
+        )
+
+        # preprocessing
+        pre_pca, pre_umap = high_dimensional_visualization(
+            data=pre_embeddings,
+            name='pre_'+be.name,
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        km(
+            data=pre_embeddings,
+            pipeline_name='pre_'+be.name,
+            verbose=False,
+            savepath=savepath,
+            data_2d=pre_umap
+        )
+
+        make_clustering_report(
+            experiment_name='pre_'+exp_name,
+            encoder='pre_'+be.__repr__(),
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
             savepath='clustering_reports',
