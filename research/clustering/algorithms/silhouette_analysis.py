@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
+
 
 def make_silhouette_analysis(
     X,

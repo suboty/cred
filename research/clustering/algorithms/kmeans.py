@@ -1,13 +1,13 @@
 import time
 from pathlib import Path
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 
-from silhouette_analysis import make_silhouette_analysis
+from algorithms.silhouette_analysis import make_silhouette_analysis
 
 
 class KMeansAlgorithm:
@@ -15,8 +15,10 @@ class KMeansAlgorithm:
             self,
             max_number_of_clusters: int = 11,
             random_state: int = 42,
-            excluded_metrics: List = ['db', 'elbow'],
+            excluded_metrics=None,
     ):
+        if excluded_metrics is None:
+            excluded_metrics = ['db', 'elbow']
         self.random_state = random_state
         self.max_number_of_clusters = max_number_of_clusters
         self.excluded_metrics = excluded_metrics
