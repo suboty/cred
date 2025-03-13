@@ -7,6 +7,7 @@ from encoders.get_tf_idf_matrix import TfidfMatrix
 from encoders.get_bert_embeddings import BertEmbeddings
 from get_data import get_data_from_regex101
 from algorithms.kmeans import KMeansAlgorithm
+from preprocessing import Replacements
 from utils import (
     high_dimensional_visualization, 
     get_experiment_name, 
@@ -27,6 +28,16 @@ if __name__ == '__main__':
         '-u', '--update',
         action='store_true'
     )
+    # is need equivalent replacements in datasets
+    parser.add_argument(
+        '-e', '--equivalent',
+        action='store_true'
+    )
+    # is need nearly equivalent replacements in datasets
+    parser.add_argument(
+        '-n', '--nearly-equivalent',
+        action='store_true'
+    )
     # encoder
     parser.add_argument('--algname', type=str, default='bert')
     # filter word for getting data
@@ -35,6 +46,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     km = KMeansAlgorithm()
+
+    repl = Replacements()
 
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
@@ -48,6 +61,13 @@ if __name__ == '__main__':
     dataset = dataset.loc[dataset['regex'] != '']
 
     list_of_regexes = dataset['regex'].tolist()
+
+    list_of_regexes = repl(
+        regex_list=list_of_regexes,
+        need_equivalent=args.equivalent,
+        need_nearly_equivalent=args.nearly_equivalent
+    )
+
     dialects = dataset['dialect'].tolist()
 
     # random number for example printing
