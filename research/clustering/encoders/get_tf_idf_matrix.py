@@ -1,4 +1,6 @@
+import json
 from pathlib import Path
+from collections import Counter
 from typing import Dict, Union, List, Tuple
 
 from sklearn.preprocessing import MinMaxScaler
@@ -100,6 +102,9 @@ class TfidfMatrix:
             list_of_regexes,
     ):
         """Get TF-IDF matrix by custom regex tokens."""
+
+        tokens_stats = []
+
         def custom_tokenize(text):
             tokens = []
             # work with 2 or more symbols tokens
@@ -140,7 +145,7 @@ class TfidfMatrix:
                             tokens.append(TOKENS_RULES['1'].get(symbol))
                             continue
                         tokens.append(f'atom, {symbol}')
-
+            tokens_stats.append([x for x in tokens if 'atom, ' not in x])
             return tokens
 
         tokens_tfidf_encoder = TfidfVectorizer(
@@ -148,4 +153,13 @@ class TfidfMatrix:
             analyzer='word'
         )
         tokens_tfidf_matrix = tokens_tfidf_encoder.fit_transform(list_of_regexes)
+
+        # save tokens statistics
+        _stats = []
+        for stat in tokens_stats:
+            _stats += stat
+        tokens_stats = dict(Counter(_stats).most_common(20))
+        with open('tokens_stats.json', 'w') as f:
+            json.dump(tokens_stats, f, ensure_ascii=False)
+
         return tokens_tfidf_encoder, tokens_tfidf_matrix
