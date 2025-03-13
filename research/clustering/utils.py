@@ -1,7 +1,7 @@
 import os
 import random
 from pathlib import Path
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple
 
 import numpy as np
 import pandas as pd
@@ -66,7 +66,7 @@ def high_dimensional_visualization(
         umap_min_dist: float = 0.1,
         n_components: int = 2,
         n_neighbors: int = 100,
-) -> None:
+) -> Tuple:
     """
     Function for visualization high-dimensional data.
 
