@@ -15,8 +15,7 @@
 *.ipynb_checkpoints
 *.xlsx
 *.csv
-research/clustering/assets
-research/clustering/clustering_reports
+research/clustering/tmp
 
 # other
 *.DS_Store

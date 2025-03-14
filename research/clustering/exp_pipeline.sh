@@ -5,7 +5,7 @@ python_activate() {
 }
 
 clear_old_reports() {
-	sudo rm -r assets || sudo rm -r clustering_reports
+	sudo rm -r tmp
 }
 
 python_activate
@@ -17,7 +17,7 @@ lineStr=$(printf "$str%.0s" {1..30})
 
 for arg in "$@"; do
     echo "Experiment with <$arg> filter word"
-	python3 clustering.py -v -u -e -n --algname tf_idf --filter "$arg"
-	python3 clustering.py -v -u -e -n --algname bert --filter "$arg"
+	python3 clustering.py -u -e -n --algname tf_idf --filter "$arg"
+	python3 clustering.py -u -e -n --algname bert --filter "$arg"
 	echo "$lineStr"
 done

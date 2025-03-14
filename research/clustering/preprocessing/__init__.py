@@ -57,7 +57,7 @@ class Replacements:
             for method in stats[key].keys():
                 _counter = Counter(stats[key][method])
                 report[mappings.get(key)][mappings.get(method)] = dict(_counter)
-        with open('replacements_stats.json', 'w') as f:
+        with open(Path('tmp', 'replacements_stats.json'), 'w') as f:
             json.dump(report, f, ensure_ascii=False)
 
     @staticmethod

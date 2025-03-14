@@ -169,9 +169,8 @@ def make_clustering_report(
     clustering: str,
     img_savepath: Union[str, Path],
     savepath: Union[str, Path],
-    visible: bool = True,
     filter_word: Optional[str] = None,
-    template_path: Path = Path('template.html')
+    template_path: Path = Path('templates', 'template.html')
 ):
     # TODO: fix algorithm`s reports and variables
 

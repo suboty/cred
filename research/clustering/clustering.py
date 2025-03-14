@@ -43,11 +43,14 @@ if __name__ == '__main__':
     # filter word for getting data
     parser.add_argument('--filter', type=str, default=None)
 
+    # init
     args = parser.parse_args()
 
     km = KMeansAlgorithm()
 
     repl = Replacements()
+
+    os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
 
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
@@ -81,8 +84,6 @@ if __name__ == '__main__':
             in enumerate(random.sample(list_of_regexes, 3))
         ]
 
-    os.makedirs('clustering_reports', exist_ok=True)
-
     # prepare assets folder
     if 'tf_idf' in args.algname:
         # get TF-IDF matrix (tokenize chars)
@@ -91,7 +92,7 @@ if __name__ == '__main__':
             alg_name='tf_idf_chars',
             filter_word=args.filter
         )
-        savepath = Path('assets', exp_name)
+        savepath = Path('tmp', 'assets', exp_name)
         os.makedirs(savepath, exist_ok=True)
 
         chars_t, chars_m = TfidfMatrix.get_matrix_tokenize_by_chars(list_of_regexes)
@@ -125,7 +126,7 @@ if __name__ == '__main__':
             encoder='tf_idf_chars',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -150,7 +151,7 @@ if __name__ == '__main__':
             encoder='pre_tf_idf_chars',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -160,7 +161,7 @@ if __name__ == '__main__':
             alg_name='tf_idf_non_terminals',
             filter_word=args.filter
         )
-        savepath = Path('assets', exp_name)
+        savepath = Path('tmp', 'assets', exp_name)
         os.makedirs(savepath, exist_ok=True)
 
         # select special characters, which used in regular expressions as a non-terminal symbols
@@ -213,7 +214,7 @@ if __name__ == '__main__':
             encoder='tf_idf_non_terminals',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -240,7 +241,7 @@ if __name__ == '__main__':
             encoder='pre_tf_idf_non_terminals',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -250,7 +251,7 @@ if __name__ == '__main__':
             alg_name='tf_idf_tokens',
             filter_word=args.filter
         )
-        savepath = Path('assets', exp_name)
+        savepath = Path('tmp', 'assets', exp_name)
         os.makedirs(savepath, exist_ok=True)
 
         tokens_t, tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
@@ -290,7 +291,7 @@ if __name__ == '__main__':
             encoder='tf_idf_tokens',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -317,7 +318,7 @@ if __name__ == '__main__':
             encoder='pre_tf_idf_tokens',
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -329,7 +330,7 @@ if __name__ == '__main__':
             alg_name=be.__repr__(),
             filter_word=args.filter
         )
-        savepath = Path('assets', exp_name)
+        savepath = Path('tmp', 'assets', exp_name)
         os.makedirs(savepath, exist_ok=True)
 
         # get BERT embeddings (bert_base_uncased)
@@ -360,7 +361,7 @@ if __name__ == '__main__':
             encoder=be.__repr__(),
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
 
@@ -387,6 +388,6 @@ if __name__ == '__main__':
             encoder='pre_'+be.__repr__(),
             clustering='kmeans++',
             img_savepath=Path('..', savepath),
-            savepath='clustering_reports',
+            savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )

@@ -159,7 +159,7 @@ class TfidfMatrix:
         for stat in tokens_stats:
             _stats += stat
         tokens_stats = dict(Counter(_stats).most_common(20))
-        with open('tokens_stats.json', 'w') as f:
+        with open(Path('tmp', 'tokens_stats.json'), 'w') as f:
             json.dump(tokens_stats, f, ensure_ascii=False)
 
         return tokens_tfidf_encoder, tokens_tfidf_matrix
