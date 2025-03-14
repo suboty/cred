@@ -15,6 +15,82 @@ from utils import (
 )
 
 
+def run_bert(
+        _list_of_regexes,
+        _pre_list_of_regexes,
+        _filter,
+        _dialects,
+        _km,
+        _be
+):
+
+    exp_name = get_experiment_name(
+        alg_name=be.__repr__(),
+        filter_word=_filter
+    )
+    savepath = Path('tmp', 'assets', exp_name)
+    os.makedirs(savepath, exist_ok=True)
+
+    # get BERT embeddings (bert_base_uncased)
+    print(f'### BERT embeddings ({_be.name})')
+    embeddings = _be.get_bert_regex(_list_of_regexes)
+    pre_embeddings = _be.get_bert_regex(_pre_list_of_regexes)
+
+    # original
+    pca, umap = high_dimensional_visualization(
+        data=embeddings,
+        name=_be.name,
+        dialects=_dialects,
+        n_neighbors=50,
+        umap_min_dist=0.25,
+        savepath=savepath,
+    )
+
+    _km(
+        data=embeddings,
+        pipeline_name=_be.name,
+        verbose=False,
+        savepath=savepath,
+        data_2d=umap
+    )
+
+    make_clustering_report(
+        experiment_name=exp_name,
+        encoder=_be.__repr__(),
+        clustering='kmeans++',
+        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+        savepath=Path('tmp', 'clustering_reports'),
+        filter_word=_filter
+    )
+
+    # preprocessing
+    pre_pca, pre_umap = high_dimensional_visualization(
+        data=pre_embeddings,
+        name='pre_' + _be.name,
+        dialects=_dialects,
+        n_neighbors=50,
+        umap_min_dist=0.25,
+        savepath=savepath,
+    )
+
+    _km(
+        data=pre_embeddings,
+        pipeline_name='pre_' + _be.name,
+        verbose=False,
+        savepath=savepath,
+        data_2d=pre_umap
+    )
+
+    make_clustering_report(
+        experiment_name='pre_' + exp_name,
+        encoder='pre_' + _be.__repr__(),
+        clustering='kmeans++',
+        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+        savepath=Path('tmp', 'clustering_reports'),
+        filter_word=_filter
+    )
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='cred-clustering')
 
@@ -323,71 +399,38 @@ if __name__ == '__main__':
         )
 
     elif 'bert' in args.algname:
-        # create BERT inference
+        # create BERT inference (uncased)
         be = BertEmbeddings()
 
-        exp_name = get_experiment_name(
-            alg_name=be.__repr__(),
-            filter_word=args.filter
-        )
-        savepath = Path('tmp', 'assets', exp_name)
-        os.makedirs(savepath, exist_ok=True)
-
-        # get BERT embeddings (bert_base_uncased)
-        print(f'### BERT embeddings ({be.name})')
-        embeddings = be.get_bert_regex(list_of_regexes)
-        pre_embeddings = be.get_bert_regex(pre_list_of_regexes)
-
-        # original
-        pca, umap = high_dimensional_visualization(
-            data=embeddings,
-            name=be.name,
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
+        run_bert(
+            _list_of_regexes=list_of_regexes,
+            _pre_list_of_regexes=pre_list_of_regexes,
+            _filter=args.filter,
+            _dialects=dialects,
+            _km=km,
+            _be=be
         )
 
-        km(
-            data=embeddings,
-            pipeline_name=be.name,
-            verbose=False,
-            savepath=savepath,
-            data_2d=umap
+        # create BERT inference (CodeBERT)
+        be = BertEmbeddings('codebert_base')
+
+        run_bert(
+            _list_of_regexes=list_of_regexes,
+            _pre_list_of_regexes=pre_list_of_regexes,
+            _filter=args.filter,
+            _dialects=dialects,
+            _km=km,
+            _be=be
         )
 
-        make_clustering_report(
-            experiment_name=exp_name,
-            encoder=be.__repr__(),
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
+        # create BERT inference (ModernBERT)
+        be = BertEmbeddings('modernbert_base')
 
-        # preprocessing
-        pre_pca, pre_umap = high_dimensional_visualization(
-            data=pre_embeddings,
-            name='pre_'+be.name,
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=pre_embeddings,
-            pipeline_name='pre_'+be.name,
-            verbose=False,
-            savepath=savepath,
-            data_2d=pre_umap
-        )
-
-        make_clustering_report(
-            experiment_name='pre_'+exp_name,
-            encoder='pre_'+be.__repr__(),
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
+        run_bert(
+            _list_of_regexes=list_of_regexes,
+            _pre_list_of_regexes=pre_list_of_regexes,
+            _filter=args.filter,
+            _dialects=dialects,
+            _km=km,
+            _be=be
         )

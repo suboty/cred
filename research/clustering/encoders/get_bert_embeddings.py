@@ -13,6 +13,12 @@ class BertEmbeddings:
         if 'bert_base_uncased' in model:
             model_name = 'bert-base-uncased'
             self.name = 'bert_base_uncased'
+        elif 'codebert_base' in model:
+            model_name = 'microsoft/codebert-base'
+            self.name = 'bert_base_code'
+        elif 'modernbert_base' in model:
+            model_name = 'answerdotai/ModernBERT-base'
+            self.name = 'bert_base_modern'
         else:
             raise NotImplementedError
 

@@ -63,6 +63,9 @@ def get_all_unicode_letters(
 
 def get_table_from_values(_dict):
     _table = '<table>' \
+             '<thead>' \
+             '<tr><th>repl_str</th><th>Count</th></tr>' \
+             '</thead>' \
              '<tbody>' \
              '__ROWS__' \
              '</tbody>' \
