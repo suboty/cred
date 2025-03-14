@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>__EXPERIMENT_NAME__</title>
+    <style>
+        table, th, td {
+          border: 1px solid;
+        }
+        .section-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<section class="section-container">
+    <div>
+        <h1>__EXPERIMENT_NAME__</h1>
+        <p>
+            Encoder: <b>__ENCODER_NAME__</b>
+        </p>
+        <p>
+            Clustering Algorithm: <b>__CLUSTERING_NAME__</b>
+        </p>
+        <p>
+            Filter Word: <b>__FILTER_WORD__</b>
+        </p>
+        <h2>Statistics</h2>
+        __TOKENS_STATS_TABLE__
+        __REPLACEMENTS_STATS_TABLE
+        <h2>Clustering</h2>
+        <h3>Silhouette analysis</h3>
+        <p float="left">
+          <img src="__SAVEPATH__/__ENCODER_NAME___silhouette.png" width="400" />
+        </p>
+        __CLUSTERS_VISUALISATION__
+    </div>
+</section>
+</body>

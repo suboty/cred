@@ -1,4 +1,5 @@
 import os
+import json
 import random
 from pathlib import Path
 from typing import Optional, List, Union, Tuple
@@ -9,6 +10,8 @@ import seaborn as sns
 import umap.umap_ as umap
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+
+IS_V2 = True
 
 
 def get_tf_idf_keywords(
@@ -56,6 +59,18 @@ def get_all_unicode_letters(
     for unicode_idx in range(start_idx, stop_idx + 1):
         characters.append(chr(unicode_idx))
     return characters
+
+
+def get_table_from_values(_dict):
+    _table = '<table>' \
+             '<tbody>' \
+             '__ROWS__' \
+             '</tbody>' \
+             '</table>'
+    sim_rows = ''
+    for key in _dict.keys():
+        sim_rows += f'<tr><td>{key}</td><td>{_dict[key]}</td></tr>'
+    return _table.replace('__ROWS__', sim_rows)
 
 
 def high_dimensional_visualization(
@@ -155,24 +170,27 @@ def high_dimensional_visualization(
 
 
 def get_experiment_name(
-    alg_name: str,
-    filter_word: Optional[str] = None
-): 
+        alg_name: str,
+        filter_word: Optional[str] = None
+):
     _name = f'exp_{alg_name}'
     if filter_word: _name += f"_{filter_word.lower().replace(' ', '_').replace('-', '_')}"
     return _name
 
 
 def make_clustering_report(
-    experiment_name: str,
-    encoder: str,
-    clustering: str,
-    img_savepath: Union[str, Path],
-    savepath: Union[str, Path],
-    filter_word: Optional[str] = None,
-    template_path: Path = Path('templates', 'template.html')
+        experiment_name: str,
+        encoder: str,
+        clustering: str,
+        img_savepath: Union[str, Path],
+        savepath: Union[str, Path],
+        filter_word: Optional[str] = None,
+        template_path: Path = Path('templates', 'template.html')
 ):
     # TODO: fix algorithm`s reports and variables
+
+    if IS_V2:
+        template_path = Path('templates', 'template_v2.html')
 
     with open(template_path, 'r') as template_file:
         template = template_file.read()
@@ -192,7 +210,7 @@ def make_clustering_report(
         template = template.replace('__FILTER_WORD__', filter_word)
     else:
         template = template.replace(
-            '\t\t<p>\n\t\t\tFilter Word: <b>__FILTER_WORD__</b>\n\t\t</p>', 
+            '\t\t<p>\n\t\t\tFilter Word: <b>__FILTER_WORD__</b>\n\t\t</p>',
             ''
         )
 
@@ -201,13 +219,13 @@ def make_clustering_report(
 
     # clustering analysis
     silh_plots = sorted([x for x in os.listdir(
-        str(img_savepath).replace('../', '')
-        ) if 'silh_' in x and 'pre_' not in x
-    ])
+        str(img_savepath).replace('..', 'tmp')
+    ) if 'silh_' in x and 'pre_' not in x
+                         ])
     pre_silh_plots = sorted([x for x in os.listdir(
-        str(img_savepath).replace('../', '')
+        str(img_savepath).replace('..', 'tmp')
     ) if 'silh_' in x and 'pre_' in x
-    ])
+                             ])
     silh_vis = []
     for i, silh_plot in enumerate(silh_plots):
         _row = '\t\t<p float="left">'
@@ -217,7 +235,66 @@ def make_clustering_report(
         _row += '</p>'
         silh_vis.append(_row)
     silh_vis = '\n'.join(silh_vis)
+
+    # add token stats table
+    with open(Path('tmp', 'tokens_stats.json'), 'r') as st_f:
+        token_stats = json.load(st_f)
+    tokens_stats_table = '\n<table>' \
+                         '\n\t<thead>' \
+                         '\n\t\t<tr><th>Token</th><th>Count</th></tr>' \
+                         '\n\t</thead>' \
+                         '\n\t<tbody>' \
+                         '\n\t\t__ROWS__' \
+                         '\n\t</tbody>' \
+                         '\n</table>'
+
+    _rows = ''
+    for key in token_stats.keys():
+        _rows += f'<tr><td>{key}</td><td>{token_stats[key]}</td></tr>'
+
+    tokens_stats_table = tokens_stats_table.replace('__ROWS__', _rows)
+    if IS_V2:
+        template = template.replace('__TOKENS_STATS_TABLE__', tokens_stats_table)
+
     template = template.replace('__CLUSTERS_VISUALISATION__', silh_vis)
+
+    # add replacements statistics
+    if 'pre' in experiment_name:
+        with open(Path('tmp', 'replacements_stats.json'), 'r') as st_f:
+            repl_stats = json.load(st_f)
+        repl_stats_table = '\n<table>' \
+                           '\n\t<thead>' \
+                           '\n\t\t<tr><th>Replacement group</th><th>Replacement</th></tr>' \
+                           '\n\t</thead>' \
+                           '\n\t<tbody>' \
+                           '\n\t\t__ROWS__' \
+                           '\n\t</tbody>' \
+                           '\n</table>'
+        _rows = ''
+        for key in repl_stats.keys():
+            method_stats_table = '<table>' \
+                                 '<thead>' \
+                                 '<tr><th>Method</th><th>Count</th></tr>' \
+                                 '</thead>' \
+                                 '<tbody>' \
+                                 '__ROWS__' \
+                                 '</tbody>' \
+                                 '</table>'
+            m_rows = ''
+            for method in repl_stats[key]:
+               m_rows += f'<tr><td>{method}</td><td>' \
+                         f'{get_table_from_values(repl_stats[key][method])}' \
+                         f'</td></tr>'
+            method_stats_table = method_stats_table.replace('__ROWS__', m_rows)
+
+            _rows += f'<tr><td>{key}</td><td>{method_stats_table}</td></tr>'
+
+        repl_stats_table = repl_stats_table.replace('__ROWS__', _rows)
+        if IS_V2:
+            template = template.replace('__REPLACEMENTS_STATS_TABLE', repl_stats_table)
+    else:
+        if IS_V2:
+            template = template.replace('__REPLACEMENTS_STATS_TABLE', '')
 
     # create report
     with open(Path(savepath, f'{experiment_name}.html'), 'w') as report_file:

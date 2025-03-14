@@ -86,6 +86,83 @@ if __name__ == '__main__':
 
     # prepare assets folder
     if 'tf_idf' in args.algname:
+        # get TF-IDF matrix (tokenize with custom tokens)
+        print('### TF-IDF + Custom Regex Tokenizing')
+        exp_name = get_experiment_name(
+            alg_name='tf_idf_tokens',
+            filter_word=args.filter
+        )
+        savepath = Path('tmp', 'assets', exp_name)
+        os.makedirs(savepath, exist_ok=True)
+
+        tokens_t, tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
+            list_of_regexes
+        )
+        pre_tokens_t, pre_tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
+            pre_list_of_regexes
+        )
+        if args.verbose:
+            get_tf_idf_keywords(
+                _tfidf_vectorizer=tokens_t,
+                _tfidf_matrix=tokens_m,
+                document_index=random_n,
+                _list_of_regexes=list_of_regexes
+            )
+
+        # original
+        pca, umap = high_dimensional_visualization(
+            data=tokens_m,
+            name='tf_idf_tokens',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        km(
+            data=tokens_m,
+            pipeline_name='tf_idf_tokens',
+            verbose=False,
+            savepath=savepath,
+            data_2d=umap
+        )
+
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder='tf_idf_tokens',
+            clustering='kmeans++',
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+            savepath=Path('tmp', 'clustering_reports'),
+            filter_word=args.filter
+        )
+
+        # preprocessing
+        pre_pca, pre_umap = high_dimensional_visualization(
+            data=pre_tokens_m,
+            name='pre_tf_idf_tokens',
+            dialects=dialects,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        km(
+            data=pre_tokens_m,
+            pipeline_name='pre_tf_idf_tokens',
+            verbose=False,
+            savepath=savepath,
+            data_2d=pre_umap
+        )
+
+        make_clustering_report(
+            experiment_name="pre_" + exp_name,
+            encoder='pre_tf_idf_tokens',
+            clustering='kmeans++',
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+            savepath=Path('tmp', 'clustering_reports'),
+            filter_word=args.filter
+        )
+
         # get TF-IDF matrix (tokenize chars)
         print('### TF-IDF + Chars Tokenizing')
         exp_name = get_experiment_name(
@@ -125,7 +202,7 @@ if __name__ == '__main__':
             experiment_name=exp_name,
             encoder='tf_idf_chars',
             clustering='kmeans++',
-            img_savepath=Path('..', savepath),
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
             savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
@@ -150,7 +227,7 @@ if __name__ == '__main__':
             experiment_name="pre_"+exp_name,
             encoder='pre_tf_idf_chars',
             clustering='kmeans++',
-            img_savepath=Path('..', savepath),
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
             savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
@@ -213,7 +290,7 @@ if __name__ == '__main__':
             experiment_name=exp_name,
             encoder='tf_idf_non_terminals',
             clustering='kmeans++',
-            img_savepath=Path('..', savepath),
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
             savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
@@ -240,84 +317,7 @@ if __name__ == '__main__':
             experiment_name="pre_"+exp_name,
             encoder='pre_tf_idf_non_terminals',
             clustering='kmeans++',
-            img_savepath=Path('..', savepath),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # get TF-IDF matrix (tokenize with custom tokens)
-        print('### TF-IDF + Custom Regex Tokenizing')
-        exp_name = get_experiment_name(
-            alg_name='tf_idf_tokens',
-            filter_word=args.filter
-        )
-        savepath = Path('tmp', 'assets', exp_name)
-        os.makedirs(savepath, exist_ok=True)
-
-        tokens_t, tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
-            list_of_regexes
-        )
-        pre_tokens_t, pre_tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
-            pre_list_of_regexes
-        )
-        if args.verbose:
-            get_tf_idf_keywords(
-                _tfidf_vectorizer=tokens_t,
-                _tfidf_matrix=tokens_m,
-                document_index=random_n,
-                _list_of_regexes=list_of_regexes
-            )
-
-        # original
-        pca, umap = high_dimensional_visualization(
-            data=tokens_m,
-            name='tf_idf_tokens',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=tokens_m,
-            pipeline_name='tf_idf_tokens',
-            verbose=False,
-            savepath=savepath,
-            data_2d=umap
-        )
-
-        make_clustering_report(
-            experiment_name=exp_name,
-            encoder='tf_idf_tokens',
-            clustering='kmeans++',
-            img_savepath=Path('..', savepath),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # preprocessing
-        pre_pca, pre_umap = high_dimensional_visualization(
-            data=pre_tokens_m,
-            name='pre_tf_idf_tokens',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=pre_tokens_m,
-            pipeline_name='pre_tf_idf_tokens',
-            verbose=False,
-            savepath=savepath,
-            data_2d=pre_umap
-        )
-
-        make_clustering_report(
-            experiment_name="pre_"+exp_name,
-            encoder='pre_tf_idf_tokens',
-            clustering='kmeans++',
-            img_savepath=Path('..', savepath),
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
             savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
@@ -360,7 +360,7 @@ if __name__ == '__main__':
             experiment_name=exp_name,
             encoder=be.__repr__(),
             clustering='kmeans++',
-            img_savepath=Path('..', savepath),
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
             savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
@@ -387,7 +387,7 @@ if __name__ == '__main__':
             experiment_name='pre_'+exp_name,
             encoder='pre_'+be.__repr__(),
             clustering='kmeans++',
-            img_savepath=Path('..', savepath),
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
             savepath=Path('tmp', 'clustering_reports'),
             filter_word=args.filter
         )
