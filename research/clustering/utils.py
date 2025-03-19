@@ -11,6 +11,20 @@ import umap.umap_ as umap
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
+from logger import logger
+
+
+storage = {}
+original_print = print
+
+def interceptor(*args, **kwargs):
+    caller_name = inspect.stack()[1][3]
+    storage.setdefault(caller_name, []).append((args, kwargs))
+    original_print(*args, **kwargs)
+
+
+print = interceptor
+
 IS_V2 = True
 
 
@@ -39,8 +53,8 @@ def get_tf_idf_keywords(
         )
     ]
 
-    print(f'\tExample regex: {_list_of_regexes[document_index]}')
-    print(f"\tIts keywords:")
+    logger.debug(f'\tExample regex: {_list_of_regexes[document_index]}')
+    logger.debug(f"\tIts keywords:")
     i = 0
     for char, score in sorted_keywords:
         if score < 0.001 or i == 10:
@@ -177,7 +191,8 @@ def get_experiment_name(
         filter_word: Optional[str] = None
 ):
     _name = f'exp_{alg_name}'
-    if filter_word: _name += f"_{filter_word.lower().replace(' ', '_').replace('-', '_')}"
+    if filter_word:
+        _name += f"_{filter_word.lower().replace(' ', '_').replace('-', '_')}"
     return _name
 
 
@@ -321,7 +336,7 @@ def run_bert(
     os.makedirs(savepath, exist_ok=True)
 
     # get BERT embeddings (bert_base_uncased)
-    print(f'### BERT embeddings ({_be.name})')
+    logger.info(f'BERT embeddings ({_be.name})')
     embeddings = _be.get_bert_regex(_list_of_regexes)
     pre_embeddings = _be.get_bert_regex(_pre_list_of_regexes)
 
@@ -392,7 +407,7 @@ def run_tf_idf(
         km_object,
 ):
     """Run TF-IDF pipeline."""
-    print(f'### TF-IDF matrix ({tf_idf_method})')
+    logger.info(f'TF-IDF matrix ({tf_idf_method})')
     exp_name = get_experiment_name(
         alg_name=f'tf_idf_{tf_idf_method}',
         filter_word=_filter

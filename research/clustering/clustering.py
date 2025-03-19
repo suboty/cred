@@ -4,6 +4,7 @@ import warnings
 import yaml
 
 from utils import *
+from logger import logger
 from encoders.get_tf_idf_matrix import TfidfMatrix
 from encoders.get_bert_embeddings import BertEmbeddings
 from get_data import get_data_from_regex101
@@ -91,7 +92,7 @@ if __name__ == '__main__':
 
     data, labels = get_data_from_regex101(args.filter)
 
-    print(f'### Work with {len(data)} samples')
+    logger.info(f'Work with {len(data)} samples')
 
     # get data
     dataset = pd.DataFrame(data, columns=labels)
@@ -111,9 +112,9 @@ if __name__ == '__main__':
     random_n = random.randint(0, len(list_of_regexes))
 
     if args.verbose:
-        print(f'### Example of regexes:')
+        logger.info(f'Example of regexes:')
         [
-            print(f"\t{i+1}) "+x)
+            logger.info(f"\t{i+1}) "+x)
             for i, x
             in enumerate(random.sample(list_of_regexes, 3))
         ]
