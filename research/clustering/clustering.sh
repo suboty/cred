@@ -10,7 +10,7 @@ python_activate() {
 }
 
 clear_old_reports() {
-	sudo rm -r tmp
+	! [ -d tmp ] || sudo rm -r tmp
 }
 
 python_activate
