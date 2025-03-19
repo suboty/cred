@@ -1,7 +1,7 @@
 tf_idf:
-  - tokens
-  - chars
-  - non_terminals
+#  - tokens
+#  - chars
+#  - non_terminals
 bert:
   - bert_base_uncased
   - codebert_base

@@ -45,7 +45,7 @@ class BertEmbeddings:
             num_of_none_padding_tokens = torch.sum(weights_for_non_padding, dim=-1).unsqueeze(-1)
             sentence_embedding = sum_embeddings / num_of_none_padding_tokens
 
-            sentence_embeddings.append(
-                sentence_embedding.detach().numpy()
-            )
+            _embedding = sentence_embedding.detach().numpy()
+            sentence_embeddings.append(_embedding)
+
         return sentence_embeddings

@@ -23,31 +23,33 @@ def load_yml_config(
 
 
 def iter_tf_idf(methods_list, **kwargs):
-    for method_name in methods_list:
-        match method_name:
-            case 'tokens':
-                get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_regex_tokens
-            case 'chars':
-                get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_chars
-            case 'non_terminals':
-                get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_non_terminals
-            case _:
-                raise NotImplementedError
+    if methods_list:
+        for method_name in methods_list:
+            match method_name:
+                case 'tokens':
+                    get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_regex_tokens
+                case 'chars':
+                    get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_chars
+                case 'non_terminals':
+                    get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_non_terminals
+                case _:
+                    raise NotImplementedError
 
-        run_tf_idf(
-            tf_idf_method=method_name,
-            get_matrix_function=get_matrix_function,
-            **kwargs
-        )
+            run_tf_idf(
+                tf_idf_method=method_name,
+                get_matrix_function=get_matrix_function,
+                **kwargs
+            )
 
 
 def iter_bert(methods_list, **kwargs):
-    for method_name in methods_list:
-        _be = BertEmbeddings(method_name)
-        run_bert(
-            _be=_be,
-            **kwargs
-        )
+    if methods_list:
+        for method_name in methods_list:
+            _be = BertEmbeddings(method_name)
+            run_bert(
+                _be=_be,
+                **kwargs
+            )
 
 
 if __name__ == '__main__':
@@ -124,7 +126,7 @@ if __name__ == '__main__':
     # run clustering
     if 'tf_idf' in args.algname:
         iter_tf_idf(
-            methods_list=alg_config['tf_idf'],
+            methods_list=alg_config.get('tf_idf'),
             list_of_regexes=list_of_regexes,
             pre_list_of_regexes=pre_list_of_regexes,
             _verbose=args.verbose,
@@ -136,7 +138,7 @@ if __name__ == '__main__':
 
     elif 'bert' in args.algname:
         iter_bert(
-            methods_list=alg_config['bert'],
+            methods_list=alg_config.get('bert'),
             _list_of_regexes=list_of_regexes,
             _pre_list_of_regexes=pre_list_of_regexes,
             _filter=args.filter,
