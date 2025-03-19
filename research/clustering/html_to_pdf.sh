@@ -5,7 +5,7 @@ cd html-to-pdf || exit
 
 npm install
 
-mkdir ./Manual || { echo 123; rm -r ./Manual/; mkdir ./Manual; }
+mkdir ./Manual || { rm -r ./Manual/; mkdir ./Manual; }
 mkdir ./Manual/docs
 mkdir ./Manual/assets
 mkdir ../tmp/pdf_reports
