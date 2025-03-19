@@ -19,4 +19,6 @@ research/clustering/tmp
 
 # other
 *.DS_Store
+*html-to-pdf
+*node_modules
 

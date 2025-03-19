@@ -28,3 +28,5 @@ for arg in "$@"; do
 	python3 clustering.py -u -e -n --algname bert --filter "$arg"
 	echo "$lineStr"
 done
+
+sh html_to_pdf.sh
