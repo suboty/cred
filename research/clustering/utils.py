@@ -14,17 +14,6 @@ from sklearn.decomposition import PCA
 from logger import logger
 
 
-storage = {}
-original_print = print
-
-def interceptor(*args, **kwargs):
-    caller_name = inspect.stack()[1][3]
-    storage.setdefault(caller_name, []).append((args, kwargs))
-    original_print(*args, **kwargs)
-
-
-print = interceptor
-
 IS_V2 = True
 
 
@@ -196,6 +185,13 @@ def get_experiment_name(
     return _name
 
 
+def get_image_tag(path, name):
+    return '<div class="col-md-2 text-center">' \
+           f'<div class="title">{name}</div>' \
+           f'<img src="{path}" width=700 class="img">' \
+           '</div>'
+
+
 def make_clustering_report(
         experiment_name: str,
         encoder: str,
@@ -247,9 +243,15 @@ def make_clustering_report(
     silh_vis = []
     for i, silh_plot in enumerate(silh_plots):
         _row = '\t\t<p float="left">'
-        _row += f'<img src="{str(img_savepath)}/{silh_plot}" width="700" />'
+        _row += get_image_tag(
+            path=f"{str(img_savepath)}/{silh_plot}",
+            name="Before preprocessing",
+        )
         if len(pre_silh_plots) != 0:
-            _row += f'<img src="{str(img_savepath)}/{pre_silh_plots[i]}" width="700" />'
+            _row += get_image_tag(
+                path=f"{str(img_savepath)}/{pre_silh_plots[i]}",
+                name="After preprocessing",
+            )
         _row += '</p>'
         silh_vis.append(_row)
     silh_vis = '\n'.join(silh_vis)
