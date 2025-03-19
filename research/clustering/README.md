@@ -18,5 +18,5 @@ In *clustering_reports*
 
 For getting it, run this command with desired filter words:
 ```shell
-exp_pipeline.sh word1 word2 ...
+clustering.sh word1 word2 ...
 ```
