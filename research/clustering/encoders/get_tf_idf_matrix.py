@@ -6,6 +6,8 @@ from typing import Dict, Union, List, Tuple
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from utils import get_all_unicode_letters
+
 
 def load_tokens_rules(
         path_to_1_symbol_rules: Union[str, Path],
@@ -82,9 +84,19 @@ class TfidfMatrix:
     @scaling_decorator
     def get_matrix_tokenize_by_non_terminals(
             list_of_regexes,
-            special_chars,
     ):
         """Get TF-IDF matrix by non-terminals."""
+
+        # select special characters, which used in regular expressions as a non-terminal symbols
+        special_chars = []
+        # from "space" to "slash"
+        special_chars += get_all_unicode_letters('0020', '002F')
+        # from "colon" to "at symbol"
+        special_chars += get_all_unicode_letters('003A', '0040')
+        # from "open square bracket" to "underscore"
+        special_chars += get_all_unicode_letters('005B', '005F')
+        # from "open curly bracket" to "tilda"
+        special_chars += get_all_unicode_letters('007B', '007E')
 
         def custom_tokenize(text):
             return [x for x in list(text) if x in special_chars]

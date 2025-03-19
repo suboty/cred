@@ -302,3 +302,168 @@ def make_clustering_report(
     # create report
     with open(Path(savepath, f'{experiment_name}.html'), 'w') as report_file:
         report_file.write(template)
+
+
+def run_bert(
+        _list_of_regexes,
+        _pre_list_of_regexes,
+        _filter,
+        _dialects,
+        _km,
+        _be
+):
+    """Run BERT pipeline."""
+    exp_name = get_experiment_name(
+        alg_name=_be.__repr__(),
+        filter_word=_filter
+    )
+    savepath = Path('tmp', 'assets', exp_name)
+    os.makedirs(savepath, exist_ok=True)
+
+    # get BERT embeddings (bert_base_uncased)
+    print(f'### BERT embeddings ({_be.name})')
+    embeddings = _be.get_bert_regex(_list_of_regexes)
+    pre_embeddings = _be.get_bert_regex(_pre_list_of_regexes)
+
+    # original
+    pca, umap = high_dimensional_visualization(
+        data=embeddings,
+        name=_be.name,
+        dialects=_dialects,
+        n_neighbors=50,
+        umap_min_dist=0.25,
+        savepath=savepath,
+    )
+
+    _km(
+        data=embeddings,
+        pipeline_name=_be.name,
+        verbose=False,
+        savepath=savepath,
+        data_2d=umap
+    )
+
+    make_clustering_report(
+        experiment_name=exp_name,
+        encoder=_be.__repr__(),
+        clustering='kmeans++',
+        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+        savepath=Path('tmp', 'clustering_reports'),
+        filter_word=_filter
+    )
+
+    # preprocessing
+    pre_pca, pre_umap = high_dimensional_visualization(
+        data=pre_embeddings,
+        name='pre_' + _be.name,
+        dialects=_dialects,
+        n_neighbors=50,
+        umap_min_dist=0.25,
+        savepath=savepath,
+    )
+
+    _km(
+        data=pre_embeddings,
+        pipeline_name='pre_' + _be.name,
+        verbose=False,
+        savepath=savepath,
+        data_2d=pre_umap
+    )
+
+    make_clustering_report(
+        experiment_name='pre_' + exp_name,
+        encoder='pre_' + _be.__repr__(),
+        clustering='kmeans++',
+        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+        savepath=Path('tmp', 'clustering_reports'),
+        filter_word=_filter
+    )
+
+
+def run_tf_idf(
+        tf_idf_method,
+        _filter,
+        list_of_regexes,
+        pre_list_of_regexes,
+        get_matrix_function,
+        _verbose,
+        random_keywords_number,
+        _dialects,
+        km_object,
+):
+    """Run TF-IDF pipeline."""
+    print(f'### TF-IDF matrix ({tf_idf_method})')
+    exp_name = get_experiment_name(
+        alg_name=f'tf_idf_{tf_idf_method}',
+        filter_word=_filter
+    )
+    savepath = Path('tmp', 'assets', exp_name)
+    os.makedirs(savepath, exist_ok=True)
+
+    tokens, tokens = get_matrix_function(
+        list_of_regexes
+    )
+    pre_tokens, pre_tokens = get_matrix_function(
+        pre_list_of_regexes
+    )
+    if _verbose:
+        get_tf_idf_keywords(
+            _tfidf_vectorizer=tokens,
+            _tfidf_matrix=tokens,
+            document_index=random_keywords_number,
+            _list_of_regexes=list_of_regexes
+        )
+
+    # original
+    pca, umap = high_dimensional_visualization(
+        data=tokens,
+        name=f'tf_idf_{tf_idf_method}',
+        dialects=_dialects,
+        n_neighbors=50,
+        umap_min_dist=0.25,
+        savepath=savepath,
+    )
+
+    km_object(
+        data=tokens,
+        pipeline_name=f'tf_idf_{tf_idf_method}',
+        verbose=False,
+        savepath=savepath,
+        data_2d=umap
+    )
+
+    make_clustering_report(
+        experiment_name=exp_name,
+        encoder=f'tf_idf_{tf_idf_method}',
+        clustering='kmeans++',
+        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+        savepath=Path('tmp', 'clustering_reports'),
+        filter_word=_filter
+    )
+
+    # preprocessing
+    pre_pca, pre_umap = high_dimensional_visualization(
+        data=pre_tokens,
+        name=f'pre_tf_idf_{tf_idf_method}',
+        dialects=_dialects,
+        n_neighbors=50,
+        umap_min_dist=0.25,
+        savepath=savepath,
+    )
+
+    km_object(
+        data=pre_tokens,
+        pipeline_name=f'pre_tf_idf_{tf_idf_method}',
+        verbose=False,
+        savepath=savepath,
+        data_2d=pre_umap
+    )
+
+    make_clustering_report(
+        experiment_name="pre_" + exp_name,
+        encoder=f'pre_tf_idf_{tf_idf_method}',
+        clustering='kmeans++',
+        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+        savepath=Path('tmp', 'clustering_reports'),
+        filter_word=_filter
+    )

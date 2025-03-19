@@ -1,6 +1,7 @@
-import os
 import argparse
 import warnings
+
+import yaml
 
 from utils import *
 from encoders.get_tf_idf_matrix import TfidfMatrix
@@ -8,87 +9,44 @@ from encoders.get_bert_embeddings import BertEmbeddings
 from get_data import get_data_from_regex101
 from algorithms.kmeans import KMeansAlgorithm
 from preprocessing import Replacements
-from utils import (
-    high_dimensional_visualization, 
-    get_experiment_name, 
-    make_clustering_report
-)
 
 
-def run_bert(
-        _list_of_regexes,
-        _pre_list_of_regexes,
-        _filter,
-        _dialects,
-        _km,
-        _be
+def load_yml_config(
+    path_to_config=Path('algorithms.yml')
 ):
+    with open(path_to_config) as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as e:
+            print(f'Error while parsing yaml config: {e}')
 
-    exp_name = get_experiment_name(
-        alg_name=be.__repr__(),
-        filter_word=_filter
-    )
-    savepath = Path('tmp', 'assets', exp_name)
-    os.makedirs(savepath, exist_ok=True)
 
-    # get BERT embeddings (bert_base_uncased)
-    print(f'### BERT embeddings ({_be.name})')
-    embeddings = _be.get_bert_regex(_list_of_regexes)
-    pre_embeddings = _be.get_bert_regex(_pre_list_of_regexes)
+def iter_tf_idf(methods_list, **kwargs):
+    for method_name in methods_list:
+        match method_name:
+            case 'tokens':
+                get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_regex_tokens
+            case 'chars':
+                get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_chars
+            case 'non_terminals':
+                get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_non_terminals
+            case _:
+                raise NotImplementedError
 
-    # original
-    pca, umap = high_dimensional_visualization(
-        data=embeddings,
-        name=_be.name,
-        dialects=_dialects,
-        n_neighbors=50,
-        umap_min_dist=0.25,
-        savepath=savepath,
-    )
+        run_tf_idf(
+            tf_idf_method=method_name,
+            get_matrix_function=get_matrix_function,
+            **kwargs
+        )
 
-    _km(
-        data=embeddings,
-        pipeline_name=_be.name,
-        verbose=False,
-        savepath=savepath,
-        data_2d=umap
-    )
 
-    make_clustering_report(
-        experiment_name=exp_name,
-        encoder=_be.__repr__(),
-        clustering='kmeans++',
-        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-        savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter
-    )
-
-    # preprocessing
-    pre_pca, pre_umap = high_dimensional_visualization(
-        data=pre_embeddings,
-        name='pre_' + _be.name,
-        dialects=_dialects,
-        n_neighbors=50,
-        umap_min_dist=0.25,
-        savepath=savepath,
-    )
-
-    _km(
-        data=pre_embeddings,
-        pipeline_name='pre_' + _be.name,
-        verbose=False,
-        savepath=savepath,
-        data_2d=pre_umap
-    )
-
-    make_clustering_report(
-        experiment_name='pre_' + exp_name,
-        encoder='pre_' + _be.__repr__(),
-        clustering='kmeans++',
-        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-        savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter
-    )
+def iter_bert(methods_list, **kwargs):
+    for method_name in methods_list:
+        _be = BertEmbeddings(method_name)
+        run_bert(
+            _be=_be,
+            **kwargs
+        )
 
 
 if __name__ == '__main__':
@@ -160,277 +118,27 @@ if __name__ == '__main__':
             in enumerate(random.sample(list_of_regexes, 3))
         ]
 
-    # prepare assets folder
+    alg_config = load_yml_config()
+
+    # run clustering
     if 'tf_idf' in args.algname:
-        # get TF-IDF matrix (tokenize with custom tokens)
-        print('### TF-IDF + Custom Regex Tokenizing')
-        exp_name = get_experiment_name(
-            alg_name='tf_idf_tokens',
-            filter_word=args.filter
-        )
-        savepath = Path('tmp', 'assets', exp_name)
-        os.makedirs(savepath, exist_ok=True)
-
-        tokens_t, tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
-            list_of_regexes
-        )
-        pre_tokens_t, pre_tokens_m = TfidfMatrix.get_matrix_tokenize_by_regex_tokens(
-            pre_list_of_regexes
-        )
-        if args.verbose:
-            get_tf_idf_keywords(
-                _tfidf_vectorizer=tokens_t,
-                _tfidf_matrix=tokens_m,
-                document_index=random_n,
-                _list_of_regexes=list_of_regexes
-            )
-
-        # original
-        pca, umap = high_dimensional_visualization(
-            data=tokens_m,
-            name='tf_idf_tokens',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=tokens_m,
-            pipeline_name='tf_idf_tokens',
-            verbose=False,
-            savepath=savepath,
-            data_2d=umap
-        )
-
-        make_clustering_report(
-            experiment_name=exp_name,
-            encoder='tf_idf_tokens',
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # preprocessing
-        pre_pca, pre_umap = high_dimensional_visualization(
-            data=pre_tokens_m,
-            name='pre_tf_idf_tokens',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=pre_tokens_m,
-            pipeline_name='pre_tf_idf_tokens',
-            verbose=False,
-            savepath=savepath,
-            data_2d=pre_umap
-        )
-
-        make_clustering_report(
-            experiment_name="pre_" + exp_name,
-            encoder='pre_tf_idf_tokens',
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # get TF-IDF matrix (tokenize chars)
-        print('### TF-IDF + Chars Tokenizing')
-        exp_name = get_experiment_name(
-            alg_name='tf_idf_chars',
-            filter_word=args.filter
-        )
-        savepath = Path('tmp', 'assets', exp_name)
-        os.makedirs(savepath, exist_ok=True)
-
-        chars_t, chars_m = TfidfMatrix.get_matrix_tokenize_by_chars(list_of_regexes)
-        pre_chars_t, pre_chars_m = TfidfMatrix.get_matrix_tokenize_by_chars(pre_list_of_regexes)
-        if args.verbose:
-            get_tf_idf_keywords(
-                _tfidf_vectorizer=chars_t,
-                _tfidf_matrix=chars_m,
-                document_index=random_n,
-                _list_of_regexes=list_of_regexes
-            )
-
-        # original
-        pca, umap = high_dimensional_visualization(
-            data=chars_m,
-            name='tf_idf_chars',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-        km(
-            data=chars_m,
-            pipeline_name='tf_idf_chars',
-            verbose=False,
-            savepath=savepath,
-            data_2d=umap
-        )
-        make_clustering_report(
-            experiment_name=exp_name,
-            encoder='tf_idf_chars',
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # preprocessing
-        pre_pca, pre_umap = high_dimensional_visualization(
-            data=pre_chars_m,
-            name='pre_tf_idf_chars',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-        km(
-            data=pre_chars_m,
-            pipeline_name='pre_tf_idf_chars',
-            verbose=False,
-            savepath=savepath,
-            data_2d=pre_umap
-        )
-        make_clustering_report(
-            experiment_name="pre_"+exp_name,
-            encoder='pre_tf_idf_chars',
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # get TF-IDF matrix (tokenize non-terminals)
-        print('### TF-IDF + Non-terminals Tokenizing')
-        exp_name = get_experiment_name(
-            alg_name='tf_idf_non_terminals',
-            filter_word=args.filter
-        )
-        savepath = Path('tmp', 'assets', exp_name)
-        os.makedirs(savepath, exist_ok=True)
-
-        # select special characters, which used in regular expressions as a non-terminal symbols
-        special_chars = []
-        # from "space" to "slash"
-        special_chars += get_all_unicode_letters('0020', '002F')
-        # from "colon" to "at symbol"
-        special_chars += get_all_unicode_letters('003A', '0040')
-        # from "open square bracket" to "underscore"
-        special_chars += get_all_unicode_letters('005B', '005F')
-        # from "open curly bracket" to "tilda"
-        special_chars += get_all_unicode_letters('007B', '007E')
-
-        non_terminals_t, non_terminals_m = TfidfMatrix.get_matrix_tokenize_by_non_terminals(
+        iter_tf_idf(
+            methods_list=alg_config['tf_idf'],
             list_of_regexes=list_of_regexes,
-            special_chars=special_chars
-        )
-        pre_non_terminals_t, pre_non_terminals_m = TfidfMatrix.get_matrix_tokenize_by_non_terminals(
-            list_of_regexes=pre_list_of_regexes,
-            special_chars=special_chars
-        )
-        if args.verbose:
-            get_tf_idf_keywords(
-                _tfidf_vectorizer=non_terminals_t,
-                _tfidf_matrix=non_terminals_m,
-                document_index=random_n,
-                _list_of_regexes=list_of_regexes
-            )
-
-        # original
-        pca, umap = high_dimensional_visualization(
-            data=non_terminals_m,
-            name='tf_idf_non_terminals',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=non_terminals_m,
-            pipeline_name='tf_idf_non_terminals',
-            verbose=False,
-            savepath=savepath,
-            data_2d=umap
-        )
-
-        make_clustering_report(
-            experiment_name=exp_name,
-            encoder='tf_idf_non_terminals',
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
-        )
-
-        # preprocessing
-        pre_pca, pre_umap = high_dimensional_visualization(
-            data=pre_non_terminals_m,
-            name='pre_tf_idf_non_terminals',
-            dialects=dialects,
-            n_neighbors=50,
-            umap_min_dist=0.25,
-            savepath=savepath,
-        )
-
-        km(
-            data=pre_non_terminals_m,
-            pipeline_name='pre_tf_idf_non_terminals',
-            verbose=False,
-            savepath=savepath,
-            data_2d=pre_umap
-        )
-
-        make_clustering_report(
-            experiment_name="pre_"+exp_name,
-            encoder='pre_tf_idf_non_terminals',
-            clustering='kmeans++',
-            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-            savepath=Path('tmp', 'clustering_reports'),
-            filter_word=args.filter
+            pre_list_of_regexes=pre_list_of_regexes,
+            _verbose=args.verbose,
+            random_keywords_number=random_n,
+            _dialects=dialects,
+            km_object=km,
+            _filter=args.filter,
         )
 
     elif 'bert' in args.algname:
-        # create BERT inference (uncased)
-        be = BertEmbeddings()
-
-        run_bert(
+        iter_bert(
+            methods_list=alg_config['bert'],
             _list_of_regexes=list_of_regexes,
             _pre_list_of_regexes=pre_list_of_regexes,
             _filter=args.filter,
             _dialects=dialects,
             _km=km,
-            _be=be
-        )
-
-        # create BERT inference (CodeBERT)
-        be = BertEmbeddings('codebert_base')
-
-        run_bert(
-            _list_of_regexes=list_of_regexes,
-            _pre_list_of_regexes=pre_list_of_regexes,
-            _filter=args.filter,
-            _dialects=dialects,
-            _km=km,
-            _be=be
-        )
-
-        # create BERT inference (ModernBERT)
-        be = BertEmbeddings('modernbert_base')
-
-        run_bert(
-            _list_of_regexes=list_of_regexes,
-            _pre_list_of_regexes=pre_list_of_regexes,
-            _filter=args.filter,
-            _dialects=dialects,
-            _km=km,
-            _be=be
         )
