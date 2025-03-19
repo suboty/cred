@@ -27,7 +27,7 @@ class BertEmbeddings:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         logger.warning(
-            f'This model {self.name} has max length of tokens: {self.tokenizer.model_max_length}'
+            f'This model {self.name} has max length: {self.tokenizer.model_max_length}'
         )
 
         os.environ['TOKENIZERS_PARALLELISM'] = 'True'
@@ -38,7 +38,11 @@ class BertEmbeddings:
     def get_bert_regex(self, strings):
         sentence_embeddings = []
         for string in strings:
-            t_input = self.tokenizer(string, padding=True, truncation=True, return_tensors="pt")
+            t_input = self.tokenizer(
+                string,
+                padding=True,
+                return_tensors="pt"
+            )
 
             with torch.no_grad():
                 last_hidden_state = self.model(**t_input, output_hidden_states=True).hidden_states[-1]
