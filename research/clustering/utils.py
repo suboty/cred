@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import re
 from pathlib import Path
 from typing import Optional, List, Union, Tuple
 
@@ -206,6 +207,8 @@ def make_clustering_report(
     if IS_V2:
         template_path = Path('templates', 'template_v2.html')
 
+    cluster_number_reg = re.compile(r'(?<=silh_)\d*')
+
     with open(template_path, 'r') as template_file:
         template = template_file.read()
 
@@ -234,25 +237,48 @@ def make_clustering_report(
     # clustering analysis
     silh_plots = sorted([x for x in os.listdir(
         str(img_savepath).replace('..', 'tmp')
-    ) if 'silh_' in x and 'pre_' not in x
-                         ])
+    ) if 'silh_' in x and 'pre_' not in x and '2d' not in x])
+
     pre_silh_plots = sorted([x for x in os.listdir(
         str(img_savepath).replace('..', 'tmp')
-    ) if 'silh_' in x and 'pre_' in x
-                             ])
+    ) if 'silh_' in x and 'pre_' in x and '2d' not in x])
+
+    silh_plots_2d = sorted([x for x in os.listdir(
+        str(img_savepath).replace('..', 'tmp')
+    ) if 'silh_' in x and 'pre_' not in x and '2d' in x])
+
+    pre_silh_plots_2d = sorted([x for x in os.listdir(
+        str(img_savepath).replace('..', 'tmp')
+    ) if 'silh_' in x and 'pre_' in x and '2d' in x])
+
     silh_vis = []
+
     for i, silh_plot in enumerate(silh_plots):
         _row = '\t\t<p float="left">'
+        _n = cluster_number_reg.search(silh_plot).group(0)
+        _row += f'<p>--- {_n} Clusters ---</p>'
         _row += get_image_tag(
             path=f"{str(img_savepath)}/{silh_plot}",
-            name="Before preprocessing",
+            name="Before preprocessing | Original vector space",
         )
         if len(pre_silh_plots) != 0:
             _row += get_image_tag(
                 path=f"{str(img_savepath)}/{pre_silh_plots[i]}",
-                name="After preprocessing",
+                name="After preprocessing | Original vector space",
+            )
+
+        if len(silh_plots_2d) != 0:
+            _row += get_image_tag(
+                path=f"{str(img_savepath)}/{silh_plots_2d[i]}",
+                name="Before preprocessing | 2d vector space",
+            )
+        if len(pre_silh_plots_2d) != 0:
+            _row += get_image_tag(
+                path=f"{str(img_savepath)}/{pre_silh_plots_2d[i]}",
+                name="After preprocessing | 2d vector space",
             )
         _row += '</p>'
+        _row += '<br>'
         silh_vis.append(_row)
     silh_vis = '\n'.join(silh_vis)
 

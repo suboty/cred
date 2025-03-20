@@ -14,6 +14,7 @@ def make_silhouette_analysis(
     cluster_labels: List,
     n_clusters: int,
     pipeline_name: str,
+    tip: str = None,
 ):
     """From https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html#sphx-glr-auto-examples-cluster-plot-kmeans-silhouette-analysis-py"""
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -94,4 +95,4 @@ def make_silhouette_analysis(
         fontsize=14,
         fontweight="bold",
     )
-    plt.savefig(Path(savepath, f"{pipeline_name}_silh_{n_clusters}.png"))
+    plt.savefig(Path(savepath, f"{pipeline_name}_silh_{n_clusters}{tip if tip else ''}.png"))
