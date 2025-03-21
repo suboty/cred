@@ -528,7 +528,7 @@ def prepare_silh_table():
     results = pd.DataFrame.from_dict(
         stats_results,
         orient='index',
-        columns=['score']
+        columns=['silhouette score']
     )
 
     results = results.sort_values(by='silhouette score', ascending=False)
