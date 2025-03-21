@@ -44,18 +44,23 @@ class BertEmbeddings:
                 return_tensors="pt"
             )
 
-            with torch.no_grad():
-                last_hidden_state = self.model(**t_input, output_hidden_states=True).hidden_states[-1]
+            try:
+                with torch.no_grad():
+                    last_hidden_state = self.model(**t_input, output_hidden_states=True).hidden_states[-1]
 
-            weights_for_non_padding = t_input.attention_mask * torch.arange(start=1,
-                                                                            end=last_hidden_state.shape[
-                                                                                    1] + 1).unsqueeze(0)
+                weights_for_non_padding = t_input.attention_mask * torch.arange(start=1,
+                                                                                end=last_hidden_state.shape[
+                                                                                        1] + 1).unsqueeze(0)
 
-            sum_embeddings = torch.sum(last_hidden_state * weights_for_non_padding.unsqueeze(-1), dim=1)
-            num_of_none_padding_tokens = torch.sum(weights_for_non_padding, dim=-1).unsqueeze(-1)
-            sentence_embedding = sum_embeddings / num_of_none_padding_tokens
+                sum_embeddings = torch.sum(last_hidden_state * weights_for_non_padding.unsqueeze(-1), dim=1)
+                num_of_none_padding_tokens = torch.sum(weights_for_non_padding, dim=-1).unsqueeze(-1)
+                sentence_embedding = sum_embeddings / num_of_none_padding_tokens
 
-            sentence_embeddings.append(
-                sentence_embedding.detach().numpy()
-            )
+                sentence_embeddings.append(
+                    sentence_embedding.detach().numpy()
+                )
+            except Exception as e:
+                logger.warning(
+                    f'Warning! Error <{e}> while making tensor with expression with length: {len(string)}'
+                )
         return sentence_embeddings
