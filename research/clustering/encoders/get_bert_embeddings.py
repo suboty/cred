@@ -35,9 +35,9 @@ class BertEmbeddings:
     def __repr__(self):
         return self.name
 
-    def get_bert_regex(self, strings):
+    def get_bert_regex(self, strings, dialects):
         sentence_embeddings = []
-        for string in strings:
+        for i, string in enumerate(strings):
             t_input = self.tokenizer(
                 string,
                 padding=True,
@@ -63,4 +63,5 @@ class BertEmbeddings:
                 logger.warning(
                     f'Warning! Error <{e}> while making tensor with expression with length: {len(string)}'
                 )
-        return sentence_embeddings
+                del dialects[i]
+        return sentence_embeddings, dialects
