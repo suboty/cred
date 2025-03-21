@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 from logger import logger
+from settings import stats
 
 
 IS_V2 = True
@@ -203,6 +204,7 @@ def make_clustering_report(
         template_path: Path = Path('templates', 'template.html')
 ):
     # TODO: fix algorithm`s reports and variables
+    # TODO: replace algorithm for Jinja
 
     if IS_V2:
         template_path = Path('templates', 'template_v2.html')
@@ -365,14 +367,16 @@ def run_bert(
 
     # get BERT embeddings (bert_base_uncased)
     logger.info(f'BERT embeddings ({_be.name})')
-    embeddings = _be.get_bert_regex(_list_of_regexes)
-    pre_embeddings = _be.get_bert_regex(_pre_list_of_regexes)
+
+    embeddings, or_dialects = _be.get_bert_regex(_list_of_regexes, _dialects)
+    pre_embeddings, pre_dialects = _be.get_bert_regex(_pre_list_of_regexes, _dialects)
 
     # original
+    logger.info(f'-- Original Vector Space')
     pca, umap = high_dimensional_visualization(
         data=embeddings,
         name=_be.name,
-        dialects=_dialects,
+        dialects=or_dialects,
         n_neighbors=50,
         umap_min_dist=0.25,
         savepath=savepath,
@@ -396,10 +400,11 @@ def run_bert(
     )
 
     # preprocessing
+    logger.info(f'-- 2d Vector Space')
     pre_pca, pre_umap = high_dimensional_visualization(
         data=pre_embeddings,
         name='pre_' + _be.name,
-        dialects=_dialects,
+        dialects=pre_dialects,
         n_neighbors=50,
         umap_min_dist=0.25,
         savepath=savepath,
@@ -450,14 +455,18 @@ def run_tf_idf(
         pre_list_of_regexes
     )
     if _verbose:
-        get_tf_idf_keywords(
-            _tfidf_vectorizer=tokens,
-            _tfidf_matrix=tokens,
-            document_index=random_keywords_number,
-            _list_of_regexes=list_of_regexes
-        )
+        try:
+            get_tf_idf_keywords(
+                _tfidf_vectorizer=tokens,
+                _tfidf_matrix=tokens,
+                document_index=random_keywords_number,
+                _list_of_regexes=list_of_regexes
+            )
+        except Exception as e:
+            logger.debug(f'Error while getting keywords: {e}')
 
     # original
+    logger.info(f'-- Original Vector Space')
     pca, umap = high_dimensional_visualization(
         data=tokens,
         name=f'tf_idf_{tf_idf_method}',
@@ -485,6 +494,7 @@ def run_tf_idf(
     )
 
     # preprocessing
+    logger.info(f'-- 2d Vector Space')
     pre_pca, pre_umap = high_dimensional_visualization(
         data=pre_tokens,
         name=f'pre_tf_idf_{tf_idf_method}',
@@ -510,3 +520,16 @@ def run_tf_idf(
         savepath=Path('tmp', 'clustering_reports'),
         filter_word=_filter
     )
+
+
+def prepare_silh_table():
+    stats_results = stats.get()
+
+    results = pd.DataFrame.from_dict(
+        stats_results,
+        orient='index',
+        columns=['score']
+    )
+
+    results = results.sort_values(by='silhouette score', ascending=False)
+    results.to_excel('silhouette_results.xlsx')

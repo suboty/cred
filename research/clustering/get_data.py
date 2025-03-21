@@ -17,8 +17,18 @@ def get_data_from_regex101(
     """
 
     if filter_word:
-        filter_word = filter_word.lower()
-        sql_query += f"where lower(r.description) like '%{filter_word}%' or lower(r.title) like '%{filter_word}%';"
+        if '|' in filter_word:
+            filter_words = [x.lower() for x in filter_word.split('|')]
+            sql_query += f"where " \
+                         f"lower(r.description) like '%{filter_words[0]}%' " \
+                         f"or lower(r.title) like '%{filter_words[0]}%'"
+            for word in filter_words[1:]:
+                sql_query += f" or " \
+                             f"lower(r.description) like '%{word}%' " \
+                             f"or lower(r.title) like '%{word}%'"
+            sql_query += ";"
+        else:
+            sql_query += f"where lower(r.description) like '%{filter_word}%' or lower(r.title) like '%{filter_word}%';"
     else:
         sql_query += ';'
 

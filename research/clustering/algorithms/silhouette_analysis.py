@@ -1,3 +1,4 @@
+import re
 from typing import Union, List
 from pathlib import Path
 
@@ -5,6 +6,9 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_samples, silhouette_score
+
+from logger import logger
+from settings import stats
 
 
 def make_silhouette_analysis(
@@ -24,6 +28,17 @@ def make_silhouette_analysis(
     ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
 
     silhouette_avg = silhouette_score(X, cluster_labels)
+
+    savepath_cleaner = re.compile(r'(?<=\/)[^\/]*$')
+    _name = savepath_cleaner.search(string=str(savepath)).group(0)
+    _algname = f'{_name} | {n_clusters} | {tip if tip is not None else "original_data"}'
+
+    logger.info(
+        f'{_algname} '
+        f'get <{silhouette_avg}>'
+    )
+
+    stats.add(name=_algname, value=silhouette_avg)
 
     # Compute the silhouette scores for each sample
     sample_silhouette_values = silhouette_samples(X, cluster_labels)

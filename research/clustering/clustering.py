@@ -145,3 +145,5 @@ if __name__ == '__main__':
             _dialects=dialects,
             _km=km,
         )
+
+    prepare_silh_table()
