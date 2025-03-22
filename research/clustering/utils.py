@@ -3,7 +3,7 @@ import json
 import random
 import re
 from pathlib import Path
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union, Tuple, Dict
 
 import numpy as np
 import pandas as pd
@@ -372,7 +372,7 @@ def run_bert(
     pre_embeddings, pre_dialects = _be.get_bert_regex(_pre_list_of_regexes, _dialects)
 
     # original
-    logger.info(f'-- Original Vector Space')
+    logger.info(f'-- Work with original strings')
     pca, umap = high_dimensional_visualization(
         data=embeddings,
         name=_be.name,
@@ -382,12 +382,18 @@ def run_bert(
         savepath=savepath,
     )
 
-    _km(
+    clustered_preds = _km(
         data=embeddings,
         pipeline_name=_be.name,
         verbose=False,
         savepath=savepath,
         data_2d=umap
+    )
+    save_clustered_results(
+        data=_list_of_regexes,
+        preds=clustered_preds,
+        alg_name=_be.name,
+        savepath=savepath
     )
 
     make_clustering_report(
@@ -400,7 +406,7 @@ def run_bert(
     )
 
     # preprocessing
-    logger.info(f'-- 2d Vector Space')
+    logger.info(f'-- Work with preprocessing strings')
     pre_pca, pre_umap = high_dimensional_visualization(
         data=pre_embeddings,
         name='pre_' + _be.name,
@@ -410,12 +416,18 @@ def run_bert(
         savepath=savepath,
     )
 
-    _km(
+    clustered_preds = _km(
         data=pre_embeddings,
         pipeline_name='pre_' + _be.name,
         verbose=False,
         savepath=savepath,
         data_2d=pre_umap
+    )
+    save_clustered_results(
+        data=_pre_list_of_regexes,
+        preds=clustered_preds,
+        alg_name=_be.name,
+        savepath=savepath
     )
 
     make_clustering_report(
@@ -466,7 +478,7 @@ def run_tf_idf(
             logger.debug(f'Error while getting keywords: {e}')
 
     # original
-    logger.info(f'-- Original Vector Space')
+    logger.info(f'-- Work with original strings')
     pca, umap = high_dimensional_visualization(
         data=tokens,
         name=f'tf_idf_{tf_idf_method}',
@@ -476,12 +488,18 @@ def run_tf_idf(
         savepath=savepath,
     )
 
-    km_object(
+    clustered_preds = km_object(
         data=tokens,
         pipeline_name=f'tf_idf_{tf_idf_method}',
         verbose=False,
         savepath=savepath,
         data_2d=umap
+    )
+    save_clustered_results(
+        data=list_of_regexes,
+        preds=clustered_preds,
+        alg_name=f'tf_idf_{tf_idf_method}',
+        savepath=savepath
     )
 
     make_clustering_report(
@@ -494,7 +512,7 @@ def run_tf_idf(
     )
 
     # preprocessing
-    logger.info(f'-- 2d Vector Space')
+    logger.info(f'-- Work with preprocessing strings')
     pre_pca, pre_umap = high_dimensional_visualization(
         data=pre_tokens,
         name=f'pre_tf_idf_{tf_idf_method}',
@@ -504,12 +522,18 @@ def run_tf_idf(
         savepath=savepath,
     )
 
-    km_object(
+    clustered_preds = km_object(
         data=pre_tokens,
         pipeline_name=f'pre_tf_idf_{tf_idf_method}',
         verbose=False,
         savepath=savepath,
         data_2d=pre_umap
+    )
+    save_clustered_results(
+        data=pre_list_of_regexes,
+        preds=clustered_preds,
+        alg_name=f'pre_tf_idf_{tf_idf_method}',
+        savepath=savepath
     )
 
     make_clustering_report(
@@ -533,3 +557,35 @@ def prepare_silh_table():
 
     results = results.sort_values(by='silhouette score', ascending=False)
     results.to_excel('silhouette_results.xlsx')
+
+
+def save_clustered_results(
+        data: List,
+        preds: Dict,
+        alg_name: str,
+        savepath: Union[Path, str],
+):
+
+    _savepath = str(savepath).replace('assets', 'clusters')
+    os.makedirs(_savepath, exist_ok=True)
+
+    for data_key in preds:
+        for n_clusters in preds[data_key]:
+
+            clustering_file = f'{alg_name}_{data_key}_num_{n_clusters}.json'
+            clusters = {}
+
+            for i, pred in enumerate(preds[data_key][n_clusters]):
+                pred = int(pred)
+                if clusters.get(pred):
+                    clusters[pred].append(data[i])
+                else:
+                    clusters[pred] = [data[i]]
+
+            with open(Path(_savepath, clustering_file), 'w') as f:
+                json.dump(
+                    clusters,
+                    f,
+                    indent=2,
+                    ensure_ascii=False
+                )

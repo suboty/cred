@@ -34,6 +34,11 @@ class KMeansAlgorithm:
             *args, **kwargs,
     ):
 
+        clustered_results = {
+            'original_data': {},
+            '2d_data': {}
+        }
+
         for i_data, _data in [(0, data), (1, data_2d)]:
 
             sse = []
@@ -54,6 +59,12 @@ class KMeansAlgorithm:
 
                 kmeans.fit(_data)
                 preds = kmeans.predict(_data)
+
+                match i_data:
+                    case 0:
+                        clustered_results['original_data'][k] = preds
+                    case 1:
+                        clustered_results['2d_data'][k] = preds
 
                 if 'elbow' not in self.excluded_metrics:
                     sse.append(kmeans.inertia_)
@@ -141,3 +152,5 @@ class KMeansAlgorithm:
                     ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
                 else:
                     raise NotImplementedError
+
+        return clustered_results

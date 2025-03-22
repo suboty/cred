@@ -88,6 +88,7 @@ if __name__ == '__main__':
     repl = Replacements()
 
     os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
+    os.makedirs(Path('tmp', 'clusters'), exist_ok=True)
 
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
