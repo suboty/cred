@@ -3,6 +3,6 @@ tf_idf:
   - chars
   - non_terminals
 bert:
-#  - bert_base_uncased
-#  - codebert_base
+  - bert_base_uncased
+  - codebert_base
   - modernbert_base

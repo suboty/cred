@@ -426,7 +426,7 @@ def run_bert(
     save_clustered_results(
         data=_pre_list_of_regexes,
         preds=clustered_preds,
-        alg_name=_be.name,
+        alg_name='pre_' + _be.name,
         savepath=savepath
     )
 
