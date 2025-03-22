@@ -23,7 +23,7 @@ if __name__ == '__main__':
     for i, regex in enumerate(regexes):
 
         if i % 100 == 0:
-            print(f'Process {i}/{regexes_len}')
+            print(f'-- Process {i}/{regexes_len}')
 
         with open(Path(path_to_regexes, regex), 'r') as regex_file:
             data = json.load(regex_file)
