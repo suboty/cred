@@ -137,7 +137,9 @@ if __name__ == '__main__':
             _filter=args.filter,
         )
 
-    elif 'bert' in args.algname:
+        prepare_silh_table('tf_idf')
+
+    if 'bert' in args.algname:
         iter_bert(
             methods_list=alg_config.get('bert'),
             _list_of_regexes=list_of_regexes,
@@ -147,4 +149,4 @@ if __name__ == '__main__':
             _km=km,
         )
 
-    prepare_silh_table()
+        prepare_silh_table('bert')
