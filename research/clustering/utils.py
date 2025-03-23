@@ -546,7 +546,10 @@ def run_tf_idf(
     )
 
 
-def prepare_silh_table(tip):
+def prepare_silh_table(
+        tip: str,
+        filter_word: str,
+):
     stats_results = stats.get()
 
     results = pd.DataFrame.from_dict(
@@ -557,7 +560,7 @@ def prepare_silh_table(tip):
 
     results = results.sort_values(by='silhouette score', ascending=False)
     results.to_excel(
-        Path('tmp', f'{tip}_silhouette_results.xlsx')
+        Path('tmp', f'{tip}_silhouette_results_{filter_word}.xlsx')
     )
 
 

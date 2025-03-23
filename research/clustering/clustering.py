@@ -137,7 +137,10 @@ if __name__ == '__main__':
             _filter=args.filter,
         )
 
-        prepare_silh_table('tf_idf')
+        prepare_silh_table(
+            tip='tf-idf',
+            filter_word=args.filter,
+        )
 
     if 'bert' in args.algname:
         iter_bert(
@@ -149,4 +152,7 @@ if __name__ == '__main__':
             _km=km,
         )
 
-        prepare_silh_table('bert')
+        prepare_silh_table(
+            tip='bert',
+            filter_word=args.filter,
+        )
