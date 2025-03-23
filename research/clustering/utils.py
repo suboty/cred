@@ -546,7 +546,7 @@ def run_tf_idf(
     )
 
 
-def prepare_silh_table():
+def prepare_silh_table(tip):
     stats_results = stats.get()
 
     results = pd.DataFrame.from_dict(
@@ -556,7 +556,9 @@ def prepare_silh_table():
     )
 
     results = results.sort_values(by='silhouette score', ascending=False)
-    results.to_excel('silhouette_results.xlsx')
+    results.to_excel(
+        Path('tmp', f'{tip}_silhouette_results.xlsx')
+    )
 
 
 def save_clustered_results(
