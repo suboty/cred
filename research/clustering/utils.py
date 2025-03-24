@@ -16,6 +16,7 @@ from logger import logger
 from settings import stats
 
 
+# html template version
 IS_V2 = True
 
 
@@ -259,26 +260,34 @@ def make_clustering_report(
         _row = '\t\t<p float="left">'
         _n = cluster_number_reg.search(silh_plot).group(0)
         _row += f'<p>--- {_n} Clusters ---</p>'
+
+        # 1
         _row += get_image_tag(
             path=f"{str(img_savepath)}/{silh_plot}",
-            name="Before preprocessing | Original vector space",
+            name=f"Before preprocessing | Original vector space "
+                 f"| {'AST' if 'ast' in silh_plot else 'Regex'}",
         )
-        if len(pre_silh_plots) != 0:
-            _row += get_image_tag(
-                path=f"{str(img_savepath)}/{pre_silh_plots[i]}",
-                name="After preprocessing | Original vector space",
-            )
 
-        if len(silh_plots_2d) != 0:
-            _row += get_image_tag(
-                path=f"{str(img_savepath)}/{silh_plots_2d[i]}",
-                name="Before preprocessing | 2d vector space",
-            )
-        if len(pre_silh_plots_2d) != 0:
-            _row += get_image_tag(
-                path=f"{str(img_savepath)}/{pre_silh_plots_2d[i]}",
-                name="After preprocessing | 2d vector space",
-            )
+        # 2
+        _row += get_image_tag(
+            path=f"{str(img_savepath)}/{pre_silh_plots[i]}",
+            name=f"After preprocessing | Original vector space "
+                 f"| {'AST' if 'ast' in pre_silh_plots[i] else 'Regex'}",
+        )
+
+        # 3
+        _row += get_image_tag(
+            path=f"{str(img_savepath)}/{silh_plots_2d[i]}",
+            name=f"Before preprocessing | 2d vector space "
+                 f"| {'AST' if 'ast' in silh_plots_2d[i] else 'Regex'}",
+        )
+
+        # 4
+        _row += get_image_tag(
+            path=f"{str(img_savepath)}/{pre_silh_plots_2d[i]}",
+            name=f"After preprocessing | 2d vector space "
+                 f"| {'AST' if 'ast' in silh_plots_2d[i] else 'Regex'}",
+        )
         _row += '</p>'
         _row += '<br>'
         silh_vis.append(_row)
@@ -349,11 +358,23 @@ def make_clustering_report(
         report_file.write(template)
 
 
+def print_data_case(tip):
+    match tip:
+        case 'original':
+            logger.info(f'-- Work with original strings')
+        case 'pre':
+            logger.info(f'-- Work with preprocessing strings')
+        case 'ast_original':
+            logger.info(f'-- Work with ast of original strings')
+        case 'ast_pre':
+            logger.info(f'-- Work with ast of preprocessing strings')
+        case _:
+            raise NotImplementedError
+
+
 def run_bert(
-        _list_of_regexes,
-        _pre_list_of_regexes,
+        input_data,
         _filter,
-        _dialects,
         _km,
         _be
 ):
@@ -365,36 +386,36 @@ def run_bert(
     savepath = Path('tmp', 'assets', exp_name)
     os.makedirs(savepath, exist_ok=True)
 
-    # get BERT embeddings (bert_base_uncased)
+    # get BERT embeddings
     logger.info(f'BERT embeddings ({_be.name})')
 
-    embeddings, or_dialects = _be.get_bert_regex(_list_of_regexes, _dialects)
-    pre_embeddings, pre_dialects = _be.get_bert_regex(_pre_list_of_regexes, _dialects)
+    for data in input_data:
+        embeddings, labels = _be.get_bert_regex(data[0], data[1])
 
-    # original
-    logger.info(f'-- Work with original strings')
-    pca, umap = high_dimensional_visualization(
-        data=embeddings,
-        name=_be.name,
-        dialects=or_dialects,
-        n_neighbors=50,
-        umap_min_dist=0.25,
-        savepath=savepath,
-    )
+        print_data_case(data[2])
 
-    clustered_preds = _km(
-        data=embeddings,
-        pipeline_name=_be.name,
-        verbose=False,
-        savepath=savepath,
-        data_2d=umap
-    )
-    save_clustered_results(
-        data=_list_of_regexes,
-        preds=clustered_preds,
-        alg_name=_be.name,
-        savepath=savepath
-    )
+        pca, umap = high_dimensional_visualization(
+            data=embeddings,
+            name=f'{data[2]}_' + _be.name,
+            dialects=labels,
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        clustered_preds = _km(
+            data=embeddings,
+            pipeline_name=f'{data[2]}_' + _be.name,
+            verbose=False,
+            savepath=savepath,
+            data_2d=umap
+        )
+        save_clustered_results(
+            data=data[0],
+            preds=clustered_preds,
+            alg_name=_be.name,
+            savepath=savepath
+        )
 
     make_clustering_report(
         experiment_name=exp_name,
@@ -405,50 +426,14 @@ def run_bert(
         filter_word=_filter
     )
 
-    # preprocessing
-    logger.info(f'-- Work with preprocessing strings')
-    pre_pca, pre_umap = high_dimensional_visualization(
-        data=pre_embeddings,
-        name='pre_' + _be.name,
-        dialects=pre_dialects,
-        n_neighbors=50,
-        umap_min_dist=0.25,
-        savepath=savepath,
-    )
-
-    clustered_preds = _km(
-        data=pre_embeddings,
-        pipeline_name='pre_' + _be.name,
-        verbose=False,
-        savepath=savepath,
-        data_2d=pre_umap
-    )
-    save_clustered_results(
-        data=_pre_list_of_regexes,
-        preds=clustered_preds,
-        alg_name='pre_' + _be.name,
-        savepath=savepath
-    )
-
-    make_clustering_report(
-        experiment_name='pre_' + exp_name,
-        encoder='pre_' + _be.__repr__(),
-        clustering='kmeans++',
-        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-        savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter
-    )
-
 
 def run_tf_idf(
+        input_data,
         tf_idf_method,
         _filter,
-        list_of_regexes,
-        pre_list_of_regexes,
         get_matrix_function,
         _verbose,
         random_keywords_number,
-        _dialects,
         km_object,
 ):
     """Run TF-IDF pipeline."""
@@ -460,85 +445,50 @@ def run_tf_idf(
     savepath = Path('tmp', 'assets', exp_name)
     os.makedirs(savepath, exist_ok=True)
 
-    tokens, tokens = get_matrix_function(
-        list_of_regexes
-    )
-    pre_tokens, pre_tokens = get_matrix_function(
-        pre_list_of_regexes
-    )
-    if _verbose:
-        try:
-            get_tf_idf_keywords(
-                _tfidf_vectorizer=tokens,
-                _tfidf_matrix=tokens,
-                document_index=random_keywords_number,
-                _list_of_regexes=list_of_regexes
-            )
-        except Exception as e:
-            logger.debug(f'Error while getting keywords: {e}')
+    for data in input_data:
+        tokens_vectorizer, tokens_matrix = get_matrix_function(
+            data[0]
+        )
 
-    # original
-    logger.info(f'-- Work with original strings')
-    pca, umap = high_dimensional_visualization(
-        data=tokens,
-        name=f'tf_idf_{tf_idf_method}',
-        dialects=_dialects,
-        n_neighbors=50,
-        umap_min_dist=0.25,
-        savepath=savepath,
-    )
+        print_data_case(data[2])
 
-    clustered_preds = km_object(
-        data=tokens,
-        pipeline_name=f'tf_idf_{tf_idf_method}',
-        verbose=False,
-        savepath=savepath,
-        data_2d=umap
-    )
-    save_clustered_results(
-        data=list_of_regexes,
-        preds=clustered_preds,
-        alg_name=f'tf_idf_{tf_idf_method}',
-        savepath=savepath
-    )
+        if _verbose:
+            try:
+                get_tf_idf_keywords(
+                    _tfidf_vectorizer=tokens_vectorizer,
+                    _tfidf_matrix=tokens_matrix,
+                    document_index=random_keywords_number,
+                    _list_of_regexes=data[0]
+                )
+            except Exception as e:
+                logger.debug(f'Error while getting keywords: {e}')
+
+        pca, umap = high_dimensional_visualization(
+            data=tokens_matrix,
+            name=f'{data[2]}_' + f'tf_idf_{tf_idf_method}',
+            dialects=data[1],
+            n_neighbors=50,
+            umap_min_dist=0.25,
+            savepath=savepath,
+        )
+
+        clustered_preds = km_object(
+            data=tokens_matrix,
+            pipeline_name=f'{data[2]}_' + f'tf_idf_{tf_idf_method}',
+            verbose=False,
+            savepath=savepath,
+            data_2d=umap
+        )
+        save_clustered_results(
+            data=data[0],
+            preds=clustered_preds,
+            alg_name=f'{data[2]}_' + f'tf_idf_{tf_idf_method}',
+            savepath=savepath
+        )
 
     make_clustering_report(
         experiment_name=exp_name,
         encoder=f'tf_idf_{tf_idf_method}',
-        clustering='kmeans++',
-        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-        savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter
-    )
-
-    # preprocessing
-    logger.info(f'-- Work with preprocessing strings')
-    pre_pca, pre_umap = high_dimensional_visualization(
-        data=pre_tokens,
-        name=f'pre_tf_idf_{tf_idf_method}',
-        dialects=_dialects,
-        n_neighbors=50,
-        umap_min_dist=0.25,
-        savepath=savepath,
-    )
-
-    clustered_preds = km_object(
-        data=pre_tokens,
-        pipeline_name=f'pre_tf_idf_{tf_idf_method}',
-        verbose=False,
-        savepath=savepath,
-        data_2d=pre_umap
-    )
-    save_clustered_results(
-        data=pre_list_of_regexes,
-        preds=clustered_preds,
-        alg_name=f'pre_tf_idf_{tf_idf_method}',
-        savepath=savepath
-    )
-
-    make_clustering_report(
-        experiment_name="pre_" + exp_name,
-        encoder=f'pre_tf_idf_{tf_idf_method}',
         clustering='kmeans++',
         img_savepath=Path('..', str(savepath).replace('tmp/', '')),
         savepath=Path('tmp', 'clustering_reports'),

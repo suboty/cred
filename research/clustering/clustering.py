@@ -7,6 +7,7 @@ from utils import *
 from logger import logger
 from encoders.get_tf_idf_matrix import TfidfMatrix
 from encoders.get_bert_embeddings import BertEmbeddings
+from preprocessing.get_regex_ast import SreParser
 from get_data import get_data_from_regex101
 from algorithms.kmeans import KMeansAlgorithm
 from preprocessing import Replacements
@@ -80,36 +81,63 @@ if __name__ == '__main__':
     # filter word for getting data
     parser.add_argument('--filter', type=str, default=None)
 
-    # init
+    # init objects
     args = parser.parse_args()
-
     km = KMeansAlgorithm()
-
     repl = Replacements()
+    parser = SreParser()
 
+    # prepare folders
     os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
     os.makedirs(Path('tmp', 'clusters'), exist_ok=True)
 
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
 
-    data, labels = get_data_from_regex101(args.filter)
+    # get data
 
+    data, labels = get_data_from_regex101(args.filter)
     logger.info(f'Work with {len(data)} samples')
 
-    # get data
     dataset = pd.DataFrame(data, columns=labels)
     dataset = dataset.loc[dataset['regex'] != '']
 
+    try:
+        labels = dataset['dialect'].tolist()
+    except Exception as e:
+        logger.error(f'This dataset has no labels! Error: {e}')
+        exit(1)
+
+    # 1 (original regexes)
     list_of_regexes = dataset['regex'].tolist()
 
+    # 2 (preprocessing regexes)
     pre_list_of_regexes = repl(
         regex_list=list_of_regexes,
         need_equivalent=args.equivalent,
         need_nearly_equivalent=args.nearly_equivalent
     )
 
-    dialects = dataset['dialect'].tolist()
+    # 3 (ast for original regexes)
+    ast_regex, ast_labels = parser.parse_list(
+        regex_list=list_of_regexes,
+        dialects=labels
+    )
+
+    # 4 (ast for preprocessing regexes)
+    pre_ast_regex, pre_ast_labels = parser.parse_list(
+        regex_list=pre_list_of_regexes,
+        dialects=labels
+    )
+
+    # prepare data tuple
+    input_data = (
+        # data | labels | tip
+        (list_of_regexes, labels, 'original'),
+        (pre_list_of_regexes, labels, 'pre'),
+        (ast_regex, ast_labels, 'ast_original'),
+        (pre_ast_regex, pre_ast_labels, 'ast_pre'),
+    )
 
     # random number for example printing
     random_n = random.randint(0, len(list_of_regexes))
@@ -128,11 +156,9 @@ if __name__ == '__main__':
     if 'tf_idf' in args.algname:
         iter_tf_idf(
             methods_list=alg_config.get('tf_idf'),
-            list_of_regexes=list_of_regexes,
-            pre_list_of_regexes=pre_list_of_regexes,
+            input_data=input_data,
             _verbose=args.verbose,
             random_keywords_number=random_n,
-            _dialects=dialects,
             km_object=km,
             _filter=args.filter,
         )
@@ -145,10 +171,8 @@ if __name__ == '__main__':
     if 'bert' in args.algname:
         iter_bert(
             methods_list=alg_config.get('bert'),
-            _list_of_regexes=list_of_regexes,
-            _pre_list_of_regexes=pre_list_of_regexes,
+            input_data=input_data,
             _filter=args.filter,
-            _dialects=dialects,
             _km=km,
         )
 

@@ -30,10 +30,21 @@ def make_silhouette_analysis(
     silhouette_avg = silhouette_score(X, cluster_labels)
 
     savepath_cleaner = re.compile(r'(?<=\/)[^\/]*$')
-    if 'pre' in pipeline_name:
-        _name = 'pre_' + savepath_cleaner.search(string=str(savepath)).group(0).replace('exp_', '')
+    if 'pre' in pipeline_name and 'ast' in pipeline_name:
+        _name = 'pre_ast_' + savepath_cleaner.search(
+            string=str(savepath)
+        ).group(0).replace('exp_', '')
+    elif 'pre' in pipeline_name:
+        _name = 'pre_' + savepath_cleaner.search(
+            string=str(savepath)
+        ).group(0).replace('exp_', '')
+    elif 'ast' in pipeline_name:
+        _name = 'ast_' + savepath_cleaner.search(
+            string=str(savepath)
+        ).group(0).replace('exp_', '')
     else:
         _name = savepath_cleaner.search(string=str(savepath)).group(0).replace('exp_', '')
+
     _algname = f'{_name} | {n_clusters} | {tip if tip is not None else "original_data"}'
 
     logger.info(
