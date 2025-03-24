@@ -414,6 +414,7 @@ def run_bert(
             data=data[0],
             preds=clustered_preds,
             alg_name=_be.name,
+            tip=data[2],
             savepath=savepath
         )
 
@@ -482,6 +483,7 @@ def run_tf_idf(
         save_clustered_results(
             data=data[0],
             preds=clustered_preds,
+            tip=data[2],
             alg_name=f'{data[2]}_' + f'tf_idf_{tf_idf_method}',
             savepath=savepath
         )
@@ -518,6 +520,7 @@ def save_clustered_results(
         data: List,
         preds: Dict,
         alg_name: str,
+        tip: str,
         savepath: Union[Path, str],
 ):
 
@@ -527,7 +530,7 @@ def save_clustered_results(
     for data_key in preds:
         for n_clusters in preds[data_key]:
 
-            clustering_file = f'{alg_name}_{data_key}_num_{n_clusters}.json'
+            clustering_file = f'{tip}_{alg_name}_{data_key}_num_{n_clusters}.json'
             clusters = {}
 
             for i, pred in enumerate(preds[data_key][n_clusters]):
