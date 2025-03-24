@@ -544,3 +544,39 @@ def save_clustered_results(
                     indent=2,
                     ensure_ascii=False
                 )
+
+
+def prepare_results(
+        filter_word: str,
+        path_to_tmp: Union[str, Path] = Path('tmp'),
+):
+    silhouette_result_paths = [
+        x for x in os.listdir(path_to_tmp)
+        if '.xlsx' in x and filter_word in x
+    ]
+
+    silhouette_results = pd.read_excel(
+        Path(
+            path_to_tmp,
+            silhouette_result_paths[0]
+        )
+    )
+
+    try:
+        for result in silhouette_result_paths[1:]:
+            silhouette_results = silhouette_results.append(
+                pd.read_excel(
+                    Path(path_to_tmp, result)
+                )
+            )
+    except:
+        pass
+
+    silhouette_results = silhouette_results.sort_values(
+        by='silhouette score',
+        ascending=False
+    )
+
+    silhouette_results.to_excel(
+        Path('tmp', f'silhouette_results_{filter_word}.xlsx')
+    )

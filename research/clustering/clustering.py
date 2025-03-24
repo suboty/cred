@@ -180,3 +180,7 @@ if __name__ == '__main__':
             tip='bert',
             filter_word=args.filter,
         )
+
+    prepare_results(
+        filter_word=args.filter,
+    )
