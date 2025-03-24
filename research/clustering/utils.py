@@ -551,26 +551,16 @@ def prepare_results(
         path_to_tmp: Union[str, Path] = Path('tmp'),
 ):
     silhouette_result_paths = [
-        x for x in os.listdir(path_to_tmp)
+        Path(path_to_tmp, x) for x in os.listdir(path_to_tmp)
         if '.xlsx' in x and filter_word in x
     ]
 
-    silhouette_results = pd.read_excel(
-        Path(
-            path_to_tmp,
-            silhouette_result_paths[0]
-        )
-    )
+    silhouette_results = [pd.read_excel(x) for x in silhouette_result_paths]
 
     try:
-        for result in silhouette_result_paths[1:]:
-            silhouette_results = silhouette_results.append(
-                pd.read_excel(
-                    Path(path_to_tmp, result)
-                )
-            )
-    except:
-        pass
+        silhouette_results = pd.concat(silhouette_results, ignore_index=True)
+    except Exception as e:
+        print(f'Error while concat operation: {e}')
 
     silhouette_results = silhouette_results.sort_values(
         by='silhouette score',
