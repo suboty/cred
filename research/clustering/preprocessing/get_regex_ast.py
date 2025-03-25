@@ -9,24 +9,31 @@ from logger import logger
 
 
 class SreParser:
+    def __init__(self):
+        self.errors = 0
+        self.verbose = False
+
     def __repr__(self):
         return 'sre_parser'
 
-    @staticmethod
-    def parse(regex):
+    def parse(self, regex):
         try:
             return sre_parse.parse(regex)
         except Exception as e:
-            logger.warning(f'This expression <{regex}> does not written by python flavor: {e}')
+            if self.verbose:
+                logger.warning(f'This expression <{regex}> does not written by python flavor: {e}')
+            self.errors += 1
             return None
 
-    @staticmethod
-    def parse_list(regex_list, dialects):
+    def parse_list(self, regex_list, dialects):
         new_dialects = []
         ast = []
         for i, regex in enumerate(regex_list):
-            parsed_regex = SreParser.parse(regex)
+            parsed_regex = self.parse(regex)
             if parsed_regex:
                 ast.append(str(regex))
                 new_dialects.append(dialects[i])
+        if self.errors > 0:
+            logger.warning(f'{self.errors} regexes does not written by python flavor')
+        self.errors = 0
         return ast, new_dialects

@@ -1,12 +1,35 @@
 import os
 
 import torch
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 from transformers import AutoTokenizer, AutoModel
 
 from logger import logger
 
 
 class BertEmbeddings:
+
+    scaler = MinMaxScaler()
+
+    @staticmethod
+    def scaling_decorator(func):
+        def wrapper(*args, **kwargs):
+            embeddings, labels = func(*args, **kwargs)
+
+            embeddings = np.squeeze(embeddings)
+
+            if os.environ['IS_NEED_SCALING'].lower() == 'true':
+                scaled_embeddings = BertEmbeddings.scaler.fit_transform(
+                    embeddings
+                )
+            else:
+                scaled_embeddings = embeddings
+
+            return scaled_embeddings, labels
+
+        return wrapper
+
     def __init__(
             self,
             model: str = 'bert_base_uncased'
@@ -24,6 +47,9 @@ class BertEmbeddings:
         else:
             raise NotImplementedError
 
+        self.errors = 0
+        self.verbose = False
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         logger.warning(
@@ -35,6 +61,7 @@ class BertEmbeddings:
     def __repr__(self):
         return self.name
 
+    @scaling_decorator
     def get_bert_regex(self, strings, dialects):
         sentence_embeddings = []
         new_dialects = []
@@ -64,7 +91,14 @@ class BertEmbeddings:
                     dialects[i]
                 )
             except Exception as e:
-                logger.warning(
-                    f'Warning! Error <{e}> while making tensor with expression with length: {len(string)}'
-                )
-        return sentence_embeddings, new_dialects
+                self.errors += 1
+                if self.verbose:
+                    logger.warning(
+                        f'Warning! Error <{e}> while making tensor with expression with length: {len(string)}'
+                    )
+
+        if self.errors > 0:
+            logger.warning(f'{self.errors} regexes has too much length')
+        self.errors = 0
+
+        return np.array(sentence_embeddings), new_dialects

@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from collections import Counter
 from typing import Dict, Union, List, Tuple
@@ -52,7 +53,6 @@ TOKENS_RULES = load_tokens_rules(
 )
 
 TOKENS_SEP = 'SEP-SYMBOL'
-IS_NEED_SCALING = False
 
 
 class TfidfMatrix:
@@ -64,7 +64,7 @@ class TfidfMatrix:
         def wrapper(*args, **kwargs):
             encoder, csr_matrix = func(*args, **kwargs)
             csr_matrix = csr_matrix.toarray()
-            if IS_NEED_SCALING:
+            if os.environ['IS_NEED_SCALING'].lower() == 'true':
                 csr_matrix = TfidfMatrix.scaler.fit_transform(csr_matrix)
             return encoder, csr_matrix
 

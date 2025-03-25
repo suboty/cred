@@ -1,4 +1,5 @@
 import argparse
+import os
 import warnings
 
 import yaml
@@ -71,6 +72,12 @@ if __name__ == '__main__':
         '-n', '--nearly-equivalent',
         action='store_true'
     )
+    # is need scaling for embeddings
+    parser.add_argument(
+        '-s', '--scaling',
+        action='store_true'
+    )
+    os.environ['IS_NEED_SCALING'] = 'true'
     # encoder
     parser.add_argument('--algname', type=str, default='bert')
     # filter word for getting data
