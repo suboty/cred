@@ -20,7 +20,7 @@ move_via_scp () {
 }
 
 # move databases to server
-#scp -s ./*.db "$username"@"$server_host":"$server_path"/cred/
+scp -s ./*.db "$username"@"$server_host":"$server_path"/cred/
 
 # move clustering research files to server
 for f in research/clustering/*
