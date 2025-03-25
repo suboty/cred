@@ -8,9 +8,9 @@ To run clustering do this:
 ```shell
 python3 clustering.py -v -u --algname encoder_name --filter filter_word_for_input_data
 ```
-- -u for update visualizations
 - -v for verbose examples printing
 - --algname: "bert" or "tf_idf"
+- --clusternum: number of n_clusters for KMeans
 - --filter for filtering input data (looking for in description on title regexes)
 
 ## Clustering results

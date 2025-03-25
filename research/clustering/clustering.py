@@ -61,11 +61,6 @@ if __name__ == '__main__':
         '-v', '--verbose',
         action='store_true'
     )
-    # is need update of visualization
-    parser.add_argument(
-        '-u', '--update',
-        action='store_true'
-    )
     # is need equivalent replacements in datasets
     parser.add_argument(
         '-e', '--equivalent',
@@ -80,10 +75,14 @@ if __name__ == '__main__':
     parser.add_argument('--algname', type=str, default='bert')
     # filter word for getting data
     parser.add_argument('--filter', type=str, default=None)
+    # clusters number
+    parser.add_argument('--clustersnum', type=int, default=10)
 
     # init objects
     args = parser.parse_args()
-    km = KMeansAlgorithm()
+    km = KMeansAlgorithm(
+        max_number_of_clusters=args.clustersnum+1
+    )
     repl = Replacements()
     parser = SreParser()
 
