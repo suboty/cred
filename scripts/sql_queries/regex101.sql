@@ -1,5 +1,13 @@
--- see table structure
+-- see few rows
 select * from regexes r;
+
+
+-- see table structure
+PRAGMA table_info(regexes);
+
+
+-- see regex number
+select count(*) from regexes r;
 
 
 -- get distribution for flavors
