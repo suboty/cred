@@ -84,11 +84,17 @@ if __name__ == '__main__':
     parser.add_argument('--filter', type=str, default=None)
     # clusters number
     parser.add_argument('--clustersnum', type=int, default=10)
+    # clusters step
+    parser.add_argument('--clusterstep', type=int, default=1)
+    # clusters start
+    parser.add_argument('--clusterstart', type=int, default=2)
 
     # init objects
     args = parser.parse_args()
     km = KMeansAlgorithm(
-        max_number_of_clusters=args.clustersnum+1
+        max_number_of_clusters=args.clustersnum+1,
+        cluster_start=args.clusterstart,
+        cluster_step=args.clusterstep
     )
     repl = Replacements()
     parser = SreParser()

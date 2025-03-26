@@ -24,7 +24,7 @@ for arg in "$@"; do
   if [ "$arg" != "_" ]; then
     echo "Experiment with <$arg> filter word"
   fi
-	python3 clustering.py -s -e -n --algname "tf_idf|bert" --filter "$arg" --clustersnum 50
+	python3 clustering.py -s -e -n --algname "tf_idf|bert" --filter "$arg" --clustersnum 50 --clusterstep 5 --clusterstart 5
 	echo "$lineStr"
 done
 

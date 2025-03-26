@@ -1,6 +1,6 @@
 import time
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,12 +16,16 @@ class KMeansAlgorithm:
             self,
             max_number_of_clusters: int = 11,
             random_state: int = 42,
-            excluded_metrics=None,
+            excluded_metrics: List = None,
+            cluster_step: int = 1,
+            cluster_start: int = 2
     ):
         if excluded_metrics is None:
             excluded_metrics = ['db', 'elbow']
         self.random_state = random_state
         self.max_number_of_clusters = max_number_of_clusters
+        self.cluster_step = cluster_step
+        self.cluster_start = cluster_start
         self.excluded_metrics = excluded_metrics
 
     def __call__(
@@ -45,7 +49,16 @@ class KMeansAlgorithm:
             km_silhouette = []
             db_score = []
 
-            for k in range(2, self.max_number_of_clusters):
+            logger.info(
+                f'Work with cluster range: '
+                f'{list(range(self.cluster_start, self.max_number_of_clusters, self.cluster_step))}'
+            )
+
+            for k in range(
+                    self.cluster_start,
+                    self.max_number_of_clusters,
+                    self.cluster_step
+            ):
                 if verbose:
                     logger.debug('-' * 10, f"{k} clusters", '-' * 10)
                 t0 = time.time()
