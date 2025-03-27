@@ -16,7 +16,7 @@ python_activate
 
 clear_old_reports
 
-[ -f "../../regex101.db" ] || { echo "regex101.db is not found!"; exit; }
+! [ -f "../../regex101.db" ] && { echo "regex101.db is not found!"; exit; }
 
 str="="
 lineStr=$(printf "$str%.0s" {1..30})""
