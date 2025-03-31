@@ -125,3 +125,4 @@ def make_silhouette_analysis(
         fontweight="bold",
     )
     plt.savefig(Path(savepath, f"{pipeline_name}_silh_{n_clusters}{tip if tip else ''}.png"))
+    plt.close('all')

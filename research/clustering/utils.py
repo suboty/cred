@@ -19,9 +19,6 @@ from settings import stats
 # html template version
 IS_V2 = True
 
-# is need visualize regex labels on plot
-IS_NEED_LABELS_ON_PLOT = False
-
 
 def get_tf_idf_keywords(
         _tfidf_vectorizer,
@@ -124,21 +121,13 @@ def high_dimensional_visualization(
     df_pca['pca-one'] = pca_result[:, 0]
     df_pca['pca-two'] = pca_result[:, 1]
 
-    if IS_NEED_LABELS_ON_PLOT:
-        df_pca['dialects'] = dialects
-        emb_plot_pca = sns.scatterplot(
-            x="pca-one", y="pca-two",
-            hue="dialects",
-            data=df_pca.loc[rndprm, :],
-            legend="full",
-            alpha=0.3
-        )
-    else:
-        emb_plot_pca = sns.scatterplot(
-            x="pca-one", y="pca-two",
-            data=df_pca.loc[rndprm, :],
-            alpha=0.3
-        )
+    df_pca['dialects'] = dialects
+    emb_plot_pca = sns.scatterplot(
+        x="pca-one", y="pca-two",
+        hue="dialects",
+        data=df_pca.loc[rndprm, :],
+        legend="full"
+    )
 
     if 'tf_idf' in name:
         emb_plot_pca.set_title(
@@ -154,6 +143,7 @@ def high_dimensional_visualization(
         fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
     else:
         raise NotImplementedError
+    plt.close('all')
 
     # UMAP visualization
     umap_method = umap.UMAP(
@@ -165,34 +155,33 @@ def high_dimensional_visualization(
 
     umap_result = umap_method.fit_transform(data)
 
-    unique_dialects = {x: i for i, x in enumerate(list(set(dialects)))}
-    ids_dialects = list(map(lambda x: unique_dialects[x], dialects))
+    df_umap = pd.DataFrame()
+    df_umap['umap-one'] = umap_result[:, 0]
+    df_umap['umap-two'] = umap_result[:, 1]
 
-    if IS_NEED_LABELS_ON_PLOT:
-        plt.scatter(
-            umap_result[:, 0],
-            umap_result[:, 1],
-            c=ids_dialects,
-            cmap='Spectral',
-            s=5
-        )
-    else:
-        plt.scatter(
-            umap_result[:, 0],
-            umap_result[:, 1],
-            cmap='Spectral',
-            s=5
-        )
+    df_umap['dialects'] = dialects
+    emb_plot_umap = sns.scatterplot(
+        x="umap-one", y="umap-two",
+        hue="dialects",
+        data=df_umap.loc[rndprm, :],
+        legend="full"
+    )
 
-    plt.gca().set_aspect('equal', 'datalim')
     if 'tf_idf' in name:
-        plt.title(f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization")
-        plt.savefig(Path(savepath, f"{name}_umap.png"))
+        emb_plot_umap.set_title(
+            f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization"
+        )
+        fig_umap = emb_plot_umap.get_figure()
+        fig_umap.savefig(Path(savepath, f"{name}_umap.png"))
     elif 'bert' in name:
-        plt.title(f"BERT embeddings by {name.replace('tf_idf_', '')} UMAP visualization")
-        plt.savefig(Path(savepath, f"{name}_umap.png"))
+        emb_plot_umap.set_title(
+            f"BERT embeddings by {name.replace('tf_idf_', '')} UMAP visualization"
+        )
+        fig_umap = emb_plot_umap.get_figure()
+        fig_umap.savefig(Path(savepath, f"{name}_umap.png"))
     else:
         raise NotImplementedError
+    plt.close('all')
 
     return pca_result, umap_result
 

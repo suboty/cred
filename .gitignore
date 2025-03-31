@@ -15,10 +15,11 @@
 *.ipynb_checkpoints
 *.xlsx
 *.csv
-research/clustering/tmp
+*tmp*
 
 # other
 *.DS_Store
 *html-to-pdf
 *node_modules
+*clustering_results_for_report
 
