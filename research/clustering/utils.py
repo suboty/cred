@@ -451,6 +451,8 @@ def run_tf_idf(
             data[0]
         )
 
+        logger.info(f'Shape of TF-IDF vector: {tokens_matrix.shape}')
+
         print_data_case(data[2])
 
         if _verbose:

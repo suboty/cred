@@ -165,7 +165,7 @@ if __name__ == '__main__':
     alg_config = load_yml_config()
 
     # run clustering
-    if 'tf_idf' in args.algname:
+    if 'tf_idf' in args.algname and alg_config.get('tf_idf'):
         iter_tf_idf(
             methods_list=alg_config.get('tf_idf'),
             input_data=input_data,
@@ -174,24 +174,28 @@ if __name__ == '__main__':
             km_object=km,
             _filter=args.filter,
         )
+        try:
+            prepare_silh_table(
+                tip='tf-idf',
+                filter_word=args.filter,
+            )
+        except Exception as e:
+            logger.warning(f'Error while stats saving: {e}')
 
-        prepare_silh_table(
-            tip='tf-idf',
-            filter_word=args.filter,
-        )
-
-    if 'bert' in args.algname:
+    if 'bert' in args.algname and alg_config.get('bert'):
         iter_bert(
             methods_list=alg_config.get('bert'),
             input_data=input_data,
             _filter=args.filter,
             _km=km,
         )
-
-        prepare_silh_table(
-            tip='bert',
-            filter_word=args.filter,
-        )
+        try:
+            prepare_silh_table(
+                tip='bert',
+                filter_word=args.filter,
+            )
+        except Exception as e:
+            logger.warning(f'Error while stats saving: {e}')
 
     prepare_results(
         filter_word=args.filter,
