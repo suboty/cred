@@ -141,9 +141,7 @@ class KMeansAlgorithm:
             # silhouette saving
             if 'silhouette' not in self.excluded_metrics:
                 _, ax = plt.subplots()
-                ax.plot(range(
-                    self.cluster_start, self.max_number_of_clusters, self.cluster_step
-                ), km_silhouette, marker='o')
+                ax.plot(_cluster_range, km_silhouette, marker='o')
                 ax.set_xlabel('Number of clusters')
                 ax.set_ylabel('Silhouette score')
                 if 'tf_idf' in pipeline_name:
@@ -162,9 +160,7 @@ class KMeansAlgorithm:
             # davies bouldin saving
             if 'db' not in self.excluded_metrics:
                 _, ax = plt.subplots()
-                ax.plot(range(
-                    self.cluster_start, self.max_number_of_clusters, self.cluster_step
-                ), db_score, marker='o')
+                ax.plot(_cluster_range, db_score, marker='o')
                 ax.set_xlabel('Number of clusters')
                 ax.set_ylabel('Davies Bouldin score')
                 if 'tf_idf' in pipeline_name:

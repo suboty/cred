@@ -22,6 +22,10 @@ def make_silhouette_analysis(
 ):
     """From https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html#sphx-glr-auto-examples-cluster-plot-kmeans-silhouette-analysis-py"""
     fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    ax1.cla()
+    ax2.cla()
+
     fig.set_size_inches(18, 7)
 
     ax1.set_xlim([-0.1, 1])
