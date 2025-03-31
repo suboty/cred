@@ -109,6 +109,16 @@ if __name__ == '__main__':
     # get data
 
     data, labels = get_data_from_regex101(args.filter)
+
+    if 'bert' in args.algname and args.filter == '_':
+        # TODO: fix memory error
+        if len(data) > 5000:
+            indexes = np.random.randint(0, len(data)-1, 5000)
+            new_data = []
+            for index in indexes:
+                new_data.append(data[index])
+            data = new_data
+
     logger.info(f'Work with {len(data)} samples')
 
     dataset = pd.DataFrame(data, columns=labels)

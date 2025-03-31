@@ -2,6 +2,7 @@ import os
 
 import torch
 import numpy as np
+from tqdm import tqdm
 from sklearn.preprocessing import MinMaxScaler
 from transformers import AutoTokenizer, AutoModel
 
@@ -56,7 +57,7 @@ class BertEmbeddings:
             f'This model {self.name} has max length: {self.tokenizer.model_max_length}'
         )
 
-        os.environ['TOKENIZERS_PARALLELISM'] = 'True'
+        os.environ['TOKENIZERS_PARALLELISM'] = 'False'
 
     def __repr__(self):
         return self.name
@@ -65,7 +66,7 @@ class BertEmbeddings:
     def get_bert_regex(self, strings, dialects):
         sentence_embeddings = []
         new_dialects = []
-        for i, string in enumerate(strings):
+        for i, string in tqdm(enumerate(strings)):
             t_input = self.tokenizer(
                 string,
                 padding=True,
