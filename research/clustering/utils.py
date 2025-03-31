@@ -294,24 +294,29 @@ def make_clustering_report(
     silh_vis = '\n'.join(silh_vis)
 
     # add token stats table
-    with open(Path('tmp', 'tokens_stats.json'), 'r') as st_f:
-        token_stats = json.load(st_f)
-    tokens_stats_table = '\n<table>' \
-                         '\n\t<thead>' \
-                         '\n\t\t<tr><th>Token</th><th>Count</th></tr>' \
-                         '\n\t</thead>' \
-                         '\n\t<tbody>' \
-                         '\n\t\t__ROWS__' \
-                         '\n\t</tbody>' \
-                         '\n</table>'
+    try:
+        with open(Path('tmp', 'tokens_stats.json'), 'r') as st_f:
+            token_stats = json.load(st_f)
+        tokens_stats_table = '\n<table>' \
+                             '\n\t<thead>' \
+                             '\n\t\t<tr><th>Token</th><th>Count</th></tr>' \
+                             '\n\t</thead>' \
+                             '\n\t<tbody>' \
+                             '\n\t\t__ROWS__' \
+                             '\n\t</tbody>' \
+                             '\n</table>'
+    except:
+        tokens_stats_table = None
+        logger.warning('No statistics logs!')
 
     _rows = ''
-    for key in token_stats.keys():
-        _rows += f'<tr><td>{key}</td><td>{token_stats[key]}</td></tr>'
+    if tokens_stats_table:
+        for key in token_stats.keys():
+            _rows += f'<tr><td>{key}</td><td>{token_stats[key]}</td></tr>'
 
-    tokens_stats_table = tokens_stats_table.replace('__ROWS__', _rows)
-    if IS_V2:
-        template = template.replace('__TOKENS_STATS_TABLE__', tokens_stats_table)
+        tokens_stats_table = tokens_stats_table.replace('__ROWS__', _rows)
+        if IS_V2:
+            template = template.replace('__TOKENS_STATS_TABLE__', tokens_stats_table)
 
     template = template.replace('__CLUSTERS_VISUALISATION__', silh_vis)
 
