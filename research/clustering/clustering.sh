@@ -37,4 +37,4 @@ for arg in "$@"; do
 	echo "$lineStr"
 done
 
-#sh html_to_pdf.sh
+sh html_to_pdf.sh

@@ -19,6 +19,9 @@ from settings import stats
 # html template version
 IS_V2 = True
 
+# is need visualize regex labels on plot
+IS_NEED_LABELS_ON_PLOT = False
+
 
 def get_tf_idf_keywords(
         _tfidf_vectorizer,
@@ -121,14 +124,22 @@ def high_dimensional_visualization(
     df_pca['pca-one'] = pca_result[:, 0]
     df_pca['pca-two'] = pca_result[:, 1]
 
-    df_pca['dialects'] = dialects
-    emb_plot_pca = sns.scatterplot(
-        x="pca-one", y="pca-two",
-        hue="dialects",
-        data=df_pca.loc[rndprm, :],
-        legend="full",
-        alpha=0.3
-    )
+    if IS_NEED_LABELS_ON_PLOT:
+        df_pca['dialects'] = dialects
+        emb_plot_pca = sns.scatterplot(
+            x="pca-one", y="pca-two",
+            hue="dialects",
+            data=df_pca.loc[rndprm, :],
+            legend="full",
+            alpha=0.3
+        )
+    else:
+        emb_plot_pca = sns.scatterplot(
+            x="pca-one", y="pca-two",
+            data=df_pca.loc[rndprm, :],
+            alpha=0.3
+        )
+
     if 'tf_idf' in name:
         emb_plot_pca.set_title(
             f"TF-IDF matrix by {name.replace('tf_idf_', '')} PCA visualization"
@@ -145,7 +156,6 @@ def high_dimensional_visualization(
         raise NotImplementedError
 
     # UMAP visualization
-
     umap_method = umap.UMAP(
         n_neighbors=n_neighbors,
         min_dist=umap_min_dist,
@@ -158,13 +168,22 @@ def high_dimensional_visualization(
     unique_dialects = {x: i for i, x in enumerate(list(set(dialects)))}
     ids_dialects = list(map(lambda x: unique_dialects[x], dialects))
 
-    plt.scatter(
-        umap_result[:, 0],
-        umap_result[:, 1],
-        c=ids_dialects,
-        cmap='Spectral',
-        s=5
-    )
+    if IS_NEED_LABELS_ON_PLOT:
+        plt.scatter(
+            umap_result[:, 0],
+            umap_result[:, 1],
+            c=ids_dialects,
+            cmap='Spectral',
+            s=5
+        )
+    else:
+        plt.scatter(
+            umap_result[:, 0],
+            umap_result[:, 1],
+            cmap='Spectral',
+            s=5
+        )
+
     plt.gca().set_aspect('equal', 'datalim')
     if 'tf_idf' in name:
         plt.title(f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization")
