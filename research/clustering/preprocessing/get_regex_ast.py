@@ -37,3 +37,9 @@ class SreParser:
             logger.warning(f'{self.errors} regexes does not written by python flavor')
         self.errors = 0
         return ast, new_dialects
+
+
+if __name__ == '__main__':
+    parser = SreParser()
+    regex = input('Input regex: ')
+    print(str(parser.parse(regex)))
