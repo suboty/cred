@@ -49,16 +49,24 @@ class KMeansAlgorithm:
             km_silhouette = []
             db_score = []
 
-            logger.info(
-                f'Work with cluster range: '
-                f'{list(range(self.cluster_start, self.max_number_of_clusters, self.cluster_step))}'
-            )
-
-            for k in range(
+            _cluster_range = list(
+                range(
                     self.cluster_start,
                     self.max_number_of_clusters,
                     self.cluster_step
-            ):
+                )
+            )
+
+            if self.cluster_start > 2:
+                _cluster_range.append(2)
+                _cluster_range = sorted(_cluster_range)
+
+            logger.info(
+                f'Work with cluster range: '
+                f'{_cluster_range}'
+            )
+
+            for k in _cluster_range:
                 if verbose:
                     logger.debug('-' * 10, f"{k} clusters", '-' * 10)
                 t0 = time.time()
