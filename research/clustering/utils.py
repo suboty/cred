@@ -121,10 +121,10 @@ def high_dimensional_visualization(
     df_pca['pca-one'] = pca_result[:, 0]
     df_pca['pca-two'] = pca_result[:, 1]
 
-    df_pca['dialects'] = dialects
+    df_pca['labels'] = dialects
     emb_plot_pca = sns.scatterplot(
         x="pca-one", y="pca-two",
-        hue="dialects",
+        hue="labels",
         data=df_pca.loc[rndprm, :],
         legend="full"
     )
@@ -159,10 +159,10 @@ def high_dimensional_visualization(
     df_umap['umap-one'] = umap_result[:, 0]
     df_umap['umap-two'] = umap_result[:, 1]
 
-    df_umap['dialects'] = dialects
+    df_umap['labels'] = dialects
     emb_plot_umap = sns.scatterplot(
         x="umap-one", y="umap-two",
-        hue="dialects",
+        hue="labels",
         data=df_umap.loc[rndprm, :],
         legend="full"
     )

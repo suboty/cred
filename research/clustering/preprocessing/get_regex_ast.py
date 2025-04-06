@@ -1,3 +1,4 @@
+import re
 try:
     import re._parser as sre_parse
 except ImportError:
@@ -9,9 +10,11 @@ from logger import logger
 
 
 class SreParser:
-    def __init__(self):
+    def __init__(self, verbose: bool = False):
         self.errors = 0
-        self.verbose = False
+        self.verbose = verbose
+
+        self.reg_clean = re.compile(r'\(LITERAL\,\s\d*\)')
 
     def __repr__(self):
         return 'sre_parser'
@@ -25,13 +28,37 @@ class SreParser:
             self.errors += 1
             return None
 
-    def parse_list(self, regex_list, dialects):
+    def postprocess(self, ast):
+        try:
+            clean_ast = self.reg_clean.sub(
+                string=str(ast),
+                repl='LITERAL'
+            )
+            return clean_ast
+        except Exception as e:
+            if self.verbose:
+                logger.warning(f'Error while this ast <{ast}> cleaning: {e}')
+            return ast
+
+    def parse_list(
+        self,
+        regex_list,
+        dialects,
+        is_need_postprocessing: bool = True,
+    ):
         new_dialects = []
         ast = []
         for i, regex in enumerate(regex_list):
             parsed_regex = self.parse(regex)
             if parsed_regex:
-                ast.append(str(regex))
+                if is_need_postprocessing:
+                    ast.append(
+                        self.postprocess(parsed_regex)
+                    )
+                else:
+                    ast.append(
+                        str(parsed_regex)
+                    )
                 new_dialects.append(dialects[i])
         if self.errors > 0:
             logger.warning(f'{self.errors} regexes does not written by python flavor')
@@ -40,6 +67,9 @@ class SreParser:
 
 
 if __name__ == '__main__':
-    parser = SreParser()
+    parser = SreParser(verbose=True)
     regex = input('Input regex: ')
-    print(str(parser.parse(regex)))
+    ast = parser.parse(regex)
+    print(f'AST: {ast}')
+    processed_ast = parser.postprocess(ast)
+    print(f'Post AST: {processed_ast}')
