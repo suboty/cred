@@ -61,6 +61,12 @@ class KMeansAlgorithm:
                 _cluster_range.append(2)
                 _cluster_range = sorted(_cluster_range)
 
+            if self.cluster_step > 1:
+                _cluster_range.append(3)
+                _cluster_range.append(4)
+                _cluster_range = list(set(_cluster_range))
+                _cluster_range = sorted(_cluster_range)
+
             logger.info(
                 f'Work with cluster range: '
                 f'{_cluster_range}'
