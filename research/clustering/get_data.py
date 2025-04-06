@@ -4,18 +4,10 @@ from typing import Optional
 import sqlite3
 
 
-def get_data_from_regex101(
-        filter_word: Optional[str] = None
+def add_rows_by_filter_word(
+    sql_query: str,
+    filter_word: Optional[str] = None,
 ):
-    sql_query = """
-    select 
-        r.regex,
-        r.dialect,
-        r.title,
-        r.description
-    from regexes r
-    """
-
     if filter_word:
         if '|' in filter_word:
             filter_words = [x.lower() for x in filter_word.split('|')]
@@ -31,6 +23,25 @@ def get_data_from_regex101(
             sql_query += f"where lower(r.description) like '%{filter_word}%' or lower(r.title) like '%{filter_word}%';"
     else:
         sql_query += ';'
+    return sql_query
+
+
+def get_data_from_regex101(
+        filter_word: Optional[str] = None
+):
+    sql_query = """
+    select 
+        r.regex,
+        r.dialect,
+        r.title,
+        r.description
+    from regexes r
+    """
+
+    sql_query = add_rows_by_filter_word(
+        filter_word=filter_word,
+        sql_query=sql_query
+    )
 
     db = sqlite3.connect(Path('..', '..', 'regex101.db'))
     cursor = db.cursor()
@@ -42,3 +53,32 @@ def get_data_from_regex101(
     db.close()
 
     return regex101_regexes, ('regex', 'dialect', 'title', 'description')
+
+
+def get_data_from_regexlib(
+        filter_word: Optional[str] = None
+):
+    sql_query = """
+    select 
+        r.pattern,
+        r.rating,
+        r.title,
+        r.description
+    from regexes r
+    """
+
+    sql_query = add_rows_by_filter_word(
+        filter_word=filter_word,
+        sql_query=sql_query
+    )
+
+    db = sqlite3.connect(Path('..', '..', 'regexlib.db'))
+    cursor = db.cursor()
+
+    res = cursor.execute(sql_query)
+    regexlib_regexes = res.fetchall()
+
+    db.commit()
+    db.close()
+
+    return regexlib_regexes, ('pattern', 'rating', 'title', 'description')

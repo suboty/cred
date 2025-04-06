@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     wsdl = 'https://regexlib.com/WebServices.asmx?wsdl'
     client = zeep.Client(wsdl=wsdl)
-    number_of_regexes = 500
+    number_of_regexes = 3000
     result_number = 0
 
     print(f'-- Run regexlib parsing')

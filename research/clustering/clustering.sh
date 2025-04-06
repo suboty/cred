@@ -18,23 +18,35 @@ clear_old_reports
 
 ! [ -f "../../regex101.db" ] && { echo "regex101.db is not found!"; exit; }
 
-str="="
-lineStr=$(printf "$str%.0s" {1..30})""
+lineStr () {
+  for _ in $(seq 1 30); do
+    printf "="
+  done
+  printf "\n"
+}
+
+read -r -p "Enter regex source: " regexSource
 
 for arg in "$@"; do
   if [ "$arg" != "_" ];
   then
     echo "Experiment with <$arg> filter word"
-    python3 clustering.py -s -e -n --algname "tf_idf|bert" --filter "$arg" \
-    --clustersnum 50
+    python3 clustering.py -s -e -n \
+    --algname "tf_idf|bert" \
+    --filter "$arg" \
+    --clustersnum 50 \
+    --source "$regexSource"
   else
     echo "Working with the whole dataset"
-    python3 clustering.py -s -e -n --algname "tf_idf|bert" --filter "$arg" \
+    python3 clustering.py -s -e -n \
+    --algname "tf_idf|bert" \
+    --filter "$arg" \
     --clustersnum 50 \
     --clusterstep 5 \
-    --clusterstart 5
+    --clusterstart 5 \
+    --source "$regexSource"
   fi
-	echo "$lineStr"
+	lineStr
 done
 
 sh html_to_pdf.sh

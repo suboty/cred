@@ -8,9 +8,12 @@ from logger import logger
 from encoders.get_tf_idf_matrix import TfidfMatrix
 from encoders.get_bert_embeddings import BertEmbeddings
 from preprocessing.get_regex_ast import SreParser
-from get_data import get_data_from_regex101
 from algorithms.kmeans import KMeansAlgorithm
 from preprocessing import Replacements
+from get_data import (
+    get_data_from_regex101,
+    get_data_from_regexlib
+)
 
 
 def load_yml_config(
@@ -87,6 +90,8 @@ if __name__ == '__main__':
     parser.add_argument('--clusterstep', type=int, default=1)
     # clusters start
     parser.add_argument('--clusterstart', type=int, default=2)
+    # regex source
+    parser.add_argument('--source', type=str, default='regex101')
 
     # init objects
     args = parser.parse_args()
@@ -107,7 +112,17 @@ if __name__ == '__main__':
 
     # get data
 
-    data, labels = get_data_from_regex101(args.filter)
+    match args.source:
+        case 'regex101':
+            data, columns = get_data_from_regex101(args.filter)
+            label_column = 'dialect'
+            regex_column = 'regex'
+        case 'regexlib':
+            data, columns = get_data_from_regexlib(args.filter)
+            label_column = 'rating'
+            regex_column = 'pattern'
+        case _:
+            raise NotImplementedError
 
     if 'bert' in args.algname and args.filter == '_':
         # TODO: fix memory error
@@ -120,17 +135,17 @@ if __name__ == '__main__':
 
     logger.info(f'Work with {len(data)} samples')
 
-    dataset = pd.DataFrame(data, columns=labels)
-    dataset = dataset.loc[dataset['regex'] != '']
+    dataset = pd.DataFrame(data, columns=columns)
+    dataset = dataset.loc[dataset[regex_column] != '']
 
     try:
-        labels = dataset['dialect'].tolist()
+        labels = dataset[label_column].tolist()
     except Exception as e:
         logger.error(f'This dataset has no labels! Error: {e}')
         exit(1)
 
     # 1 (original regexes)
-    list_of_regexes = dataset['regex'].tolist()
+    list_of_regexes = dataset[regex_column].tolist()
 
     # 2 (preprocessing regexes)
     pre_list_of_regexes = repl(
