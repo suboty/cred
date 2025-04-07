@@ -33,7 +33,7 @@ if __name__ == "__main__":
         if '.xlsx' in x and '_silhouette_results' in x
     ]
 
-    reg_for_filter = re.compile(r'[^_]*.(?=\.xlsx$)')
+    reg_for_filter = re.compile(r'(?<=results_).*.(?=\.xlsx$)')
 
     exp = {}
     # 1 - data (filter word)
@@ -215,6 +215,7 @@ if __name__ == "__main__":
                         elif 'bert_base_modern' in _alg:
                             i, j = 1, 2
                         else:
+                            print(f'Error with <{_alg}>')
                             raise NotImplementedError
 
                         _label = f'{"АСД" if _ast == "ast" else "РВ"} ' \
