@@ -16,14 +16,21 @@ group by r.dialect;
 
 
 -- get average, maximum and minimum length of regexes by flavors
+with regexes_length as (
+	select
+		r.dialect,
+		length(r.regex) as reg_length
+	from regexes r
+	where reg_length > 0
+)
 select
-	r.dialect,
-	count(*) as regexes_number,
-	avg(length(r.regex)) as avg_length,
-	min(length(r.regex)) as min_length,
-	max(length(r.regex)) as max_length
-from regexes r
-group by r.dialect;
+	rl.dialect,
+	max(rl.reg_length) as max_length,
+	min(rl.reg_length) as min_length,
+	avg(rl.reg_length) as avg_length
+from regexes_length rl
+group by rl.dialect
+;
 
 
 -- get maximum regexes
