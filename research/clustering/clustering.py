@@ -139,7 +139,10 @@ if __name__ == '__main__':
     dataset = dataset.loc[dataset[regex_column] != '']
 
     try:
-        labels = dataset[label_column].tolist()
+        labels = [
+            str(x) for x in
+            dataset[label_column].tolist()
+        ]
     except Exception as e:
         logger.error(f'This dataset has no labels! Error: {e}')
         exit(1)

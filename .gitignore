@@ -21,5 +21,5 @@
 *.DS_Store
 *html-to-pdf
 *node_modules
-*clustering_results_for_report
+*clustering_results_for_report*
 
