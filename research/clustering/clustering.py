@@ -9,6 +9,7 @@ from encoders.get_tf_idf_matrix import TfidfMatrix
 from encoders.get_bert_embeddings import BertEmbeddings
 from preprocessing.get_regex_ast import SreParser
 from algorithms.kmeans import KMeansAlgorithm
+from algorithms.cmeans import CMeansAlgorithm
 from preprocessing import Replacements
 from get_data import (
     get_data_from_regex101,
@@ -92,14 +93,28 @@ if __name__ == '__main__':
     parser.add_argument('--clusterstart', type=int, default=2)
     # regex source
     parser.add_argument('--source', type=str, default='regex101')
+    # clustering algorithm
+    parser.add_argument('--clusteringname', type=str, default='kmeans')
 
     # init objects
     args = parser.parse_args()
-    km = KMeansAlgorithm(
-        max_number_of_clusters=args.clustersnum+1,
-        cluster_start=args.clusterstart,
-        cluster_step=args.clusterstep
-    )
+
+    match args.clusteringname:
+        case 'kmeans':
+            cluster_alg = KMeansAlgorithm(
+                max_number_of_clusters=args.clustersnum + 1,
+                cluster_start=args.clusterstart,
+                cluster_step=args.clusterstep
+            )
+        case 'cmeans':
+            cluster_alg = CMeansAlgorithm(
+                max_number_of_clusters=args.clustersnum + 1,
+                cluster_start=args.clusterstart,
+                cluster_step=args.clusterstep
+            )
+        case _:
+            raise NotImplementedError
+
     repl = Replacements()
     parser = SreParser()
 
@@ -198,7 +213,7 @@ if __name__ == '__main__':
             input_data=input_data,
             _verbose=args.verbose,
             random_keywords_number=random_n,
-            km_object=km,
+            km_object=cluster_alg,
             _filter=args.filter,
         )
         try:
@@ -214,7 +229,7 @@ if __name__ == '__main__':
             methods_list=alg_config.get('bert'),
             input_data=input_data,
             _filter=args.filter,
-            _km=km,
+            _km=cluster_alg,
         )
         try:
             prepare_silh_table(

@@ -26,6 +26,7 @@ lineStr () {
 }
 
 read -r -p "Enter regex source: " regexSource
+read -r -p "Enter clustering algorithm: " clusteringAlg
 
 for arg in "$@"; do
   if [ "$arg" != "_" ];
@@ -33,6 +34,7 @@ for arg in "$@"; do
     echo "Experiment with <$arg> filter word"
     python3 clustering.py -s -e -n \
     --algname "tf_idf|bert" \
+    --clusteringname "$clusteringAlg" \
     --filter "$arg" \
     --clustersnum 50 \
     --source "$regexSource"
@@ -40,6 +42,7 @@ for arg in "$@"; do
     echo "Working with the whole dataset"
     python3 clustering.py -s -e -n \
     --algname "tf_idf|bert" \
+    --clusteringname "$clusteringAlg" \
     --filter "$arg" \
     --clustersnum 50 \
     --clusterstep 5 \

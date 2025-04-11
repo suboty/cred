@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 
 from logger import logger
@@ -104,7 +105,10 @@ def make_silhouette_analysis(
     )
 
     # Labeling the clusters
-    centers = clusterer.cluster_centers_
+    if isinstance(clusterer, KMeans):
+        centers = clusterer.cluster_centers_
+    else:
+        centers = clusterer
     # Draw white circles at cluster centers
     ax2.scatter(
         centers[:, 0],
