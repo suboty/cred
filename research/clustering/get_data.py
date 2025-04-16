@@ -1,7 +1,10 @@
+import datetime
 from pathlib import Path
 from typing import Optional
 
 import sqlite3
+
+from db import Regexes
 
 
 def add_rows_by_filter_word(
@@ -82,3 +85,14 @@ def get_data_from_regexlib(
     db.close()
 
     return regexlib_regexes, ('pattern', 'rating', 'title', 'description')
+
+
+def data_to_db(db, regexes, labels, **kwargs):
+    for i, regex in enumerate(regexes):
+        db.create_row(Regexes(
+            regex=regex,
+            label=labels[i],
+            is_ast=kwargs.get('is_ast'),
+            is_preprocessed=kwargs.get('is_preprocessed'),
+            created_at=str(datetime.datetime.now()),
+        ))

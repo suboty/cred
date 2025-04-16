@@ -13,7 +13,15 @@ from algorithms.cmeans import CMeansAlgorithm
 from preprocessing import Replacements
 from get_data import (
     get_data_from_regex101,
-    get_data_from_regexlib
+    get_data_from_regexlib,
+    data_to_db
+)
+from db import (
+    RegexesRepository,
+    ClusteringRepository,
+    EntityMeta,
+    DB_REGEXES_NAME,
+    DB_CLUSTERING_NAME
 )
 
 
@@ -125,8 +133,17 @@ if __name__ == '__main__':
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
 
-    # get data
+    # init databases
+    reg_db = RegexesRepository(
+        database_url=f'sqlite:///tmp/{DB_REGEXES_NAME}.db',
+        entity_meta=EntityMeta,
+    )
+    clu_db = ClusteringRepository(
+        database_url=f'sqlite:///tmp/{DB_CLUSTERING_NAME}.db',
+        entity_meta=EntityMeta,
+    )
 
+    # get data
     match args.source:
         case 'regex101':
             data, columns = get_data_from_regex101(args.filter)
@@ -164,6 +181,11 @@ if __name__ == '__main__':
 
     # 1 (original regexes)
     list_of_regexes = dataset[regex_column].tolist()
+    data_to_db(
+        db=reg_db,
+        regexes=list_of_regexes,
+        labels=labels
+    )
 
     # 2 (preprocessing regexes)
     pre_list_of_regexes = repl(
@@ -171,17 +193,36 @@ if __name__ == '__main__':
         need_equivalent=args.equivalent,
         need_nearly_equivalent=args.nearly_equivalent
     )
+    data_to_db(
+        db=reg_db,
+        regexes=pre_list_of_regexes,
+        labels=labels,
+        is_preprocessed=True,
+    )
 
     # 3 (ast for original regexes)
     ast_regex, ast_labels = parser.parse_list(
         regex_list=list_of_regexes,
         dialects=labels
     )
+    data_to_db(
+        db=reg_db,
+        regexes=ast_regex,
+        labels=ast_labels,
+        is_ast=True,
+    )
 
     # 4 (ast for preprocessing regexes)
     pre_ast_regex, pre_ast_labels = parser.parse_list(
         regex_list=pre_list_of_regexes,
         dialects=labels
+    )
+    data_to_db(
+        db=reg_db,
+        regexes=pre_ast_regex,
+        labels=pre_ast_labels,
+        is_ast=True,
+        is_preprocessed=True,
     )
 
     # prepare data tuple
