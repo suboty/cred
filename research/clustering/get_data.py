@@ -89,7 +89,7 @@ def get_data_from_regexlib(
 
 def data_to_db(db, regexes, labels, **kwargs):
     for i, regex in enumerate(regexes):
-        db.create_row(Regexes(
+        db.create_regex(Regexes(
             regex=regex,
             label=labels[i],
             is_ast=kwargs.get('is_ast'),

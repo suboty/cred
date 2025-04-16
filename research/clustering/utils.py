@@ -209,6 +209,7 @@ def make_clustering_report(
         clustering: str,
         img_savepath: Union[str, Path],
         savepath: Union[str, Path],
+        database_object,
         filter_word: Optional[str] = None,
         template_path: Path = Path('templates', 'template.html')
 ):
@@ -263,6 +264,8 @@ def make_clustering_report(
     ) if 'silh_' in x and 'pre_' in x and '2d' in x])
 
     silh_vis = []
+
+    print(os.listdir())
 
     for i, silh_plot in enumerate(silh_plots):
         _row = '\t\t<p float="left">'
@@ -389,7 +392,8 @@ def run_bert(
         input_data,
         _filter,
         _km,
-        _be
+        _be,
+        db,
 ):
     """Run BERT pipeline."""
     exp_name = get_experiment_name(
@@ -428,7 +432,7 @@ def run_bert(
             preds=clustered_preds,
             alg_name=_be.name,
             tip=data[2],
-            savepath=savepath
+            savepath=savepath,
         )
 
     make_clustering_report(
@@ -437,7 +441,8 @@ def run_bert(
         clustering='kmeans++',
         img_savepath=Path('..', str(savepath).replace('tmp/', '')),
         savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter
+        filter_word=_filter,
+        database_object=db,
     )
 
 
@@ -449,6 +454,7 @@ def run_tf_idf(
         _verbose,
         random_keywords_number,
         km_object,
+        db,
 ):
     """Run TF-IDF pipeline."""
     logger.info(f'TF-IDF matrix ({tf_idf_method})')
@@ -509,7 +515,8 @@ def run_tf_idf(
         clustering='kmeans++',
         img_savepath=Path('..', str(savepath).replace('tmp/', '')),
         savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter
+        filter_word=_filter,
+        database_object=db,
     )
 
 

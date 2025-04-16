@@ -134,12 +134,8 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore")
 
     # init databases
-    reg_db = RegexesRepository(
-        database_url=f'sqlite:///tmp/{DB_REGEXES_NAME}.db',
-        entity_meta=EntityMeta,
-    )
-    clu_db = ClusteringRepository(
-        database_url=f'sqlite:///tmp/{DB_CLUSTERING_NAME}.db',
+    db = RegexesRepository(
+        database_url=f'sqlite:///tmp/research.db',
         entity_meta=EntityMeta,
     )
 
@@ -182,7 +178,7 @@ if __name__ == '__main__':
     # 1 (original regexes)
     list_of_regexes = dataset[regex_column].tolist()
     data_to_db(
-        db=reg_db,
+        db=db,
         regexes=list_of_regexes,
         labels=labels
     )
@@ -194,7 +190,7 @@ if __name__ == '__main__':
         need_nearly_equivalent=args.nearly_equivalent
     )
     data_to_db(
-        db=reg_db,
+        db=db,
         regexes=pre_list_of_regexes,
         labels=labels,
         is_preprocessed=True,
@@ -206,7 +202,7 @@ if __name__ == '__main__':
         dialects=labels
     )
     data_to_db(
-        db=reg_db,
+        db=db,
         regexes=ast_regex,
         labels=ast_labels,
         is_ast=True,
@@ -218,7 +214,7 @@ if __name__ == '__main__':
         dialects=labels
     )
     data_to_db(
-        db=reg_db,
+        db=db,
         regexes=pre_ast_regex,
         labels=pre_ast_labels,
         is_ast=True,
@@ -256,6 +252,7 @@ if __name__ == '__main__':
             random_keywords_number=random_n,
             km_object=cluster_alg,
             _filter=args.filter,
+            db=db,
         )
         try:
             prepare_silh_table(
@@ -271,6 +268,7 @@ if __name__ == '__main__':
             input_data=input_data,
             _filter=args.filter,
             _km=cluster_alg,
+            db=db,
         )
         try:
             prepare_silh_table(
