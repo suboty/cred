@@ -265,8 +265,6 @@ def make_clustering_report(
 
     silh_vis = []
 
-    print(os.listdir())
-
     for i, silh_plot in enumerate(silh_plots):
         _row = '\t\t<p float="left">'
         _n = cluster_number_reg.search(silh_plot).group(0)
@@ -425,7 +423,12 @@ def run_bert(
             pipeline_name=f'{data[2]}_' + _be.name,
             verbose=False,
             savepath=savepath,
-            data_2d=umap
+            data_2d=umap,
+            db=db,
+            _vectorizer=_be.name,
+            _filter=_filter,
+            _preprocessed=data[2],
+            ids=data[3]
         )
         save_clustered_results(
             data=data[0],
@@ -499,7 +502,12 @@ def run_tf_idf(
             pipeline_name=f'{data[2]}_' + f'tf_idf_{tf_idf_method}',
             verbose=False,
             savepath=savepath,
-            data_2d=umap
+            data_2d=umap,
+            db=db,
+            _vectorizer=tf_idf_method,
+            _filter=_filter,
+            _preprocessed=data[2],
+            ids=data[3]
         )
         save_clustered_results(
             data=data[0],

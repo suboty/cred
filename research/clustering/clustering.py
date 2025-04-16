@@ -17,11 +17,8 @@ from get_data import (
     data_to_db
 )
 from db import (
-    RegexesRepository,
-    ClusteringRepository,
     EntityMeta,
-    DB_REGEXES_NAME,
-    DB_CLUSTERING_NAME
+    ResearchRepository
 )
 
 
@@ -134,7 +131,7 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore")
 
     # init databases
-    db = RegexesRepository(
+    db = ResearchRepository(
         database_url=f'sqlite:///tmp/research.db',
         entity_meta=EntityMeta,
     )
@@ -177,7 +174,7 @@ if __name__ == '__main__':
 
     # 1 (original regexes)
     list_of_regexes = dataset[regex_column].tolist()
-    data_to_db(
+    ids = data_to_db(
         db=db,
         regexes=list_of_regexes,
         labels=labels
@@ -189,7 +186,7 @@ if __name__ == '__main__':
         need_equivalent=args.equivalent,
         need_nearly_equivalent=args.nearly_equivalent
     )
-    data_to_db(
+    pre_ids = data_to_db(
         db=db,
         regexes=pre_list_of_regexes,
         labels=labels,
@@ -201,7 +198,7 @@ if __name__ == '__main__':
         regex_list=list_of_regexes,
         dialects=labels
     )
-    data_to_db(
+    ast_ids = data_to_db(
         db=db,
         regexes=ast_regex,
         labels=ast_labels,
@@ -213,7 +210,7 @@ if __name__ == '__main__':
         regex_list=pre_list_of_regexes,
         dialects=labels
     )
-    data_to_db(
+    pre_ast_ids = data_to_db(
         db=db,
         regexes=pre_ast_regex,
         labels=pre_ast_labels,
@@ -223,11 +220,11 @@ if __name__ == '__main__':
 
     # prepare data tuple
     input_data = (
-        # data | labels | tip
-        (list_of_regexes, labels, 'original'),
-        (pre_list_of_regexes, labels, 'pre'),
-        (ast_regex, ast_labels, 'ast_original'),
-        (pre_ast_regex, pre_ast_labels, 'ast_pre'),
+        # data | labels | tip | ids
+        (list_of_regexes, labels, 'original', ids),
+        (pre_list_of_regexes, labels, 'pre', pre_ids),
+        (ast_regex, ast_labels, 'ast_original', ast_ids),
+        (pre_ast_regex, pre_ast_labels, 'ast_pre', pre_ast_ids),
     )
 
     # random number for example printing

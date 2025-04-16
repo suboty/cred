@@ -1,4 +1,3 @@
-import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -88,11 +87,13 @@ def get_data_from_regexlib(
 
 
 def data_to_db(db, regexes, labels, **kwargs):
+    ids = []
     for i, regex in enumerate(regexes):
-        db.create_regex(Regexes(
+        meta = db.create_regex(Regexes(
             regex=regex,
             label=labels[i],
             is_ast=kwargs.get('is_ast'),
             is_preprocessed=kwargs.get('is_preprocessed'),
-            created_at=str(datetime.datetime.now()),
         ))
+        ids.append(meta.get('id'))
+    return ids

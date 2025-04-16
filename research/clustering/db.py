@@ -1,4 +1,6 @@
 import time
+import datetime
+from typing import Dict
 
 from sqlalchemy import Column, INTEGER, TEXT, BOOLEAN, FLOAT, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -35,7 +37,6 @@ class Regexes(EntityMeta):
             'label': self.label.__str__(),
             'is_ast': self.is_ast,
             'is_preprocessed': self.is_preprocessed,
-            'created_at': self.created_at.__str__(),
         }
 
 
@@ -45,11 +46,23 @@ class Experiments(EntityMeta):
     id = Column(INTEGER, primary_key=True, index=True, autoincrement=True)
     # core fields
     vectorizer = Column(TEXT, nullable=False)
+    filter_word = Column(TEXT, nullable=False)
+    preprocessed = Column(TEXT, nullable=False)
     cluster_number = Column(INTEGER, nullable=False)
     clustering_algorithm = Column(TEXT, nullable=False)
     input_data_shape = Column(TEXT, nullable=False)
     # extra fields
     created_at = Column(TEXT, nullable=False)
+
+    def normalize(self):
+        return {
+            'id': self.id,
+            'vectorizer': self.vectorizer.__str__(),
+            'filter_word': self.filter_word.__str__(),
+            'cluster_number': self.cluster_number,
+            'clustering_algorithm': self.clustering_algorithm.__str__(),
+            'input_data_shape': self.input_data_shape.__str__(),
+        }
 
 
 class Clustering(EntityMeta):
@@ -63,15 +76,33 @@ class Clustering(EntityMeta):
     # extra fields
     created_at = Column(TEXT, nullable=False)
 
+    def normalize(self):
+        return {
+            'id': self.id,
+            'regex_id': self.regex_id,
+            'experiment_id': self.experiment_id,
+            'cluster_id': self.cluster_id,
+        }
+
 
 class Results(EntityMeta):
-    __tablename__ = CLUSTERING_TABLE_NAME
+    __tablename__ = RESULTS_TABLE_NAME
 
     id = Column(INTEGER, primary_key=True, index=True, autoincrement=True)
     # core fields
     experiment_id = Column(INTEGER, ForeignKey(f'{EXPERIMENTS_TABLE_NAME}.id'), nullable=False)
     metric_name = Column(TEXT, nullable=False)
     metric_value = Column(FLOAT, nullable=False)
+    # extra fields
+    created_at = Column(TEXT, nullable=False)
+
+    def normalize(self):
+        return {
+            'id': self.id,
+            'experiment_id': self.experiment_id,
+            'metric_name': self.metric_name.__str__(),
+            'metric_value': self.metric_value,
+        }
 
 
 class ResearchRepository:
@@ -91,26 +122,38 @@ class ResearchRepository:
         self.entity_meta = entity_meta
         self.db = scoped_session(self.session)
 
-    def create_regex(self, meta: Regexes) -> None:
+    def create_regex(self, meta: Regexes) -> Dict:
         if not meta.is_ast:
             meta.is_ast = False
         if not meta.is_preprocessed:
             meta.is_preprocessed = False
+        if not meta.created_at:
+            meta.created_at = str(datetime.datetime.now())
         self.db.add(meta)
         self.db.commit()
         self.db.refresh(meta)
+        return meta.normalize()
 
-    def create_experiment(self, meta: Experiments) -> None:
+    def create_experiment(self, meta: Experiments) -> Dict:
+        if not meta.created_at:
+            meta.created_at = str(datetime.datetime.now())
         self.db.add(meta)
         self.db.commit()
         self.db.refresh(meta)
+        return meta.normalize()
 
-    def create_result(self, meta: Results) -> None:
+    def create_result(self, meta: Results) -> Dict:
+        if not meta.created_at:
+            meta.created_at = str(datetime.datetime.now())
         self.db.add(meta)
         self.db.commit()
         self.db.refresh(meta)
+        return meta.normalize()
 
-    def create_clustering(self, meta: Clustering) -> None:
+    def create_clustering(self, meta: Clustering) -> Dict:
+        if not meta.created_at:
+            meta.created_at = str(datetime.datetime.now())
         self.db.add(meta)
         self.db.commit()
         self.db.refresh(meta)
+        return meta.normalize()

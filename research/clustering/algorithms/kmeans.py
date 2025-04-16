@@ -9,6 +9,11 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score
 
 from logger import logger
 from algorithms.silhouette_analysis import make_silhouette_analysis
+from db import (
+    Experiments,
+    Clustering,
+    Results,
+)
 
 
 class KMeansAlgorithm:
@@ -35,6 +40,7 @@ class KMeansAlgorithm:
             savepath: Union[str, Path],
             verbose: bool,
             data_2d,
+            db,
             *args, **kwargs,
     ):
 
@@ -47,7 +53,7 @@ class KMeansAlgorithm:
 
             sse = []
             km_silhouette = []
-            db_score = []
+            db_scores = []
 
             _cluster_range = list(
                 range(
@@ -73,6 +79,18 @@ class KMeansAlgorithm:
             )
 
             for k in _cluster_range:
+
+                exp_meta = db.create_experiment(
+                    Experiments(
+                        vectorizer=kwargs.get('_vectorizer'),
+                        filter_word=kwargs.get('_filter'),
+                        clustering_algorithm='kmeans++',
+                        cluster_number=k,
+                        preprocessed=kwargs.get('_preprocessed'),
+                        input_data_shape='original' if i_data == 0 else '2d'
+                    )
+                )
+
                 if verbose:
                     logger.debug('-' * 10, f"{k} clusters", '-' * 10)
                 t0 = time.time()
@@ -87,6 +105,15 @@ class KMeansAlgorithm:
                 kmeans.fit(_data)
                 preds = kmeans.predict(_data)
 
+                for i, _id in enumerate(kwargs.get('ids')):
+                    db.create_clustering(
+                        Clustering(
+                            regex_id=_id,
+                            experiment_id=exp_meta.get('id'),
+                            cluster_id=int(preds[i])
+                        )
+                    )
+
                 match i_data:
                     case 0:
                         clustered_results['original_data'][k] = preds
@@ -94,12 +121,26 @@ class KMeansAlgorithm:
                         clustered_results['2d_data'][k] = preds
 
                 if 'elbow' not in self.excluded_metrics:
+                    db.create_result(
+                        Results(
+                            experiment_id=exp_meta.get('id'),
+                            metric_name='elbow',
+                            metric_value=kmeans.inertia_
+                        )
+                    )
                     sse.append(kmeans.inertia_)
                     if verbose:
                         logger.debug(f"Score for number of cluster(s) {k}: {kmeans.inertia_}")
 
                 if 'silhouette' not in self.excluded_metrics:
                     silhouette = silhouette_score(_data, preds)
+                    db.create_result(
+                        Results(
+                            experiment_id=exp_meta.get('id'),
+                            metric_name='silhouette',
+                            metric_value=silhouette
+                        )
+                    )
                     km_silhouette.append(silhouette)
                     if verbose:
                         logger.debug(f"Silhouette score for number of cluster(s) {k}: {silhouette}")
@@ -115,8 +156,15 @@ class KMeansAlgorithm:
                     )
 
                 if 'db' not in self.excluded_metrics:
-                    db = davies_bouldin_score(_data, preds)
-                    db_score.append(db)
+                    db_score = davies_bouldin_score(_data, preds)
+                    db.create_result(
+                        Results(
+                            experiment_id=exp_meta.get('id'),
+                            metric_name='davies bouldin',
+                            metric_value=db
+                        )
+                    )
+                    db_scores.append(db_score)
                     if verbose:
                         logger.debug(f"Davies Bouldin score for number of cluster(s) {k}: {db}")
 
@@ -166,7 +214,7 @@ class KMeansAlgorithm:
             # davies bouldin saving
             if 'db' not in self.excluded_metrics:
                 _, ax = plt.subplots()
-                ax.plot(_cluster_range, db_score, marker='o')
+                ax.plot(_cluster_range, db_scores, marker='o')
                 ax.set_xlabel('Number of clusters')
                 ax.set_ylabel('Davies Bouldin score')
                 if 'tf_idf' in pipeline_name:

@@ -9,6 +9,11 @@ from sklearn.metrics import silhouette_score
 
 from logger import logger
 from algorithms.silhouette_analysis import make_silhouette_analysis
+from db import (
+    Experiments,
+    Clustering,
+    Results,
+)
 
 
 class CMeansAlgorithm:
@@ -33,6 +38,7 @@ class CMeansAlgorithm:
             savepath: Union[str, Path],
             verbose: bool,
             data_2d,
+            db,
             *args, **kwargs,
     ):
 
@@ -71,6 +77,18 @@ class CMeansAlgorithm:
             _data = np.squeeze(_data)
 
             for k in _cluster_range:
+
+                exp_meta = db.create_experiment(
+                    Experiments(
+                        vectorizer=kwargs.get('_vectorizer'),
+                        filter_word=kwargs.get('_filter'),
+                        clustering_algorithm='cmeans',
+                        cluster_number=k,
+                        preprocessed=kwargs.get('_preprocessed'),
+                        input_data_shape='original' if i_data == 0 else '2d'
+                    )
+                )
+
                 if verbose:
                     logger.debug('-' * 10, f"{k} clusters", '-' * 10)
                 t0 = time.time()
@@ -82,6 +100,15 @@ class CMeansAlgorithm:
                 preds = fcm.predict(_data)
                 fcm_centers = fcm.centers
 
+                for i, _id in enumerate(kwargs.get('ids')):
+                    db.create_clustering(
+                        Clustering(
+                            regex_id=_id,
+                            experiment_id=exp_meta.get('id'),
+                            cluster_id=int(preds[i])
+                        )
+                    )
+
                 match i_data:
                     case 0:
                         clustered_results['original_data'][k] = preds
@@ -90,6 +117,15 @@ class CMeansAlgorithm:
 
                 if 'silhouette' not in self.excluded_metrics:
                     silhouette = silhouette_score(_data, preds)
+
+                    db.create_result(
+                        Results(
+                            experiment_id=exp_meta.get('id'),
+                            metric_name='silhouette',
+                            metric_value=silhouette
+                        )
+                    )
+
                     km_silhouette.append(silhouette)
                     if verbose:
                         logger.debug(f"Silhouette score for number of cluster(s) {k}: {silhouette}")
