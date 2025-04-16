@@ -27,9 +27,17 @@ def load_yml_config(
 ):
     with open(path_to_config) as stream:
         try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as e:
-            print(f'Error while parsing yaml config: {e}')
+            res_yaml = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(f'Error while parsing yaml config: {exc}')
+
+    # for statistics calculate
+    if res_yaml.get('tf_idf'):
+        if 'tokens' not in res_yaml.get('tf_idf'):
+            res_yaml['tf_idf'].append('tokens')
+    else:
+        res_yaml['tf_idf'] = ['tokens']
+    return res_yaml
 
 
 def iter_tf_idf(methods_list, **kwargs):
