@@ -1,4 +1,3 @@
-import os
 import argparse
 import warnings
 
@@ -139,6 +138,7 @@ if __name__ == '__main__':
     parser = SreParser()
 
     # prepare folders
+    os.makedirs('tmp', exist_ok=True)
     if os.environ.get('isClusteringReportsSaving').lower() == 'true':
         os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
     if os.environ.get('isRegexesSaving').lower() == 'true':
