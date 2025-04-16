@@ -47,17 +47,15 @@ def load_tokens_rules(
     return rules
 
 
-TOKENS_RULES = load_tokens_rules(
-    path_to_1_symbol_rules=Path('encoders', 'tokens_rules_1_symbol'),
-    path_to_2_or_more_symbols_rules=Path('encoders', 'tokens_rules_2_or_more_symbols'),
-)
-
-TOKENS_SEP = 'SEP-SYMBOL'
-
-
 class TfidfMatrix:
-
     scaler = MinMaxScaler()
+    def __init__(self):
+        self.token_rules = load_tokens_rules(
+            path_to_1_symbol_rules=Path('encoders', 'tokens_rules_1_symbol'),
+            path_to_2_or_more_symbols_rules=Path('encoders', 'tokens_rules_2_or_more_symbols'),
+        )
+
+        self.tokens_sep = 'SEP-SYMBOL'
 
     @staticmethod
     def scaling_decorator(func):
@@ -108,9 +106,9 @@ class TfidfMatrix:
         non_terminals_tfidf_matrix = non_terminals_tfidf_encoder.fit_transform(list_of_regexes)
         return non_terminals_tfidf_encoder, non_terminals_tfidf_matrix
 
-    @staticmethod
     @scaling_decorator
     def get_matrix_tokenize_by_regex_tokens(
+            self,
             list_of_regexes,
     ):
         """Get TF-IDF matrix by custom regex tokens."""
@@ -120,14 +118,14 @@ class TfidfMatrix:
         def custom_tokenize(text):
             tokens = []
             # work with 2 or more symbols tokens
-            rules_2_or_more_symbol_tokens_keys = TOKENS_RULES['2_or_more'].keys()
+            rules_2_or_more_symbol_tokens_keys = self.token_rules['2_or_more'].keys()
             new_text = text
             for token in rules_2_or_more_symbol_tokens_keys:
                 new_text = new_text.replace(
                     token,
-                    TOKENS_SEP * 2 + TOKENS_RULES['2_or_more'].get(token) + TOKENS_SEP * 2,
+                    self.tokens_sep * 2 + self.token_rules['2_or_more'].get(token) + self.tokens_sep * 2,
                 )
-            new_text = new_text.split(TOKENS_SEP)
+            new_text = new_text.split(self.tokens_sep)
 
             if new_text[-1] == '':
                 new_text = new_text[:-1]
@@ -136,7 +134,7 @@ class TfidfMatrix:
                 new_text = new_text[1:]
 
             # work with 1 symbol tokens
-            rules_1_symbol_tokens_keys = TOKENS_RULES['1'].keys()
+            rules_1_symbol_tokens_keys = self.token_rules['1'].keys()
 
             is_2_token = False
             for part in new_text:
@@ -154,7 +152,7 @@ class TfidfMatrix:
                 else:
                     for symbol in part:
                         if symbol in rules_1_symbol_tokens_keys:
-                            tokens.append(TOKENS_RULES['1'].get(symbol))
+                            tokens.append(self.token_rules['1'].get(symbol))
                             continue
                         tokens.append(f'atom, {symbol}')
             tokens_stats.append([x for x in tokens if 'atom, ' not in x])

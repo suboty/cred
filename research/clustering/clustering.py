@@ -35,13 +35,14 @@ def load_yml_config(
 def iter_tf_idf(methods_list, **kwargs):
     if methods_list:
         for method_name in methods_list:
+            tf_idf_object = TfidfMatrix()
             match method_name:
                 case 'tokens':
-                    get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_regex_tokens
+                    get_matrix_function = tf_idf_object.get_matrix_tokenize_by_regex_tokens
                 case 'chars':
-                    get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_chars
+                    get_matrix_function = tf_idf_object.get_matrix_tokenize_by_chars
                 case 'non_terminals':
-                    get_matrix_function = TfidfMatrix.get_matrix_tokenize_by_non_terminals
+                    get_matrix_function = tf_idf_object.get_matrix_tokenize_by_non_terminals
                 case _:
                     raise NotImplementedError
 
