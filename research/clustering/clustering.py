@@ -277,13 +277,14 @@ if __name__ == '__main__':
             _filter=args.filter,
             db=db,
         )
-        try:
-            prepare_silh_table(
-                tip='tf-idf',
-                filter_word=args.filter,
-            )
-        except Exception as e:
-            logger.warning(f'Error while stats saving: {e}')
+        if os.environ.get('isClusteringReportsSaving').lower() == 'true':
+            try:
+                prepare_silh_table(
+                    tip='tf-idf',
+                    filter_word=args.filter,
+                )
+            except Exception as e:
+                logger.warning(f'Error while stats saving: {e}')
 
     if 'bert' in args.algName and alg_config.get('bert'):
         iter_bert(
@@ -293,14 +294,15 @@ if __name__ == '__main__':
             _km=cluster_alg,
             db=db,
         )
-        try:
-            prepare_silh_table(
-                tip='bert',
-                filter_word=args.filter,
-            )
-        except Exception as e:
-            logger.warning(f'Error while stats saving: {e}')
-
-    prepare_results(
-        filter_word=args.filter,
-    )
+        if os.environ.get('isClusteringReportsSaving').lower() == 'true':
+            try:
+                prepare_silh_table(
+                    tip='bert',
+                    filter_word=args.filter,
+                )
+            except Exception as e:
+                logger.warning(f'Error while stats saving: {e}')
+    if os.environ.get('isClusteringReportsSaving').lower() == 'true':
+        prepare_results(
+            filter_word=args.filter,
+        )
