@@ -438,15 +438,16 @@ def run_bert(
             savepath=savepath,
         )
 
-    make_clustering_report(
-        experiment_name=exp_name,
-        encoder=_be.__repr__(),
-        clustering='kmeans++',
-        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-        savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter,
-        database_object=db,
-    )
+    if os.environ.get('isClusteringReportsSaving').lower() == 'y':
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder=_be.__repr__(),
+            clustering='kmeans++',
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+            savepath=Path('tmp', 'clustering_reports'),
+            filter_word=_filter,
+            database_object=db,
+        )
 
 
 def run_tf_idf(
@@ -517,15 +518,16 @@ def run_tf_idf(
             savepath=savepath
         )
 
-    make_clustering_report(
-        experiment_name=exp_name,
-        encoder=f'tf_idf_{tf_idf_method}',
-        clustering='kmeans++',
-        img_savepath=Path('..', str(savepath).replace('tmp/', '')),
-        savepath=Path('tmp', 'clustering_reports'),
-        filter_word=_filter,
-        database_object=db,
-    )
+    if os.environ.get('isClusteringReportsSaving').lower() == 'y':
+        make_clustering_report(
+            experiment_name=exp_name,
+            encoder=f'tf_idf_{tf_idf_method}',
+            clustering='kmeans++',
+            img_savepath=Path('..', str(savepath).replace('tmp/', '')),
+            savepath=Path('tmp', 'clustering_reports'),
+            filter_word=_filter,
+            database_object=db,
+        )
 
 
 def prepare_silh_table(

@@ -28,28 +28,45 @@ lineStr () {
 read -r -p "Enter regex source: " regexSource
 read -r -p "Enter clustering algorithm: " clusteringAlg
 
+read -r -p "Is need to save regular expressions? (y/n): " isRegexesSaving
+read -r -p "Is need to save clustering reports? (y/n): " isClusteringReportsSaving
+
+if [ "$isRegexesSaving" = "yes" ]; then
+  isRegexesSaving="y"
+fi
+
+if [ "$isClusteringReportsSaving" = "yes" ]; then
+  isClusteringReportsSaving="y"
+fi
+
 for arg in "$@"; do
   if [ "$arg" != "_" ];
   then
     echo "Experiment with <$arg> filter word"
     python3 clustering.py -s -e -n \
-    --algname "tf_idf|bert" \
-    --clusteringname "$clusteringAlg" \
+    --algName "tf_idf|bert" \
+    --clusteringName "$clusteringAlg" \
     --filter "$arg" \
-    --clustersnum 50 \
-    --source "$regexSource"
+    --clustersNum 50 \
+    --regexSource "$regexSource" \
+    --isClusteringReportsSaving "$isClusteringReportsSaving" \
+    --isRegexesSaving "$isRegexesSaving"
   else
     echo "Working with the whole dataset"
     python3 clustering.py -s -e -n \
-    --algname "tf_idf|bert" \
-    --clusteringname "$clusteringAlg" \
+    --algName "tf_idf|bert" \
+    --clusteringName "$clusteringAlg" \
     --filter "$arg" \
-    --clustersnum 50 \
-    --clusterstep 5 \
-    --clusterstart 5 \
-    --source "$regexSource"
+    --clustersNum 50 \
+    --clusterStep 5 \
+    --clusterStart 5 \
+    --regexSource "$regexSource" \
+    --isClusteringReportsSaving "$isClusteringReportsSaving" \
+    --isRegexesSaving "$isRegexesSaving"
   fi
 	lineStr
 done
 
-sh html_to_pdf.sh
+if [ "$isClusteringReportsSaving" = "y" ]; then
+  sh html_to_pdf.sh
+fi

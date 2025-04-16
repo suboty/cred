@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 from typing import Union, List
@@ -109,11 +110,12 @@ class CMeansAlgorithm:
                         )
                     )
 
-                match i_data:
-                    case 0:
-                        clustered_results['original_data'][k] = preds
-                    case 1:
-                        clustered_results['2d_data'][k] = preds
+                if os.environ.get('isRegexesSaving').lower() == 'true':
+                    match i_data:
+                        case 0:
+                            clustered_results['original_data'][k] = preds
+                        case 1:
+                            clustered_results['2d_data'][k] = preds
 
                 if 'silhouette' not in self.excluded_metrics:
                     silhouette = silhouette_score(_data, preds)

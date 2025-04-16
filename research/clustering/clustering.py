@@ -1,3 +1,4 @@
+import os
 import argparse
 import warnings
 
@@ -87,35 +88,49 @@ if __name__ == '__main__':
     )
     os.environ['IS_NEED_SCALING'] = 'true'
     # encoder
-    parser.add_argument('--algname', type=str, default='bert')
+    parser.add_argument('--algName', type=str, default='bert')
     # filter word for getting data
     parser.add_argument('--filter', type=str, default=None)
     # clusters number
-    parser.add_argument('--clustersnum', type=int, default=10)
+    parser.add_argument('--clustersNum', type=int, default=10)
     # clusters step
-    parser.add_argument('--clusterstep', type=int, default=1)
+    parser.add_argument('--clusterStep', type=int, default=1)
     # clusters start
-    parser.add_argument('--clusterstart', type=int, default=2)
+    parser.add_argument('--clusterStart', type=int, default=2)
     # regex source
-    parser.add_argument('--source', type=str, default='regex101')
+    parser.add_argument('--regexSource', type=str, default='regex101')
     # clustering algorithm
-    parser.add_argument('--clusteringname', type=str, default='kmeans')
+    parser.add_argument('--clusteringName', type=str, default='kmeans')
+    # is need save clustering reports
+    parser.add_argument('--isClusteringReportsSaving', type=str, default='y')
+    # is need save regexes after clustering
+    parser.add_argument('--isRegexesSaving', type=str, default='y')
 
     # init objects
     args = parser.parse_args()
 
-    match args.clusteringname:
+    if args.isClusteringReportsSaving.lower() == 'y':
+        os.environ['isClusteringReportsSaving'] = 'true'
+    else:
+        os.environ['isClusteringReportsSaving'] = 'false'
+
+    if args.isRegexesSaving.lower() == 'y':
+        os.environ['isRegexesSaving'] = 'true'
+    else:
+        os.environ['isRegexesSaving'] = 'false'
+
+    match args.clusteringName:
         case 'kmeans':
             cluster_alg = KMeansAlgorithm(
-                max_number_of_clusters=args.clustersnum + 1,
-                cluster_start=args.clusterstart,
-                cluster_step=args.clusterstep
+                max_number_of_clusters=args.clustersNum + 1,
+                cluster_start=args.clusterStart,
+                cluster_step=args.clusterStep
             )
         case 'cmeans':
             cluster_alg = CMeansAlgorithm(
-                max_number_of_clusters=args.clustersnum + 1,
-                cluster_start=args.clusterstart,
-                cluster_step=args.clusterstep
+                max_number_of_clusters=args.clustersNum + 1,
+                cluster_start=args.clusterStart,
+                cluster_step=args.clusterStep
             )
         case _:
             raise NotImplementedError
@@ -124,8 +139,10 @@ if __name__ == '__main__':
     parser = SreParser()
 
     # prepare folders
-    os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
-    os.makedirs(Path('tmp', 'clusters'), exist_ok=True)
+    if os.environ.get('isClusteringReportsSaving').lower() == 'true':
+        os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
+    if os.environ.get('isRegexesSaving').lower() == 'true':
+        os.makedirs(Path('tmp', 'clusters'), exist_ok=True)
 
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
@@ -137,7 +154,7 @@ if __name__ == '__main__':
     )
 
     # get data
-    match args.source:
+    match args.regexSource:
         case 'regex101':
             data, columns = get_data_from_regex101(args.filter)
             label_column = 'dialect'
@@ -149,7 +166,7 @@ if __name__ == '__main__':
         case _:
             raise NotImplementedError
 
-    if 'bert' in args.algname and args.filter == '_':
+    if 'bert' in args.algName and args.filter == '_':
         # TODO: fix memory error
         if len(data) > 5000:
             indexes = np.random.randint(0, len(data)-1, 5000)
@@ -241,7 +258,7 @@ if __name__ == '__main__':
     alg_config = load_yml_config()
 
     # run clustering
-    if 'tf_idf' in args.algname and alg_config.get('tf_idf'):
+    if 'tf_idf' in args.algName and alg_config.get('tf_idf'):
         iter_tf_idf(
             methods_list=alg_config.get('tf_idf'),
             input_data=input_data,
@@ -259,7 +276,7 @@ if __name__ == '__main__':
         except Exception as e:
             logger.warning(f'Error while stats saving: {e}')
 
-    if 'bert' in args.algname and alg_config.get('bert'):
+    if 'bert' in args.algName and alg_config.get('bert'):
         iter_bert(
             methods_list=alg_config.get('bert'),
             input_data=input_data,
