@@ -183,7 +183,7 @@ class ClusteringUseCase:
 
                     best_id = connection.execute(text(
                         self.queries.get('best_id')
-                    )).fetchone()
+                    )).fetchone()[0]
 
                     clustering_regexes = connection.execute(text(
                         self.queries.get('clust_reg').replace('BESTEXPID', str(best_id))
