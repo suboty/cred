@@ -16,7 +16,7 @@ class BertEmbeddings:
     @staticmethod
     def scaling_decorator(func):
         def wrapper(*args, **kwargs):
-            embeddings, labels = func(*args, **kwargs)
+            embeddings, labels, ids = func(*args, **kwargs)
 
             embeddings = np.squeeze(embeddings)
 
@@ -27,7 +27,7 @@ class BertEmbeddings:
             else:
                 scaled_embeddings = embeddings
 
-            return scaled_embeddings, labels
+            return scaled_embeddings, labels, ids
 
         return wrapper
 
