@@ -43,11 +43,11 @@ class ClusteringUseCase:
         self.queries = {}
         with open(Path(path_to_sql_queries, 'get_best_experiment_id.sql'), 'r') as b_exp_file:
             data = b_exp_file.read()
-            data.replace('TIMEID', str(self.creating_time))
+            data = data.replace('TIMEID', str(self.creating_time))
             self.queries['best_id'] = data
         with open(Path(path_to_sql_queries, 'get_clustering_regexes.sql'), 'r') as c_reg_file:
             data = c_reg_file.read()
-            data.replace('TIMEID', str(self.creating_time))
+            data = data.replace('TIMEID', str(self.creating_time))
             self.queries['clust_reg'] = data
 
         # work with system variables
