@@ -63,9 +63,10 @@ class BertEmbeddings:
         return self.name
 
     @scaling_decorator
-    def get_bert_regex(self, strings, dialects):
+    def get_bert_regex(self, strings, dialects, ids):
         sentence_embeddings = []
         new_dialects = []
+        new_ids = []
         for i, string in tqdm(enumerate(strings)):
             t_input = self.tokenizer(
                 string,
@@ -91,6 +92,9 @@ class BertEmbeddings:
                 new_dialects.append(
                     dialects[i]
                 )
+                new_ids.append(
+                    ids[i]
+                )
             except Exception as e:
                 self.errors += 1
                 if self.verbose:
@@ -102,4 +106,4 @@ class BertEmbeddings:
             logger.warning(f'{self.errors} regexes has too much length')
         self.errors = 0
 
-        return np.array(sentence_embeddings), new_dialects
+        return np.array(sentence_embeddings), new_dialects, new_ids

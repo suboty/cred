@@ -408,7 +408,7 @@ def run_bert(
     logger.info(f'BERT embeddings ({_be.name})')
 
     for data in input_data:
-        embeddings, labels = _be.get_bert_regex(data[0], data[1])
+        embeddings, labels, ids = _be.get_bert_regex(data[0], data[1], data[3])
 
         print_data_case(data[2])
 
@@ -431,7 +431,7 @@ def run_bert(
             _vectorizer=_be.name,
             _filter=_filter,
             _preprocessed=data[2],
-            ids=data[3]
+            ids=ids
         )
         save_clustered_results(
             data=data[0],
