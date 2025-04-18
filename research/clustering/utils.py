@@ -15,7 +15,6 @@ from sklearn.decomposition import PCA
 from logger import logger
 from settings import stats
 
-
 # html template version
 IS_V2 = True
 
@@ -353,9 +352,9 @@ def make_clustering_report(
                                  '</table>'
             m_rows = ''
             for method in repl_stats[key]:
-               m_rows += f'<tr><td>{method}</td><td>' \
-                         f'{get_table_from_values(repl_stats[key][method])}' \
-                         f'</td></tr>'
+                m_rows += f'<tr><td>{method}</td><td>' \
+                          f'{get_table_from_values(repl_stats[key][method])}' \
+                          f'</td></tr>'
             method_stats_table = method_stats_table.replace('__ROWS__', m_rows)
 
             _rows += f'<tr><td>{key}</td><td>{method_stats_table}</td></tr>'
@@ -453,12 +452,13 @@ def run_bert(
 def run_tf_idf(
         input_data,
         tf_idf_method,
-        _filter,
         get_matrix_function,
         _verbose,
-        random_keywords_number,
         km_object,
         db,
+        _filter='_',
+        random_keywords_number=1,
+        **kwargs
 ):
     """Run TF-IDF pipeline."""
     logger.info(f'TF-IDF matrix ({tf_idf_method})')
@@ -555,7 +555,6 @@ def save_clustered_results(
         tip: str,
         savepath: Union[Path, str],
 ):
-
     _savepath = str(savepath).replace('assets', 'clusters')
     os.makedirs(_savepath, exist_ok=True)
 

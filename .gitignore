@@ -17,6 +17,9 @@
 *.csv
 *tmp*
 
+# tests
+*test_regexes
+
 # other
 *.DS_Store
 *html-to-pdf

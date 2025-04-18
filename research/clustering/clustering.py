@@ -43,7 +43,7 @@ def load_yml_config(
 def iter_tf_idf(methods_list, **kwargs):
     if methods_list:
         for method_name in methods_list:
-            tf_idf_object = TfidfMatrix()
+            tf_idf_object = TfidfMatrix(kwargs.get('path_to_encoders'))
             match method_name:
                 case 'tokens':
                     get_matrix_function = tf_idf_object.get_matrix_tokenize_by_regex_tokens

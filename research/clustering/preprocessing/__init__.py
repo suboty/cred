@@ -7,13 +7,16 @@ from typing import Union, List
 
 
 class Replacements:
-    def __init__(self):
+    def __init__(
+            self,
+            path_to_replacements: Path = Path('preprocessing')
+    ):
         self.equivalent_replacements, self.reg_equivalent_replacements = self.read_replacements(
-            Path('preprocessing', 'equivalent_replacements')
+            Path(path_to_replacements, 'equivalent_replacements')
         )
 
         self.nearly_equivalent_replacements, self.reg_nearly_equivalent_replacements = self.read_replacements(
-            Path('preprocessing', 'nearly_equivalent_replacements')
+            Path(path_to_replacements, 'nearly_equivalent_replacements')
         )
 
         self.fstats = {

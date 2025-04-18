@@ -49,10 +49,14 @@ def load_tokens_rules(
 
 class TfidfMatrix:
     scaler = MinMaxScaler()
-    def __init__(self):
+
+    def __init__(
+            self,
+            path_to_encoders: Path = Path('encoders')
+    ):
         self.token_rules = load_tokens_rules(
-            path_to_1_symbol_rules=Path('encoders', 'tokens_rules_1_symbol'),
-            path_to_2_or_more_symbols_rules=Path('encoders', 'tokens_rules_2_or_more_symbols'),
+            path_to_1_symbol_rules=Path(path_to_encoders, 'tokens_rules_1_symbol'),
+            path_to_2_or_more_symbols_rules=Path(path_to_encoders, 'tokens_rules_2_or_more_symbols'),
         )
 
         self.tokens_sep = 'SEP-SYMBOL'
