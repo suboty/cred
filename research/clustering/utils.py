@@ -121,28 +121,29 @@ def high_dimensional_visualization(
     df_pca['pca-two'] = pca_result[:, 1]
 
     df_pca['labels'] = dialects
-    emb_plot_pca = sns.scatterplot(
-        x="pca-one", y="pca-two",
-        hue="labels",
-        data=df_pca.loc[rndprm, :],
-        legend="full"
-    )
+    if os.environ.get('isAssetsSaving').lower() == 'true':
+        emb_plot_pca = sns.scatterplot(
+            x="pca-one", y="pca-two",
+            hue="labels",
+            data=df_pca.loc[rndprm, :],
+            legend="full"
+        )
 
-    if 'tf_idf' in name:
-        emb_plot_pca.set_title(
-            f"TF-IDF matrix by {name.replace('tf_idf_', '')} PCA visualization"
-        )
-        fig_pca = emb_plot_pca.get_figure()
-        fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
-    elif 'bert' in name:
-        emb_plot_pca.set_title(
-            f"BERT embeddings by {name.replace('bert_', '')} PCA visualization"
-        )
-        fig_pca = emb_plot_pca.get_figure()
-        fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
-    else:
-        raise NotImplementedError
-    plt.close('all')
+        if 'tf_idf' in name:
+            emb_plot_pca.set_title(
+                f"TF-IDF matrix by {name.replace('tf_idf_', '')} PCA visualization"
+            )
+            fig_pca = emb_plot_pca.get_figure()
+            fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
+        elif 'bert' in name:
+            emb_plot_pca.set_title(
+                f"BERT embeddings by {name.replace('bert_', '')} PCA visualization"
+            )
+            fig_pca = emb_plot_pca.get_figure()
+            fig_pca.savefig(Path(savepath, f"{name}_pca.png"))
+        else:
+            raise NotImplementedError
+        plt.close('all')
 
     # UMAP visualization
     umap_method = umap.UMAP(
@@ -159,28 +160,29 @@ def high_dimensional_visualization(
     df_umap['umap-two'] = umap_result[:, 1]
 
     df_umap['labels'] = dialects
-    emb_plot_umap = sns.scatterplot(
-        x="umap-one", y="umap-two",
-        hue="labels",
-        data=df_umap.loc[rndprm, :],
-        legend="full"
-    )
+    if os.environ.get('isAssetsSaving').lower() == 'true':
+        emb_plot_umap = sns.scatterplot(
+            x="umap-one", y="umap-two",
+            hue="labels",
+            data=df_umap.loc[rndprm, :],
+            legend="full"
+        )
 
-    if 'tf_idf' in name:
-        emb_plot_umap.set_title(
-            f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization"
-        )
-        fig_umap = emb_plot_umap.get_figure()
-        fig_umap.savefig(Path(savepath, f"{name}_umap.png"))
-    elif 'bert' in name:
-        emb_plot_umap.set_title(
-            f"BERT embeddings by {name.replace('tf_idf_', '')} UMAP visualization"
-        )
-        fig_umap = emb_plot_umap.get_figure()
-        fig_umap.savefig(Path(savepath, f"{name}_umap.png"))
-    else:
-        raise NotImplementedError
-    plt.close('all')
+        if 'tf_idf' in name:
+            emb_plot_umap.set_title(
+                f"TF-IDF matrix by {name.replace('tf_idf_', '')} UMAP visualization"
+            )
+            fig_umap = emb_plot_umap.get_figure()
+            fig_umap.savefig(Path(savepath, f"{name}_umap.png"))
+        elif 'bert' in name:
+            emb_plot_umap.set_title(
+                f"BERT embeddings by {name.replace('tf_idf_', '')} UMAP visualization"
+            )
+            fig_umap = emb_plot_umap.get_figure()
+            fig_umap.savefig(Path(savepath, f"{name}_umap.png"))
+        else:
+            raise NotImplementedError
+        plt.close('all')
 
     return pca_result, umap_result
 
@@ -387,10 +389,11 @@ def print_data_case(tip):
 
 def run_bert(
         input_data,
-        _filter,
         _km,
         _be,
         db,
+        _filter='_',
+        **kwargs
 ):
     """Run BERT pipeline."""
     exp_name = get_experiment_name(
@@ -398,7 +401,8 @@ def run_bert(
         filter_word=_filter
     )
     savepath = Path('tmp', 'assets', exp_name)
-    os.makedirs(savepath, exist_ok=True)
+    if os.environ.get('isAssetsSaving').lower() == 'true':
+        os.makedirs(savepath, exist_ok=True)
 
     # get BERT embeddings
     logger.info(f'BERT embeddings ({_be.name})')
@@ -437,7 +441,7 @@ def run_bert(
             savepath=savepath,
         )
 
-    if os.environ.get('isClusteringReportsSaving').lower() == 'y':
+    if os.environ.get('isClusteringReportsSaving').lower() == 'true':
         make_clustering_report(
             experiment_name=exp_name,
             encoder=_be.__repr__(),
@@ -467,7 +471,8 @@ def run_tf_idf(
         filter_word=_filter
     )
     savepath = Path('tmp', 'assets', exp_name)
-    os.makedirs(savepath, exist_ok=True)
+    if os.environ.get('isAssetsSaving').lower() == 'true':
+        os.makedirs(savepath, exist_ok=True)
 
     for data in input_data:
         tokens_vectorizer, tokens_matrix = get_matrix_function(
@@ -518,7 +523,7 @@ def run_tf_idf(
             savepath=savepath
         )
 
-    if os.environ.get('isClusteringReportsSaving').lower() == 'y':
+    if os.environ.get('isClusteringReportsSaving').lower() == 'true':
         make_clustering_report(
             experiment_name=exp_name,
             encoder=f'tf_idf_{tf_idf_method}',
@@ -556,7 +561,8 @@ def save_clustered_results(
         savepath: Union[Path, str],
 ):
     _savepath = str(savepath).replace('assets', 'clusters')
-    os.makedirs(_savepath, exist_ok=True)
+    if os.environ.get('isAssetsSaving').lower() == 'true':
+        os.makedirs(_savepath, exist_ok=True)
 
     for data_key in preds:
         for n_clusters in preds[data_key]:

@@ -1,3 +1,4 @@
+import time
 import argparse
 import warnings
 
@@ -54,21 +55,25 @@ def iter_tf_idf(methods_list, **kwargs):
                 case _:
                     raise NotImplementedError
 
+            t0 = time.time()
             run_tf_idf(
                 tf_idf_method=method_name,
                 get_matrix_function=get_matrix_function,
                 **kwargs
             )
+            logger.info(f'Elapsed time: {round(time.time()-t0, 2)}')
 
 
 def iter_bert(methods_list, **kwargs):
     if methods_list:
         for method_name in methods_list:
             _be = BertEmbeddings(method_name)
+            t0 = time.time()
             run_bert(
                 _be=_be,
                 **kwargs
             )
+            logger.info(f'Elapsed time: {round(time.time() - t0, 2)}')
 
 
 if __name__ == '__main__':
@@ -113,6 +118,8 @@ if __name__ == '__main__':
     parser.add_argument('--isClusteringReportsSaving', type=str, default='y')
     # is need save regexes after clustering
     parser.add_argument('--isRegexesSaving', type=str, default='y')
+    # is need save assets after clustering
+    parser.add_argument('--isAssetsSaving', type=str, default='y')
 
     # init objects
     args = parser.parse_args()
@@ -121,6 +128,11 @@ if __name__ == '__main__':
         os.environ['isClusteringReportsSaving'] = 'true'
     else:
         os.environ['isClusteringReportsSaving'] = 'false'
+
+    if args.isAssetsSaving.lower() == 'y':
+        os.environ['isAssetsSaving'] = 'true'
+    else:
+        os.environ['isAssetsSaving'] = 'false'
 
     if args.isRegexesSaving.lower() == 'y':
         os.environ['isRegexesSaving'] = 'true'

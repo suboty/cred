@@ -33,8 +33,12 @@ class ClusteringUseCase:
         self.path_to_preprocessing = path_to_preprocessing
         self.path_to_encoders = path_to_encoders
 
+        # work with system variables
         if embedding_scaling:
             os.environ['IS_NEED_SCALING'] = 'true'
+        os.environ['isRegexesSaving'] = 'false'
+        os.environ['isClusteringReportsSaving'] = 'false'
+        os.environ['isAssetsSaving'] = 'false'
 
         # disable warnings from scikit-learn and umap-learn
         warnings.filterwarnings("ignore")
@@ -74,6 +78,7 @@ class ClusteringUseCase:
             parser = SreParser()
 
             # Step 3: Prepare data
+            input_regexes = [x for x in input_regexes if x not in ('', None, ' ')]
             # Step 3.1: Add slug labels
             if not labels:
                 # add slug labels

@@ -69,11 +69,11 @@ class CMeansAlgorithm:
                 _cluster_range.append(4)
                 _cluster_range = list(set(_cluster_range))
                 _cluster_range = sorted(_cluster_range)
-
-            logger.info(
-                f'Work with cluster range: '
-                f'{_cluster_range}'
-            )
+            if verbose:
+                logger.info(
+                    f'Work with cluster range: '
+                    f'{_cluster_range}'
+                )
 
             _data = np.squeeze(_data)
 
@@ -132,15 +132,16 @@ class CMeansAlgorithm:
                     if verbose:
                         logger.debug(f"Silhouette score for number of cluster(s) {k}: {silhouette}")
 
-                    make_silhouette_analysis(
-                        X=data_2d,
-                        clusterer=fcm_centers,
-                        savepath=savepath,
-                        cluster_labels=preds,
-                        n_clusters=k,
-                        pipeline_name=pipeline_name,
-                        tip=None if i_data == 0 else '_data_2d'
-                    )
+                    if os.environ.get('isAssetsSaving').lower() == 'true':
+                        make_silhouette_analysis(
+                            X=data_2d,
+                            clusterer=fcm_centers,
+                            savepath=savepath,
+                            cluster_labels=preds,
+                            n_clusters=k,
+                            pipeline_name=pipeline_name,
+                            tip=None if i_data == 0 else '_data_2d'
+                        )
 
                 if verbose:
                     logger.debug(f'--- Elapsed time: {round(time.time() - t0)} seconds')

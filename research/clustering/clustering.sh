@@ -50,7 +50,8 @@ for arg in "$@"; do
     --clustersNum 50 \
     --regexSource "$regexSource" \
     --isClusteringReportsSaving "$isClusteringReportsSaving" \
-    --isRegexesSaving "$isRegexesSaving"
+    --isRegexesSaving "$isRegexesSaving" \
+    --isAssetsSaving "y"
   else
     echo "Working with the whole dataset"
     python3 clustering.py -s -e -n \
@@ -62,7 +63,8 @@ for arg in "$@"; do
     --clusterStart 5 \
     --regexSource "$regexSource" \
     --isClusteringReportsSaving "$isClusteringReportsSaving" \
-    --isRegexesSaving "$isRegexesSaving"
+    --isRegexesSaving "$isRegexesSaving" \
+    --isAssetsSaving "y"
   fi
 	lineStr
 done

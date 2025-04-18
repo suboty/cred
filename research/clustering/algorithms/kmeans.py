@@ -74,10 +74,11 @@ class KMeansAlgorithm:
                 _cluster_range = list(set(_cluster_range))
                 _cluster_range = sorted(_cluster_range)
 
-            logger.info(
-                f'Work with cluster range: '
-                f'{_cluster_range}'
-            )
+            if verbose:
+                logger.info(
+                    f'Work with cluster range: '
+                    f'{_cluster_range}'
+                )
 
             for k in _cluster_range:
 
@@ -146,15 +147,16 @@ class KMeansAlgorithm:
                     if verbose:
                         logger.debug(f"Silhouette score for number of cluster(s) {k}: {silhouette}")
 
-                    make_silhouette_analysis(
-                        X=data_2d,
-                        clusterer=kmeans,
-                        savepath=savepath,
-                        cluster_labels=preds,
-                        n_clusters=k,
-                        pipeline_name=pipeline_name,
-                        tip=None if i_data == 0 else '_data_2d'
-                    )
+                    if os.environ.get('isAssetsSaving').lower() == 'true':
+                        make_silhouette_analysis(
+                            X=data_2d,
+                            clusterer=kmeans,
+                            savepath=savepath,
+                            cluster_labels=preds,
+                            n_clusters=k,
+                            pipeline_name=pipeline_name,
+                            tip=None if i_data == 0 else '_data_2d'
+                        )
 
                 if 'db' not in self.excluded_metrics:
                     db_score = davies_bouldin_score(_data, preds)
