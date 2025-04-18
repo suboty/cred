@@ -22,6 +22,9 @@ This script parse regex with SOAPAction <a href="https://www.regexlib.com/WebSer
 Now run only with 500 samples.
 
 ## Use-Cases
+Use-cases are some functions for regular expressions work.
+More information there is into **research** folder.
+
 ### Regex Clustering
 Example algorithms configuration:
 ```yaml
