@@ -4,12 +4,15 @@ import warnings
 from typing import List, Optional
 from pathlib import Path
 
+from sqlalchemy import text
+
 from clustering import load_yml_config
 from algorithms.kmeans import KMeansAlgorithm
 from algorithms.cmeans import CMeansAlgorithm
 from preprocessing import Replacements
 from preprocessing.get_regex_ast import SreParser
 from get_data import data_to_db
+from logger import logger
 from clustering import iter_tf_idf, iter_bert
 from db import (
     EntityMeta,
@@ -27,11 +30,25 @@ class ClusteringUseCase:
             path_to_algorithms_yaml: Path,
             path_to_preprocessing: Path,
             path_to_encoders: Path,
+            path_to_sql_queries: Path,
             embedding_scaling: bool = True,
     ):
+        self.creating_time = int(time.time())
+
         self.algorithms = load_yml_config(path_to_algorithms_yaml)
         self.path_to_preprocessing = path_to_preprocessing
         self.path_to_encoders = path_to_encoders
+
+        # load sql queries for result
+        self.queries = {}
+        with open(Path(path_to_sql_queries, 'get_best_experiment_id.sql'), 'r') as b_exp_file:
+            data = b_exp_file.read()
+            data.replace('TIMEID', str(self.creating_time))
+            self.queries['best_id'] = data
+        with open(Path(path_to_sql_queries, 'get_clustering_regexes.sql'), 'r') as c_reg_file:
+            data = c_reg_file.read()
+            data.replace('TIMEID', str(self.creating_time))
+            self.queries['clust_reg'] = data
 
         # work with system variables
         if embedding_scaling:
@@ -68,7 +85,7 @@ class ClusteringUseCase:
                 cluster_step=cluster_step
             )
             tmp_database = ResearchRepository(
-                database_url=f'sqlite:///clustering_{int(time.time())}.db',
+                database_url=f'sqlite:///clustering_{self.creating_time}.db',
                 entity_meta=EntityMeta,
             )
             os.makedirs('tmp', exist_ok=True)
@@ -158,5 +175,27 @@ class ClusteringUseCase:
                         _km=clu_alg,
                         db=tmp_database,
                     )
+
+            # Step 5: Get clustering regexes by best algorithm
+            db_engine = tmp_database.engine
+            try:
+                with db_engine.connect() as connection:
+
+                    best_id = connection.execute(text(
+                        self.queries.get('best_id')
+                    )).fetchone()
+
+                    clustering_regexes = connection.execute(text(
+                        self.queries.get('clust_reg').replace('BESTEXPID', str(best_id))
+                    )).fetchall()
+
+            except Exception as e:
+                logger.error('Error while database work!')
+                raise e
+
+            logger.info(
+                f'Clustering is finish. Elapsed time: {round(time.time()-self.creating_time)} sec.'
+            )
+            return clustering_regexes
         except Exception as e:
             raise ClusteringError(f'Something wrong while clustering! Error: {e}')

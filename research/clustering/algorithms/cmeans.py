@@ -146,24 +146,25 @@ class CMeansAlgorithm:
                 if verbose:
                     logger.debug(f'--- Elapsed time: {round(time.time() - t0)} seconds')
 
-            # silhouette saving
-            if 'silhouette' not in self.excluded_metrics:
-                _, ax = plt.subplots()
-                ax.plot(_cluster_range, km_silhouette, marker='o')
-                ax.set_xlabel('Number of clusters')
-                ax.set_ylabel('Silhouette score')
-                if 'tf_idf' in pipeline_name:
-                    ax.set_title(
-                        f"Cmeans silhouette score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
-                elif 'bert' in pipeline_name:
-                    ax.set_title(
-                        f"Cmeans silhouette score {pipeline_name.replace('bert_', '')} for BERT embeddings"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
-                else:
-                    raise NotImplementedError
+            if os.environ.get('isAssetsSaving').lower() == 'true':
+                # silhouette saving
+                if 'silhouette' not in self.excluded_metrics:
+                    _, ax = plt.subplots()
+                    ax.plot(_cluster_range, km_silhouette, marker='o')
+                    ax.set_xlabel('Number of clusters')
+                    ax.set_ylabel('Silhouette score')
+                    if 'tf_idf' in pipeline_name:
+                        ax.set_title(
+                            f"Cmeans silhouette score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
+                    elif 'bert' in pipeline_name:
+                        ax.set_title(
+                            f"Cmeans silhouette score {pipeline_name.replace('bert_', '')} for BERT embeddings"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
+                    else:
+                        raise NotImplementedError
 
         return clustered_results
 

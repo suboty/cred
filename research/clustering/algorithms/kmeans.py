@@ -174,63 +174,64 @@ class KMeansAlgorithm:
                 if verbose:
                     logger.debug(f'--- Elapsed time: {round(time.time() - t0)} seconds')
 
-            # kmeans score (elbow method) saving
-            if 'elbow' not in self.excluded_metrics:
-                _, ax = plt.subplots()
-                ax.plot(range(
-                    self.cluster_start, self.max_number_of_clusters, self.cluster_step
-                ), sse, marker='o')
-                ax.set_xlabel('Number of clusters')
-                ax.set_ylabel('Kmeans score')
-                if 'tf_idf' in pipeline_name:
-                    ax.set_title(
-                        f"Kmeans (elbow method) score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_elbow.png"))
-                elif 'bert' in pipeline_name:
-                    ax.set_title(
-                        f"Kmeans (elbow method) score {pipeline_name.replace('bert_', '')} for BERT embeddings"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_elbow.png"))
-                else:
-                    raise NotImplementedError
+            if os.environ.get('isAssetsSaving').lower() == 'true':
+                # kmeans score (elbow method) saving
+                if 'elbow' not in self.excluded_metrics:
+                    _, ax = plt.subplots()
+                    ax.plot(range(
+                        self.cluster_start, self.max_number_of_clusters, self.cluster_step
+                    ), sse, marker='o')
+                    ax.set_xlabel('Number of clusters')
+                    ax.set_ylabel('Kmeans score')
+                    if 'tf_idf' in pipeline_name:
+                        ax.set_title(
+                            f"Kmeans (elbow method) score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_elbow.png"))
+                    elif 'bert' in pipeline_name:
+                        ax.set_title(
+                            f"Kmeans (elbow method) score {pipeline_name.replace('bert_', '')} for BERT embeddings"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_elbow.png"))
+                    else:
+                        raise NotImplementedError
 
-            # silhouette saving
-            if 'silhouette' not in self.excluded_metrics:
-                _, ax = plt.subplots()
-                ax.plot(_cluster_range, km_silhouette, marker='o')
-                ax.set_xlabel('Number of clusters')
-                ax.set_ylabel('Silhouette score')
-                if 'tf_idf' in pipeline_name:
-                    ax.set_title(
-                        f"Kmeans silhouette score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
-                elif 'bert' in pipeline_name:
-                    ax.set_title(
-                        f"Kmeans silhouette score {pipeline_name.replace('bert_', '')} for BERT embeddings"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
-                else:
-                    raise NotImplementedError
+                # silhouette saving
+                if 'silhouette' not in self.excluded_metrics:
+                    _, ax = plt.subplots()
+                    ax.plot(_cluster_range, km_silhouette, marker='o')
+                    ax.set_xlabel('Number of clusters')
+                    ax.set_ylabel('Silhouette score')
+                    if 'tf_idf' in pipeline_name:
+                        ax.set_title(
+                            f"Kmeans silhouette score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
+                    elif 'bert' in pipeline_name:
+                        ax.set_title(
+                            f"Kmeans silhouette score {pipeline_name.replace('bert_', '')} for BERT embeddings"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_silhouette.png"))
+                    else:
+                        raise NotImplementedError
 
-            # davies bouldin saving
-            if 'db' not in self.excluded_metrics:
-                _, ax = plt.subplots()
-                ax.plot(_cluster_range, db_scores, marker='o')
-                ax.set_xlabel('Number of clusters')
-                ax.set_ylabel('Davies Bouldin score')
-                if 'tf_idf' in pipeline_name:
-                    ax.set_title(
-                        f"Kmeans Davies Bouldin score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
-                elif 'bert' in pipeline_name:
-                    ax.set_title(
-                        f"Kmeans Davies Bouldin score {pipeline_name.replace('bert_', '')} for BERT embeddings"
-                    )
-                    ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
-                else:
-                    raise NotImplementedError
+                # davies bouldin saving
+                if 'db' not in self.excluded_metrics:
+                    _, ax = plt.subplots()
+                    ax.plot(_cluster_range, db_scores, marker='o')
+                    ax.set_xlabel('Number of clusters')
+                    ax.set_ylabel('Davies Bouldin score')
+                    if 'tf_idf' in pipeline_name:
+                        ax.set_title(
+                            f"Kmeans Davies Bouldin score {pipeline_name.replace('tf_idf_', '')} for TF-IDF matrix"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
+                    elif 'bert' in pipeline_name:
+                        ax.set_title(
+                            f"Kmeans Davies Bouldin score {pipeline_name.replace('bert_', '')} for BERT embeddings"
+                        )
+                        ax.figure.savefig(Path(savepath, f"{pipeline_name}_db.png"))
+                    else:
+                        raise NotImplementedError
 
         return clustered_results
