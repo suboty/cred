@@ -20,7 +20,7 @@ database_queries = [
     # get similar regexes with same construction
     """select r.__REGEX_COLUMN__, count(*) 
     from (select lower(__REGEX_COLUMN__) as __REGEX_COLUMN__ from regexes ) as r 
-    where r.__REGEX_COLUMN__ like '%\w%'
+    where r.__REGEX_COLUMN__ like '%kwargs_construction%'
     group by r.__REGEX_COLUMN__
     order by 2 desc;""",
 ]
@@ -29,6 +29,7 @@ database_queries = [
 def get_data_from_database(
         query_index: int,
         database: str,
+        **kwargs
 ):
     sql_query = database_queries[query_index]
     match database:
@@ -38,6 +39,11 @@ def get_data_from_database(
             sql_query = sql_query.replace('__REGEX_COLUMN__', 'regex')
         case _:
             raise NotImplementedError
+
+    for k, v in kwargs.items():
+        sql_query = sql_query.replace(k, v)
+
+    print(sql_query)
 
     db = sqlite3.connect(Path('..', '..', f'{database}.db'))
     cursor = db.cursor()
