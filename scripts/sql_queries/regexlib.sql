@@ -43,3 +43,18 @@ from regexes r
 where
 	lower(r.title) like '%mail_address%'
 	or lower(r.description) like '%mail_address%'
+
+
+-- get completely similar regexes
+select r.pattern, count(*) from regexes r
+group by r.pattern
+order by 2 desc;
+
+
+-- get similar regexes with same construction
+select r.pattern, count(*) from (
+	select lower(pattern) as pattern from regexes
+) as r
+where r.pattern like '%\w%'
+group by r.pattern
+order by 2 desc;

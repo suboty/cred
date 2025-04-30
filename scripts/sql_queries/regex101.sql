@@ -58,3 +58,18 @@ with pcre_regexes as (
 select * from pcre_regexes pr
 where pr.title like '%sql%'
 ;
+
+
+-- get completely similar regexes
+select r.regex, count(*) from regexes r
+group by r.regex
+order by 2 desc;
+
+
+-- get similar regexes with same construction
+select r.regex, count(*) from (
+	select lower(regex) as regex from regexes
+) as r
+where r.regex like '%\w%'
+group by r.regex
+order by 2 desc;
