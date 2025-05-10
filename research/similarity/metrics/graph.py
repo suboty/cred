@@ -2,8 +2,6 @@ from typing import Callable, Optional
 
 import networkx as nx
 
-from research.similarity.preprocessing.sre import SreParser
-
 
 class GraphSimilarity:
     """
@@ -49,7 +47,9 @@ class GraphSimilarity:
         :return: GED (float)
         """
         kwargs = {}
-        kwargs.setdefault('roots', ('EXPR', 'EXPR'))
+
+        if not is_optimize:
+            kwargs.setdefault('roots', ('EXPR', 'EXPR'))
 
         # optional params
         if node_match:
@@ -58,11 +58,13 @@ class GraphSimilarity:
             kwargs.setdefault('edge_match', edge_match)
 
         if is_optimize:
-            return nx.optimize_graph_edit_distance(
+            for v in nx.optimize_graph_edit_distance(
                 graph1,
                 graph2,
                 **kwargs
-            )
+            ):
+                minv = v
+            return minv
 
         return nx.graph_edit_distance(
             graph1,
@@ -75,39 +77,82 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import networkx as nx
 
+    from research.similarity.preprocessing.sre import SreParser
+    from research.similarity.preprocessing.custom import CustomTranslator
+
     test_parser = SreParser()
-    regex1 = input('Input regex #1: ')
-    regex2 = input('Input regex #2: ')
+    test_translator = CustomTranslator()
 
-    test_graph1 = test_parser(regex1)
-    test_graph2 = test_parser(regex2)
+    # regex1 = input('Input regex #1: ')
+    # regex2 = input('Input regex #2: ')
 
-    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+    regex1 = 'A|B'
+    regex2 = 'C|VC'
 
-    nx.draw_networkx(
-        test_graph1,
-        ax=ax1,
-        font_size=6,
-        node_color='#aed6f1'
+    test_graph11 = test_parser(regex1)
+    test_graph12 = test_parser(regex2)
+
+    ged_sre = GraphSimilarity.get_graph_edit_distance(
+        test_graph11, test_graph12,
+        is_optimize=True
     )
-    ax1.margins(0.3)
-    ax1.set_title(f'Regex1\n{regex1}')
-    ax1.axis('off')
 
-    nx.draw_networkx(
-        test_graph2,
-        ax=ax2,
-        font_size=6,
-        node_color='#aed6f1'
+    test_graph21 = test_translator(regex1)
+    test_graph22 = test_translator(regex2)
+
+    ged_custom = GraphSimilarity.get_graph_edit_distance(
+        test_graph21, test_graph22,
+        is_optimize=True
     )
-    ax2.margins(0.3)
-    ax2.set_title(f'Regex2\n{regex2}')
-    ax2.axis('off')
 
-    ged = GraphSimilarity.get_graph_edit_distance(
-        test_graph1,
-        test_graph2
+    f, axs = plt.subplots(2, 3, sharey=True)
+    f.set_size_inches(10, 8, forward=True)
+    f.subplots_adjust(top=0.8)
+
+    def ax_plot(_graph, _ax, _regex, _regex_id):
+        nx.draw_networkx(
+            G=_graph,
+            ax=_ax,
+            font_size=6,
+            node_color='#aed6f1'
+        )
+        _ax.margins(0.3)
+        _ax.set_title(f'Regex{_regex_id}\n{_regex}')
+        _ax.axis('off')
+
+    # for SRE parser
+    ax_plot(
+        _graph=test_graph11,
+        _ax=axs[0, 0],
+        _regex=regex1,
+        _regex_id=1
     )
-    f.suptitle(f'Regexes GED is {ged}')
+    ax_plot(
+        _graph=test_graph12,
+        _ax=axs[0, 1],
+        _regex=regex2,
+        _regex_id=2
+    )
+    axs[0, 2].text(0.5, 0.5, f'SRE Parser\nRegexes GED: {ged_sre}')
+    axs[0, 2].axis('off')
 
+    # for custom translator
+    ax_plot(
+        _graph=test_graph21,
+        _ax=axs[1, 0],
+        _regex=regex1,
+        _regex_id=1
+    )
+    ax_plot(
+        _graph=test_graph22,
+        _ax=axs[1, 1],
+        _regex=regex2,
+        _regex_id=2
+    )
+    axs[1, 2].text(0.5, 0.5, f'Custom Translator\nRegexes GED: {ged_custom}')
+    axs[1, 2].axis('off')
+
+    f.suptitle(f'Regexes Similarity')
+
+    plt.tight_layout()
     plt.show()
