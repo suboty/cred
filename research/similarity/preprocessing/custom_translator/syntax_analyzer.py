@@ -179,7 +179,6 @@ class SyntaxAnalyzer:
         while current_string:
             current_string, token_meta = self.eat(current_string)
             token_name, value = [x for x in token_meta]
-            # TODO: add dialect id validate
             match token_name:
                 case 'any':
                     self.set_state('any')
