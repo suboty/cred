@@ -69,7 +69,7 @@ class SreParser:
                         root=root
                     )
             elif isinstance(_ast, Union[str, int, None]):
-                _node = f'({_ast},{get_id(_ast)})'
+                _node = f'{_ast},{get_id(_ast)}'
                 graph.add_node(_node)
                 graph.add_edge(root, _node)
                 root = _node
@@ -135,18 +135,24 @@ class SreParser:
         if is_need_graph_representation:
             return [self.get_graph(x) for x in ast]
 
+    def __call__(self, regex):
+        ast = self.parse(regex)
+        ast = self.postprocess(ast)
+        _, ast_graph = self.get_graph(ast)
+        return ast_graph
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = SreParser(verbose=True)
-    regex = input('Input regex: ')
+    test_regex = input('Input regex: ')
 
-    test_ast = parser.parse(regex)
+    test_ast = parser.parse(test_regex)
     print(f'AST: {test_ast}')
     processed_ast = parser.postprocess(test_ast)
     print(f'Post AST: {processed_ast}')
 
-    _, ast_graph = parser.get_graph(processed_ast)
-    networkx.draw_networkx(ast_graph)
+    _, test_ast_graph = parser.get_graph(processed_ast)
+    networkx.draw_networkx(test_ast_graph)
     plt.show()
