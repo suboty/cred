@@ -43,8 +43,6 @@ def get_data_from_database(
     for k, v in kwargs.items():
         sql_query = sql_query.replace(k, v)
 
-    print(sql_query)
-
     db = sqlite3.connect(Path('..', '..', f'{database}.db'))
     cursor = db.cursor()
 
@@ -55,6 +53,3 @@ def get_data_from_database(
     db.close()
 
     return regexes
-
-
-
