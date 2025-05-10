@@ -22,6 +22,7 @@
 *test_regexes
 
 # other
+*unicode-chars
 *example*
 *.DS_Store
 *node_modules
