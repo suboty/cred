@@ -26,7 +26,7 @@ class CustomTranslator:
     def __repr__(self):
         return 'custom_translator'
 
-    def __call__(self, regex):
+    def translate(self, regex):
         tokens = self.la(regex)
         ast = self.sa(tokens)
         return ast
@@ -49,12 +49,12 @@ class CustomTranslator:
 
         def get_id(node):
             res = words_dict.get(node)
-            if res is not None:
-                words_dict[node] += 1
-                return res
-            else:
+            if res is None:
                 words_dict[node] = 0
                 return 0
+            else:
+                words_dict[node] += 1
+                return words_dict[node]
 
         def parse(tree, graph, root: Optional[str] = None):
             if not root:
@@ -68,6 +68,7 @@ class CustomTranslator:
                     )
             elif isinstance(tree, str):
                 _node = f'{tree},{get_id(tree)}'
+                print(_node)
                 graph.add_node(_node)
                 graph.add_edge(root, _node)
                 root = _node
@@ -79,6 +80,12 @@ class CustomTranslator:
 
         return g
 
+    def __call__(self, regex):
+        ast = self.translate(regex)
+        ast = self.postprocess(ast)
+        ast_graph = self.get_graph(ast)
+        return ast_graph
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
@@ -86,7 +93,7 @@ if __name__ == '__main__':
     translator = CustomTranslator(verbose=True)
     test_regex = input('Input regex: ')
 
-    test_ast = translator(test_regex)
+    test_ast = translator.translate(test_regex)
     print(f'AST: {test_ast}')
     processed_ast = translator.postprocess(test_ast)
     print(f'Post AST: {processed_ast}')
