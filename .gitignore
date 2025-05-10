@@ -22,6 +22,7 @@
 *test_regexes
 
 # other
+*/example
 *.DS_Store
 *node_modules
 *clustering_results_for_report*

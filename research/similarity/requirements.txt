@@ -1,0 +1,6 @@
+# algorithms
+python-Levenshtein==0.27.1
+networkx==3.4.2
+
+# visualize
+matplotlib==3.9.0
