@@ -151,3 +151,20 @@ class StringSimilarity:
             string2,
             **kwargs
         )
+
+
+if __name__ == '__main__':
+    regex1 = input('Input regex #1: ')
+    regex2 = input('Input regex #2: ')
+    dist_dict = {
+        '1': StringSimilarity.get_distance,
+        '2': StringSimilarity.get_hamming_distance,
+        '3': StringSimilarity.get_jaro_similarity
+    }
+    choice = input(
+        'Choose distance type (1 - Levenshtein, 2 - Hamming, 3 - Jaro): '
+    )
+    print(
+        f'Distance for <{regex1}> and <{regex2}> '
+        f'= <{dist_dict.get(choice)(string1=regex1, string2=regex2)}>'
+    )
