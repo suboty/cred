@@ -68,7 +68,6 @@ class CustomTranslator:
                     )
             elif isinstance(tree, str):
                 _node = f'{tree},{get_id(tree)}'
-                print(_node)
                 graph.add_node(_node)
                 graph.add_edge(root, _node)
                 root = _node
