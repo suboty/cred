@@ -58,6 +58,7 @@ class GraphSimilarity:
             kwargs.setdefault('edge_match', edge_match)
 
         if is_optimize:
+            minv = None
             for v in nx.optimize_graph_edit_distance(
                 graph1,
                 graph2,
