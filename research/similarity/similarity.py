@@ -7,6 +7,7 @@ queries = {
     'all': 0,
     'similar': 1,
     'same_construction': 2,
+    'same_construction_percentage': 3
 }
 
 
@@ -22,19 +23,22 @@ if __name__ == '__main__':
     # regex construction for same_construction grouping
     parser.add_argument('--regexConstruction', type=str, default=None)
 
+    # regex construction threshold for same_construction_percentage grouping
+    parser.add_argument('--regexConstructionThreshold', type=str, default=None)
+
     # init objects
     args = parser.parse_args()
 
+    kwargs = {}
     if args.regexConstruction:
-        data = get_data_from_database(
-            database=args.regexSource,
-            query_index=queries.get(args.regexGroup),
-            kwargs_construction=args.regexConstruction
-        )
-    else:
-        data = get_data_from_database(
-            database=args.regexSource,
-            query_index=queries.get(args.regexGroup),
-        )
+        kwargs.setdefault('kwargs_construction', args.regexConstruction)
+    if args.regexConstructionThreshold:
+        kwargs.setdefault('__THRESHOLD__', args.regexConstructionThreshold)
 
-    print(data)
+    data = get_data_from_database(
+        database=args.regexSource,
+        query_index=queries.get(args.regexGroup),
+        **kwargs
+    )
+
+    print(len(data))

@@ -43,6 +43,16 @@ from regexes r
 where
 	lower(r.title) like '%mail_address%'
 	or lower(r.description) like '%mail_address%'
+;
+
+
+-- get all regexes
+select count(r.pattern)
+from regexes r
+where
+	r.pattern not in ('', ' ')
+	and r.pattern is not null
+;
 
 
 -- get completely similar regexes
@@ -58,3 +68,27 @@ select r.pattern, count(*) from (
 where r.pattern like '%\w%'
 group by r.pattern
 order by 2 desc;
+
+
+-- get similar regexes with same construction
+-- filter by percentage of the construction from the string
+with vars as (select '.*' as pattern)
+select
+	r.pattern,
+	r.pattern_percentage,
+	count(*) as count
+from (
+	select
+		lower(regexes.pattern) as pattern,
+		round(
+			cast(length(vars.pattern) as real)/length(regexes.pattern),
+			2
+		) as pattern_percentage
+	from regexes, vars
+) as r, vars
+where
+	r.pattern like format("%s%s%s", '%', vars.pattern, '%')
+	and r.pattern_percentage >= 0.5
+group by r.pattern
+order by 2 desc, 3 desc
+;

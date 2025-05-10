@@ -7,8 +7,7 @@ database_queries = [
     # get all regexes
     """select r.__REGEX_COLUMN__ 
     from regexes r 
-    where r.__REGEX_COLUMN__ != ' ' 
-    and r.__REGEX_COLUMN__ != '' 
+    where r.__REGEX_COLUMN__ not in ('', ' ')
     and r.__REGEX_COLUMN__ is not null;""",
 
     # get completely similar regexes
@@ -23,6 +22,25 @@ database_queries = [
     where r.__REGEX_COLUMN__ like '%kwargs_construction%'
     group by r.__REGEX_COLUMN__
     order by 2 desc;""",
+
+    # get similar regexes with same constructions
+    # with construction percentage filter
+    """with vars as (select 'kwargs_construction' as pattern)
+    select
+        r.__REGEX_COLUMN__,
+        r.pattern_percentage,
+        count(*) as count
+    from (
+        select
+            lower(regexes.__REGEX_COLUMN__) as __REGEX_COLUMN__,
+            round(cast(length(vars.pattern) as real)/length(regexes.__REGEX_COLUMN__),2) as pattern_percentage
+        from regexes, vars
+    ) as r, vars
+    where
+        r.__REGEX_COLUMN__ like format("%s%s%s", '%', vars.pattern, '%')
+        and r.pattern_percentage >= __THRESHOLD__
+    group by r.__REGEX_COLUMN__
+    order by 2 desc, 3 desc;"""
 ]
 
 
