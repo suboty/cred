@@ -19,7 +19,7 @@ class SreParser:
         self.errors = 0
         self.verbose = verbose
 
-        self.reg_clean = re.compile(r'\(LITERAL\,\s\d*\)')
+        self.literal_reg_clean = re.compile(r'\(LITERAL\,\s\d*\)')
 
     def __repr__(self):
         return 'sre_parser'
@@ -42,6 +42,13 @@ class SreParser:
                 string=ast,
                 repl=f"'{word}'"
             )
+            # Comma cleaning
+        for pattern in re.compile(r"(?<=')[\w']*(?=')").findall(ast):
+            if "'" in pattern:
+                ast = ast.replace(
+                    pattern,
+                    pattern.replace("'", '')
+                )
         ast = literal_eval(ast)
 
         # parse for graph (NetworkX object)
@@ -91,8 +98,9 @@ class SreParser:
             return None
 
     def postprocess(self, ast):
+        # Literal cleaning
         try:
-            clean_ast = self.reg_clean.sub(
+            clean_ast = self.literal_reg_clean.sub(
                 string=str(ast),
                 repl='LITERAL'
             )
