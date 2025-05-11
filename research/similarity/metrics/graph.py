@@ -84,11 +84,8 @@ if __name__ == '__main__':
     test_parser = SreParser()
     test_translator = CustomTranslator()
 
-    # regex1 = input('Input regex #1: ')
-    # regex2 = input('Input regex #2: ')
-
-    regex1 = 'A|B'
-    regex2 = 'C|VC'
+    regex1 = input('Input regex #1: ')
+    regex2 = input('Input regex #2: ')
 
     test_graph11 = test_parser(regex1)
     test_graph12 = test_parser(regex2)
