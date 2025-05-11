@@ -1,9 +1,10 @@
+import os
 import argparse
 import traceback
+from pathlib import Path
 from typing import List, Callable, Dict, Optional
 from itertools import combinations_with_replacement
 
-import numpy as np
 from tqdm import tqdm
 
 from logger import logger
@@ -23,6 +24,7 @@ queries = {
 
 
 def get_similarity_matrix(
+        name: str,
         regexes: List,
         similarity_func: Callable,
         kwargs_func: Optional[Dict] = None,
@@ -31,9 +33,15 @@ def get_similarity_matrix(
         kwargs_func = {}
     result = []
     regex_pairs = combinations_with_replacement(regexes, 2)
+    regex_pairs = [(x, y) for x, y in regex_pairs if x != y]
     for x, y in tqdm(regex_pairs):
         result.append(similarity_func(x, y, **kwargs_func))
-    return np.array(result)
+    result = [round(x, 2) for x in result]
+    os.makedirs('results', exist_ok=True)
+    with open(Path('results', f'{name}_results.similarity'), 'w') as res_file:
+        result = [str(x)+'\n' for x in result]
+        res_file.writelines(result)
+    return result
 
 
 if __name__ == '__main__':
@@ -100,6 +108,7 @@ if __name__ == '__main__':
 
     # get graph regexes by Custom translator
     new_str_regexes = []
+    new_sre_regexes = []
     translator_regexes = []
     errors = 0
     for i, x in enumerate(str_regexes):
@@ -115,7 +124,9 @@ if __name__ == '__main__':
             continue
         translator_regexes.append(translator_regex)
         new_str_regexes.append(str_regexes[i])
+        new_sre_regexes.append(sre_regexes[i])
     str_regexes = new_str_regexes
+    sre_regexes = new_sre_regexes
 
     logger.info(f'After parsing work with <{len(str_regexes)}> samples')
 
@@ -124,6 +135,7 @@ if __name__ == '__main__':
     # Levenshtein
     logger.info('Levenshtein')
     l_res = get_similarity_matrix(
+        name='levenshtein',
         regexes=str_regexes,
         similarity_func=StringSimilarity.get_distance,
     )
@@ -131,6 +143,7 @@ if __name__ == '__main__':
     # Hamming
     logger.info('Hamming')
     h_res = get_similarity_matrix(
+        name='hamming',
         regexes=str_regexes,
         similarity_func=StringSimilarity.get_hamming_distance,
     )
@@ -138,6 +151,7 @@ if __name__ == '__main__':
     # Jaro
     logger.info('Jaro')
     j_res = get_similarity_matrix(
+        name='jaro',
         regexes=str_regexes,
         similarity_func=StringSimilarity.get_jaro_similarity,
     )
@@ -145,6 +159,7 @@ if __name__ == '__main__':
     # Jaro-Winkler
     logger.info('Jaro-Winkler')
     jw_res = get_similarity_matrix(
+        name='jaro_winkler',
         regexes=str_regexes,
         similarity_func=StringSimilarity.get_jaro_similarity,
         kwargs_func={'is_jaro_winkler': True}
@@ -155,6 +170,7 @@ if __name__ == '__main__':
     # GED for SRE Parser
     logger.info('GED for SRE Parser')
     sre_res = get_similarity_matrix(
+        name='sre',
         regexes=sre_regexes,
         similarity_func=GraphSimilarity.get_graph_edit_distance,
         kwargs_func={'is_optimize': True}
@@ -163,6 +179,7 @@ if __name__ == '__main__':
     # GED for Custom Translator
     logger.info('GED for Custom Translator')
     translator_res = get_similarity_matrix(
+        name='custom',
         regexes=translator_regexes,
         similarity_func=GraphSimilarity.get_graph_edit_distance,
         kwargs_func={'is_optimize': True}

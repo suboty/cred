@@ -17,6 +17,7 @@
 *.xlsx
 *.csv
 *tmp*
+*.similarity
 
 # tests
 *test_regexes
