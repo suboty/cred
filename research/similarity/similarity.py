@@ -96,10 +96,6 @@ if __name__ == '__main__':
     for key in equal_regexes.keys():
         str_regexes = equal_regexes[key]
 
-        os.makedirs('results', exist_ok=True)
-        with open(Path('results', f'{key}_regexes.samples'), 'w') as file:
-            file.writelines([x+'\n' for x in str_regexes])
-
         # get graph regexes by SRE parser
         new_str_regexes = []
         sre_regexes = []
@@ -143,11 +139,15 @@ if __name__ == '__main__':
         str_regexes = new_str_regexes
         sre_regexes = new_sre_regexes
 
-        logger.info(f'After parsing work with <{len(str_regexes)}> samples')
-
-        if len(str_regexes) == 0:
-            logger.warning('Skip.')
+        if len(str_regexes) in [0, 1]:
+            logger.warning('Skip. Not enough regexes')
             continue
+        else:
+            os.makedirs('results', exist_ok=True)
+            with open(Path('results', f'{key}_regexes.samples'), 'w') as file:
+                file.writelines([x + '\n' for x in str_regexes])
+
+            logger.info(f'After parsing work with <{len(str_regexes)}> samples')
 
         # Regex as a string
 
