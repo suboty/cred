@@ -24,6 +24,7 @@ queries = {
 
 
 DATA_LIMIT = 50
+IS_NEED_REGEX_SAVING = False
 
 
 def get_similarity_matrix(
@@ -42,14 +43,22 @@ def get_similarity_matrix(
         _i += 1
         if _i % 10 == 0:
             logger.info(f'--- Processed <{_i}> samples')
-        result.append((
-            x,
-            y,
-            round(
-                similarity_func(x, y, **kwargs_func),
-                2
-            )
-        ))
+        if IS_NEED_REGEX_SAVING:
+            result.append((
+                x,
+                y,
+                round(
+                    similarity_func(x, y, **kwargs_func),
+                    2
+                )
+            ))
+        else:
+            result.append((
+                round(
+                    similarity_func(x, y, **kwargs_func),
+                    2
+                )
+            ))
     os.makedirs('results', exist_ok=True)
     with open(Path('results', f'{name}_results.similarity'), 'w') as res_file:
         result = ["|".join([str(y) for y in x])+'\n' for x in result]
