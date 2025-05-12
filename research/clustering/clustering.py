@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
     # init databases
     db = ResearchRepository(
-        database_url=f'sqlite:///tmp/research.db',
+        database_url=f'sqlite:///tmp/clustering.db',
         entity_meta=EntityMeta,
     )
 
