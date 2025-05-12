@@ -10,6 +10,8 @@ from utils import Stack
 
 
 MAX_LEN = 'inf'
+# tree of line
+SCHEMA = 'tree'
 
 
 class LexicalAnalyzerError(Exception):
@@ -413,12 +415,12 @@ class CustomTranslator:
                 words_dict[node] += 1
                 return words_dict[node]
 
-        def parse(tree, graph, root: Optional[str] = None):
+        def parse_line(tree, graph, root: Optional[str] = None):
             if not root:
                 root = 'seq'
             if isinstance(tree, Tuple):
                 for subtree in tree:
-                    root, graph = parse(
+                    root, graph = parse_line(
                         tree=subtree,
                         graph=graph,
                         root=root
@@ -430,9 +432,31 @@ class CustomTranslator:
                 root = _node
             return root, graph
 
+        def parse_tree(tree, graph, root: Optional[str] = None):
+            if not root:
+                root = 'seq'
+            for subtree in tree:
+                if isinstance(subtree, Tuple):
+                    graph = parse_tree(
+                        tree=subtree,
+                        graph=graph,
+                        root=root
+                    )
+                elif isinstance(subtree, str):
+                    _node = f'{subtree},{get_id(subtree)}'
+                    graph.add_node(_node)
+                    graph.add_edge(root, _node)
+                    root = _node
+            return graph
+
         # seq node skip
         _ast = _ast[1]
-        _, g = parse(tree=_ast, graph=G)
+        if SCHEMA == 'tree':
+            g = parse_tree(tree=_ast, graph=G)
+        elif SCHEMA == 'line':
+            _, g = parse_line(tree=_ast, graph=G)
+        else:
+            raise NotImplementedError
 
         return g
 
