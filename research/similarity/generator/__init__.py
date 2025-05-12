@@ -39,19 +39,21 @@ class Generator:
 
         repl_res = {}
         for i in range(len(strings)):
-            repl_res[i] = []
+            repl_res[strings[i]] = []
             for replacement in repls:
                 if replacement[0] in strings[i]:
-                    repl_res[i].append(strings[i].replace(
+                    repl_res[strings[i]].append(strings[i].replace(
                         replacement[0],
                         replacement[1]
                     ))
             for replacement in reg_repls:
-                repl_res[i].append(re.sub(
+                _res = re.sub(
                     pattern=replacement[0],
                     string=strings[i],
                     repl=replacement[1]
-                ))
+                )
+                if _res != strings[i]:
+                    repl_res[strings[i]].append(_res)
         return repl_res
 
     def __call__(

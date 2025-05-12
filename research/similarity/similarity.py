@@ -2,7 +2,6 @@ import os
 import argparse
 from pathlib import Path
 from typing import List, Callable, Dict, Optional
-from itertools import combinations_with_replacement
 
 import numpy as np
 
@@ -13,6 +12,12 @@ from preprocessing.sre import SreParser
 from preprocessing.custom import CustomTranslator
 from metrics.string import StringSimilarity
 from metrics.graph import GraphSimilarity
+from db import (
+    EntityMeta,
+    ResearchRepository,
+    Regexes,
+    Results,
+)
 
 
 queries = {
@@ -24,46 +29,43 @@ queries = {
 
 
 DATA_LIMIT = 50
-IS_NEED_REGEX_SAVING = False
+IS_NEED_REGEX_SAVING = True
 
 
 def get_similarity_matrix(
         name: str,
-        regexes: List,
+        _ids: List,
+        _regexes: List,
         similarity_func: Callable,
+        _db: ResearchRepository,
+        regex_type: str,
+        metric_name: str,
         kwargs_func: Optional[Dict] = None,
 ):
     if kwargs_func is None:
         kwargs_func = {}
     result = []
-    regex_pairs = combinations_with_replacement(regexes, 2)
-    regex_pairs = [(x, y) for x, y in regex_pairs if x != y]
     _i = 0
-    for x, y in regex_pairs:
-        _i += 1
-        if _i % 10 == 0:
-            logger.info(f'--- Processed <{_i}> samples')
-        if IS_NEED_REGEX_SAVING:
-            result.append((
-                x,
-                y,
-                round(
-                    similarity_func(x, y, **kwargs_func),
-                    2
+    for i_x, x in enumerate(_regexes):
+        for i_y, y in enumerate(_regexes):
+            if i_x == i_y:
+                continue
+            _i += 1
+            if _i % 10 == 0:
+                logger.info(f'--- Processed <{_i}> pairs')
+            _result = round(
+                similarity_func(x, y, **kwargs_func),
+                2
+            )
+            db.create_result(
+                meta=Results(
+                    regex1=_ids[i_x],
+                    regex2=_ids[i_y],
+                    regex_type=regex_type,
+                    metric_name=metric_name,
+                    metric_value=_result
                 )
-            ))
-        else:
-            result.append((
-                round(
-                    similarity_func(x, y, **kwargs_func),
-                    2
-                )
-            ))
-    os.makedirs('results', exist_ok=True)
-    with open(Path('results', f'{name}_results.similarity'), 'w') as res_file:
-        result = ["|".join([str(y) for y in x])+'\n' for x in result]
-        res_file.writelines(result)
-    return result
+            )
 
 
 if __name__ == '__main__':
@@ -109,9 +111,15 @@ if __name__ == '__main__':
     logger.info(f'Work with <{len(data)}> samples')
 
     # init objects for similarity measuring
+    os.makedirs('tmp', exist_ok=True)
+
     sp = SreParser()
     ct = CustomTranslator()
     g = Generator()
+    db = ResearchRepository(
+        database_url=f'sqlite:///tmp/similarity.db',
+        entity_meta=EntityMeta,
+    )
 
     # get string regexes
     regexes = [x[0] for x in data]
@@ -119,8 +127,21 @@ if __name__ == '__main__':
 
     # parsing errors may occur when obtaining regular expression graphs.
 
-    for key in equal_regexes.keys():
+    for i_key, key in enumerate(equal_regexes.keys()):
         str_regexes = equal_regexes[key]
+
+        original = db.create_regex(
+            meta=Regexes(regex=key)
+        )
+
+        ids = [original['id']]
+        for x in str_regexes:
+            ids.append(db.create_regex(
+                meta=Regexes(
+                    regex=x,
+                    prototype=original['id']
+                )
+            )['id'])
 
         # get graph regexes by SRE parser
         new_str_regexes = []
@@ -172,56 +193,81 @@ if __name__ == '__main__':
             logger.info(f'After parsing work with <{len(str_regexes)}> samples')
 
         # Regex as a string
+        str_regexes = [key] + str_regexes
 
         # Levenshtein
-        logger.info(f'<{key}> Levenshtein. Work with <{len(str_regexes)}> samples.')
-        l_res = get_similarity_matrix(
-            name=f'{key}_levenshtein',
-            regexes=str_regexes,
+        logger.info(f'<{i_key}> Levenshtein. Work with <{len(str_regexes)}> samples.')
+        get_similarity_matrix(
+            name=f'{i_key}_levenshtein',
+            _regexes=str_regexes,
             similarity_func=StringSimilarity.get_distance,
+            _db=db,
+            _ids=ids,
+            metric_name='levenshtein',
+            regex_type='str'
         )
 
         # Hamming
-        logger.info(f'<{key}> Hamming. Work with <{len(str_regexes)}> samples.')
-        h_res = get_similarity_matrix(
-            name=f'{key}_hamming',
-            regexes=str_regexes,
+        logger.info(f'<{i_key}> Hamming. Work with <{len(str_regexes)}> samples.')
+        get_similarity_matrix(
+            name=f'{i_key}_hamming',
+            _regexes=str_regexes,
             similarity_func=StringSimilarity.get_hamming_distance,
+            _db=db,
+            _ids=ids,
+            metric_name='hamming',
+            regex_type='str'
         )
 
         # Jaro
-        logger.info(f'<{key}> Jaro. Work with <{len(str_regexes)}> samples.')
-        j_res = get_similarity_matrix(
-            name=f'{key}_jaro',
-            regexes=str_regexes,
+        logger.info(f'<{i_key}> Jaro. Work with <{len(str_regexes)}> samples.')
+        get_similarity_matrix(
+            name=f'{i_key}_jaro',
+            _regexes=str_regexes,
             similarity_func=StringSimilarity.get_jaro_similarity,
+            _db=db,
+            _ids=ids,
+            metric_name='jaro',
+            regex_type='str'
         )
 
         # Jaro-Winkler
-        logger.info(f'<{key}> Jaro-Winkler. Work with <{len(str_regexes)}> samples.')
-        jw_res = get_similarity_matrix(
-            name=f'{key}_jaro_winkler',
-            regexes=str_regexes,
+        logger.info(f'<{i_key}> Jaro-Winkler. Work with <{len(str_regexes)}> samples.')
+        get_similarity_matrix(
+            name=f'{i_key}_jaro_winkler',
+            _regexes=str_regexes,
             similarity_func=StringSimilarity.get_jaro_similarity,
+            _db=db,
+            _ids=ids,
+            metric_name='jaro_winkler',
+            regex_type='str',
             kwargs_func={'is_jaro_winkler': True}
         )
 
         # Regex as a graph
 
         # GED for SRE Parser
-        logger.info(f'<{key}> GED for SRE Parser. Work with <{len(sre_regexes)}> samples.')
-        sre_res = get_similarity_matrix(
-            name=f'{key}_sre',
-            regexes=sre_regexes,
+        logger.info(f'<{i_key}> GED for SRE Parser. Work with <{len(sre_regexes)}> samples.')
+        get_similarity_matrix(
+            name=f'{i_key}_sre',
+            _regexes=sre_regexes,
             similarity_func=GraphSimilarity.get_graph_edit_distance,
+            _db=db,
+            _ids=ids,
+            metric_name='sre_parser',
+            regex_type='ast',
             kwargs_func={'is_optimize': True}
         )
 
         # GED for Custom Translator
-        logger.info(f'<{key}> GED for Custom Translator. Work with <{len(translator_regexes)}> samples.')
-        translator_res = get_similarity_matrix(
-            name=f'{key}_custom',
-            regexes=translator_regexes,
+        logger.info(f'<{i_key}> GED for Custom Translator. Work with <{len(translator_regexes)}> samples.')
+        get_similarity_matrix(
+            name=f'{i_key}_custom',
+            _regexes=translator_regexes,
+            _db=db,
+            _ids=ids,
+            metric_name='custom_translator',
+            regex_type='ast',
             similarity_func=GraphSimilarity.get_graph_edit_distance,
             kwargs_func={'is_optimize': True}
         )
