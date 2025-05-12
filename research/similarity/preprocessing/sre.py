@@ -14,6 +14,10 @@ import networkx
 from logger import logger
 
 
+# tree or line
+SCHEMA = 'tree'
+
+
 class SreParser:
     def __init__(self, verbose: bool = False):
         self.errors = 0
@@ -64,13 +68,12 @@ class SreParser:
                 words_dict[node] = 0
                 return 0
 
-        ###
-        def sre_ast_to_graph(_ast, graph, root: Optional[str] = None):
+        def sre_ast_to_graph_line(_ast, graph, root: Optional[str] = None):
             if not root:
                 root = 'EXPR'
             if isinstance(_ast, Union[List, Tuple]):
                 for subtree in _ast:
-                    root, graph = sre_ast_to_graph(
+                    root, graph = sre_ast_to_graph_line(
                         _ast=subtree,
                         graph=graph,
                         root=root
@@ -82,8 +85,34 @@ class SreParser:
                 root = _node
             return root, graph
 
-        return sre_ast_to_graph(_ast=ast, graph=G)
-        ###
+        def sre_ast_to_graph_tree(_ast, graph, root: Optional[str] = None):
+            if not root:
+                root = 'EXPR'
+            if len(_ast) == 2:
+                is_branch = True
+            else:
+                is_branch = False
+            for subtree in _ast:
+                if isinstance(subtree, Union[List, Tuple]):
+                    graph = sre_ast_to_graph_tree(
+                        _ast=subtree,
+                        graph=graph,
+                        root=root
+                    )
+                elif isinstance(subtree, Union[str, int, None]):
+                    _node = f'{subtree},{get_id(subtree)}'
+                    graph.add_node(_node)
+                    graph.add_edge(root, _node)
+                    if is_branch:
+                        root = _node
+            return graph
+
+        if SCHEMA == 'line':
+            return sre_ast_to_graph_line(_ast=ast, graph=G)
+        elif SCHEMA == 'tree':
+            return None, sre_ast_to_graph_tree(_ast=ast, graph=G)
+        else:
+            raise NotImplementedError
 
     def parse(self, regex):
         try:
