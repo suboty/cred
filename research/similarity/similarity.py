@@ -28,12 +28,11 @@ queries = {
 }
 
 
-DATA_LIMIT = 50
+DATA_LIMIT = 1000
 IS_NEED_REGEX_SAVING = True
 
 
 def get_similarity_matrix(
-        name: str,
         _ids: List,
         _regexes: List,
         similarity_func: Callable,
@@ -198,7 +197,6 @@ if __name__ == '__main__':
         # Levenshtein
         logger.info(f'<{i_key}> Levenshtein. Work with <{len(str_regexes)}> samples.')
         get_similarity_matrix(
-            name=f'{i_key}_levenshtein',
             _regexes=str_regexes,
             similarity_func=StringSimilarity.get_distance,
             _db=db,
@@ -210,7 +208,6 @@ if __name__ == '__main__':
         # Hamming
         logger.info(f'<{i_key}> Hamming. Work with <{len(str_regexes)}> samples.')
         get_similarity_matrix(
-            name=f'{i_key}_hamming',
             _regexes=str_regexes,
             similarity_func=StringSimilarity.get_hamming_distance,
             _db=db,
@@ -222,7 +219,6 @@ if __name__ == '__main__':
         # Jaro
         logger.info(f'<{i_key}> Jaro. Work with <{len(str_regexes)}> samples.')
         get_similarity_matrix(
-            name=f'{i_key}_jaro',
             _regexes=str_regexes,
             similarity_func=StringSimilarity.get_jaro_similarity,
             _db=db,
@@ -234,7 +230,6 @@ if __name__ == '__main__':
         # Jaro-Winkler
         logger.info(f'<{i_key}> Jaro-Winkler. Work with <{len(str_regexes)}> samples.')
         get_similarity_matrix(
-            name=f'{i_key}_jaro_winkler',
             _regexes=str_regexes,
             similarity_func=StringSimilarity.get_jaro_similarity,
             _db=db,
@@ -249,7 +244,6 @@ if __name__ == '__main__':
         # GED for SRE Parser
         logger.info(f'<{i_key}> GED for SRE Parser. Work with <{len(sre_regexes)}> samples.')
         get_similarity_matrix(
-            name=f'{i_key}_sre',
             _regexes=sre_regexes,
             similarity_func=GraphSimilarity.get_graph_edit_distance,
             _db=db,
@@ -262,7 +256,6 @@ if __name__ == '__main__':
         # GED for Custom Translator
         logger.info(f'<{i_key}> GED for Custom Translator. Work with <{len(translator_regexes)}> samples.')
         get_similarity_matrix(
-            name=f'{i_key}_custom',
             _regexes=translator_regexes,
             _db=db,
             _ids=ids,
