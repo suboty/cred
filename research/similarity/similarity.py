@@ -5,10 +5,9 @@ from pathlib import Path
 from typing import List, Callable, Dict, Optional
 from itertools import combinations_with_replacement
 
-from tqdm import tqdm
-
 from logger import logger
 from get_data import get_data_from_database
+from generator import Generator
 from preprocessing.sre import SreParser
 from preprocessing.custom import CustomTranslator
 from metrics.string import StringSimilarity
@@ -34,7 +33,11 @@ def get_similarity_matrix(
     result = []
     regex_pairs = combinations_with_replacement(regexes, 2)
     regex_pairs = [(x, y) for x, y in regex_pairs if x != y]
-    for x, y in tqdm(regex_pairs):
+    _i = 0
+    for x, y in regex_pairs:
+        _i += 1
+        if _i % 10 == 0:
+            logger.info(f'--- Processed <{_i}> samples')
         result.append(similarity_func(x, y, **kwargs_func))
     result = [round(x, 2) for x in result]
     os.makedirs('results', exist_ok=True)
@@ -75,112 +78,128 @@ if __name__ == '__main__':
         **kwargs
     )
 
+    print(data)
+
     logger.info(f'Work with <{len(data)}> samples')
 
     # init objects for similarity measuring
     sp = SreParser()
     ct = CustomTranslator()
+    g = Generator()
 
     # get string regexes
-    str_regexes = [x[0] for x in data]
+    regexes = [x[0] for x in data]
+    equal_regexes = g(regexes, True)
 
     # parsing errors may occur when obtaining regular expression graphs.
 
-    # get graph regexes by SRE parser
-    new_str_regexes = []
-    sre_regexes = []
-    errors = 0
-    for i, x in enumerate(str_regexes):
-        try:
-            sre_regex = sp(x)
-        except Exception as e:
-            logger.warning(
-                f'<{errors}> Wrong regular expression parsing with SRE Parser.'
-                f'\n\tRegex: <{x}>.'
-                f'\n\tError: <{e}>.'
-                f'\nTraceback: {traceback.format_exc()}'
-            )
-            errors += 1
+    for key in equal_regexes.keys():
+        str_regexes = equal_regexes[key]
+
+        os.makedirs('results', exist_ok=True)
+        with open(Path('results', f'{key}_regexes.samples'), 'w') as file:
+            file.writelines([x+'\n' for x in str_regexes])
+
+        # get graph regexes by SRE parser
+        new_str_regexes = []
+        sre_regexes = []
+        errors = 0
+        for i, x in enumerate(str_regexes):
+            try:
+                sre_regex = sp(x)
+            except Exception as e:
+                logger.warning(
+                    f'Wrong regular expression parsing with SRE Parser.'
+                    f'\n\tRegex: <{x}>.'
+                    f'\n\tError: <{e}>.'
+                    f'\n\t# of error: <{errors}>'
+                )
+                errors += 1
+                continue
+            sre_regexes.append(sre_regex)
+            new_str_regexes.append(str_regexes[i])
+        str_regexes = new_str_regexes
+
+        # get graph regexes by Custom translator
+        new_str_regexes = []
+        new_sre_regexes = []
+        translator_regexes = []
+        errors = 0
+        for i, x in enumerate(str_regexes):
+            try:
+                translator_regex = ct(x)
+            except Exception as e:
+                logger.warning(
+                    f'Wrong regular expression parsing with Custom Translator.'
+                    f'\n\tRegex: <{x}>.'
+                    f'\n\tError: <{e}>.'
+                    f'\n\t# of error: <{errors}>'
+                )
+                errors += 1
+                continue
+            translator_regexes.append(translator_regex)
+            new_str_regexes.append(str_regexes[i])
+            new_sre_regexes.append(sre_regexes[i])
+        str_regexes = new_str_regexes
+        sre_regexes = new_sre_regexes
+
+        logger.info(f'After parsing work with <{len(str_regexes)}> samples')
+
+        if len(str_regexes) == 0:
+            logger.warning('Skip.')
             continue
-        sre_regexes.append(sre_regex)
-        new_str_regexes.append(str_regexes[i])
-    str_regexes = new_str_regexes
 
-    # get graph regexes by Custom translator
-    new_str_regexes = []
-    new_sre_regexes = []
-    translator_regexes = []
-    errors = 0
-    for i, x in enumerate(str_regexes):
-        try:
-            translator_regex = ct(x)
-        except Exception as e:
-            logger.warning(
-                f'<{errors}> Wrong regular expression parsing with Custom Translator.'
-                f'\n\tRegex: <{x}>.'
-                f'\n\tError: <{e}>.'
-            )
-            errors += 1
-            continue
-        translator_regexes.append(translator_regex)
-        new_str_regexes.append(str_regexes[i])
-        new_sre_regexes.append(sre_regexes[i])
-    str_regexes = new_str_regexes
-    sre_regexes = new_sre_regexes
+        # Regex as a string
 
-    logger.info(f'After parsing work with <{len(str_regexes)}> samples')
+        # Levenshtein
+        logger.info(f'<{key}> Levenshtein. Work with <{len(str_regexes)}> samples.')
+        l_res = get_similarity_matrix(
+            name=f'{key}_levenshtein',
+            regexes=str_regexes,
+            similarity_func=StringSimilarity.get_distance,
+        )
 
-    # Regex as a string
+        # Hamming
+        logger.info(f'<{key}> Hamming. Work with <{len(str_regexes)}> samples.')
+        h_res = get_similarity_matrix(
+            name=f'{key}_hamming',
+            regexes=str_regexes,
+            similarity_func=StringSimilarity.get_hamming_distance,
+        )
 
-    # Levenshtein
-    logger.info('Levenshtein')
-    l_res = get_similarity_matrix(
-        name='levenshtein',
-        regexes=str_regexes,
-        similarity_func=StringSimilarity.get_distance,
-    )
+        # Jaro
+        logger.info(f'<{key}> Jaro. Work with <{len(str_regexes)}> samples.')
+        j_res = get_similarity_matrix(
+            name=f'{key}_jaro',
+            regexes=str_regexes,
+            similarity_func=StringSimilarity.get_jaro_similarity,
+        )
 
-    # Hamming
-    logger.info('Hamming')
-    h_res = get_similarity_matrix(
-        name='hamming',
-        regexes=str_regexes,
-        similarity_func=StringSimilarity.get_hamming_distance,
-    )
+        # Jaro-Winkler
+        logger.info(f'<{key}> Jaro-Winkler. Work with <{len(str_regexes)}> samples.')
+        jw_res = get_similarity_matrix(
+            name=f'{key}_jaro_winkler',
+            regexes=str_regexes,
+            similarity_func=StringSimilarity.get_jaro_similarity,
+            kwargs_func={'is_jaro_winkler': True}
+        )
 
-    # Jaro
-    logger.info('Jaro')
-    j_res = get_similarity_matrix(
-        name='jaro',
-        regexes=str_regexes,
-        similarity_func=StringSimilarity.get_jaro_similarity,
-    )
+        # Regex as a graph
 
-    # Jaro-Winkler
-    logger.info('Jaro-Winkler')
-    jw_res = get_similarity_matrix(
-        name='jaro_winkler',
-        regexes=str_regexes,
-        similarity_func=StringSimilarity.get_jaro_similarity,
-        kwargs_func={'is_jaro_winkler': True}
-    )
+        # GED for SRE Parser
+        logger.info(f'<{key}> GED for SRE Parser. Work with <{len(sre_regexes)}> samples.')
+        sre_res = get_similarity_matrix(
+            name=f'{key}_sre',
+            regexes=sre_regexes,
+            similarity_func=GraphSimilarity.get_graph_edit_distance,
+            kwargs_func={'is_optimize': True}
+        )
 
-    # Regex as a graph
-
-    # GED for SRE Parser
-    logger.info('GED for SRE Parser')
-    sre_res = get_similarity_matrix(
-        name='sre',
-        regexes=sre_regexes,
-        similarity_func=GraphSimilarity.get_graph_edit_distance,
-        kwargs_func={'is_optimize': True}
-    )
-
-    # GED for Custom Translator
-    logger.info('GED for Custom Translator')
-    translator_res = get_similarity_matrix(
-        name='custom',
-        regexes=translator_regexes,
-        similarity_func=GraphSimilarity.get_graph_edit_distance,
-        kwargs_func={'is_optimize': True}
-    )
+        # GED for Custom Translator
+        logger.info(f'<{key}> GED for Custom Translator. Work with <{len(translator_regexes)}> samples.')
+        translator_res = get_similarity_matrix(
+            name=f'{key}_custom',
+            regexes=translator_regexes,
+            similarity_func=GraphSimilarity.get_graph_edit_distance,
+            kwargs_func={'is_optimize': True}
+        )
