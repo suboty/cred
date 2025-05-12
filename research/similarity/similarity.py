@@ -58,8 +58,9 @@ if __name__ == '__main__':
     # regex construction for same_construction grouping
     parser.add_argument('--regexConstruction', type=str, default=None)
 
-    # regex construction threshold for same_construction_percentage grouping
-    parser.add_argument('--regexConstructionThreshold', type=str, default=None)
+    # regex construction thresholds for same_construction_percentage grouping
+    parser.add_argument('--regexConstructionThresholdUpper', type=str, default=None)
+    parser.add_argument('--regexConstructionThresholdLower', type=str, default=None)
 
     # init objects
     args = parser.parse_args()
@@ -67,8 +68,9 @@ if __name__ == '__main__':
     kwargs = {}
     if args.regexConstruction:
         kwargs.setdefault('kwargs_construction', args.regexConstruction)
-    if args.regexConstructionThreshold:
-        kwargs.setdefault('__THRESHOLD__', args.regexConstructionThreshold)
+    if args.regexConstructionThresholdUpper and args.regexConstructionThresholdLower:
+        kwargs.setdefault('__THRESHOLD_UPPER__', args.regexConstructionThresholdUpper)
+        kwargs.setdefault('__THRESHOLD_LOWER__', args.regexConstructionThresholdLower)
 
     # get data
     data = get_data_from_database(
@@ -76,8 +78,6 @@ if __name__ == '__main__':
         query_index=queries.get(args.regexGroup),
         **kwargs
     )
-
-    print(data)
 
     logger.info(f'Work with <{len(data)}> samples')
 

@@ -35,12 +35,14 @@ for arg in "$@"; do
       percentageChoice="y"
     fi
     if [ "$percentageChoice" = "y" ]; then
-      read -r -p "Enter percentage threshold: " regexConstructionThreshold
+      read -r -p "Enter percentage upper threshold: " regexConstructionThresholdUpper
+      read -r -p "Enter percentage lower threshold: " regexConstructionThresholdLower
       python3 similarity.py \
       --regexGroup "same_construction_percentage" \
       --regexConstruction "$regexConstruction" \
       --regexSource "$regexSource" \
-      --regexConstructionThreshold "$regexConstructionThreshold"
+      --regexConstructionThresholdUpper "$regexConstructionThresholdUpper" \
+      --regexConstructionThresholdLower "$regexConstructionThresholdLower"
     else
       python3 similarity.py \
       --regexGroup "$arg" \

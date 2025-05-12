@@ -38,7 +38,7 @@ database_queries = [
     ) as r, vars
     where
         r.__REGEX_COLUMN__ like format("%s%s%s", '%', vars.pattern, '%')
-        and r.pattern_percentage >= __THRESHOLD__
+        and r.pattern_percentage between __THRESHOLD_LOWER__ and __THRESHOLD_UPPER__
     group by r.__REGEX_COLUMN__
     order by 2 desc, 3 desc;"""
 ]

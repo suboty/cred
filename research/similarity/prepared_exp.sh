@@ -17,10 +17,12 @@ clear_old_results
 
 regexSource="regexlib"
 regexConstruction="[0-9]"
-regexConstructionThreshold="0.3"
+regexConstructionThresholdLower="0.3"
+regexConstructionThresholdUpper="0.5"
 
 python3 similarity.py \
 --regexGroup "same_construction_percentage" \
 --regexConstruction "$regexConstruction" \
 --regexSource "$regexSource" \
---regexConstructionThreshold "$regexConstructionThreshold"
+--regexConstructionThresholdLower "$regexConstructionThresholdLower" \
+--regexConstructionThresholdUpper "$regexConstructionThresholdUpper"
