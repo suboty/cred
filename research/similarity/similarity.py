@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import List, Callable, Dict, Optional
 from itertools import combinations_with_replacement
 
+import numpy as np
+
 from logger import logger
 from get_data import get_data_from_database
 from generator import Generator
@@ -19,6 +21,9 @@ queries = {
     'same_construction': 2,
     'same_construction_percentage': 3
 }
+
+
+DATA_LIMIT = 50
 
 
 def get_similarity_matrix(
@@ -78,6 +83,13 @@ if __name__ == '__main__':
         query_index=queries.get(args.regexGroup),
         **kwargs
     )
+
+    if len(data) > DATA_LIMIT:
+        indexes = np.random.randint(0, len(data) - 1, DATA_LIMIT)
+        new_data = []
+        for index in indexes:
+            new_data.append(data[index])
+        data = new_data
 
     logger.info(f'Work with <{len(data)}> samples')
 
