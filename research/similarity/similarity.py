@@ -1,6 +1,5 @@
 import os
 import argparse
-import traceback
 from pathlib import Path
 from typing import List, Callable, Dict, Optional
 from itertools import combinations_with_replacement
