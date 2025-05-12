@@ -2,6 +2,7 @@
   -> \s
 [0123456789] -> \d
 (?=\,\d*\}) r->r 0
+(?<![{[-])\d+(?![]}]) r->r\d+
 {1,} -> +
 {0,} -> *
 {0,1} -> ?
@@ -18,3 +19,21 @@ http|https -> https?
 \p{Number} -> \d
 [^\w] -> \W
 [^\d] -> \D
+A-Za-z -> \w
+A-Z -> \w
+a-z -> \w
+А-Яа-я -> \w
+А-Я -> \w
+а-я -> \w
+\[\d\-\d\] r->r \\d
+^\^ r->r
+\$$ r->r
+\p{Li} -> \w
+\p{Lowercase_Letter} -> \w
+\p{Lu} -> \w
+\p{Uppercase_Letter} -> \w
+\p{Zs} -> \s
+\p{Space_Separator} -> \s
+[^A-Za-z0-9] -> [^\w\d]
+[^A-Za-z] -> \W
+[^a-zA-Z] -> \W
