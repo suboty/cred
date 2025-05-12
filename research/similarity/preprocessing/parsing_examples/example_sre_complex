@@ -1,0 +1,61 @@
+.*[Product|product]\":\"([^\"]+).*
+
+[
+	(
+		MAX_REPEAT | 0,
+		(
+			0 | 0,
+			MAXREPEAT | 1,
+			[
+				(ANY | 0, None | 0)
+			]
+		)
+	),
+	(
+		IN | 0,
+		[
+			LITERAL | 0,
+			LITERAL | 1,
+			LITERAL | 2,
+			LITERAL | 3,
+			LITERAL | 4,
+			LITERAL | 5,
+			LITERAL | 6,
+			LITERAL | 7,
+			LITERAL | 8
+		]
+	),
+	LITERAL | 9,
+	LITERAL | 10,
+	LITERAL | 11,
+	(
+		SUBPATTERN | 0,
+		(
+			1 | 0,
+			0 | 1,
+			0 | 2,
+			[
+				(
+					MAX_REPEAT | 2,
+					(
+						1 | 1,
+						MAXREPEAT | 3,
+						[
+							(NOT_LITERAL | 0, 34 | 0)
+						]
+					)
+				)
+			]
+		)
+	),
+	(
+		MAX_REPEAT | 4,
+		(
+			0 | 3,
+			MAXREPEAT | 5,
+			[
+				(ANY | 1, None | 1)
+			]
+		)
+	)
+]

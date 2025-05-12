@@ -1,0 +1,44 @@
+(a|(b|c))d
+
+(
+    (
+        'group',
+        (
+            'alt',
+            (
+                (
+                    'altgroup',
+                    (
+                        ('atom',),
+                    )
+                ),
+                (
+                    'altgroup',
+                    (
+                        (
+                            'group',
+                            (
+                                'alt',
+                                (
+                                    (
+                                        'altgroup',
+                                        (
+                                            ('atom',),
+                                        )
+                                    ),
+                                    (
+                                        'altgroup',
+                                        (
+                                            ('atom',),
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                    )
+                )
+            )
+        )
+    ),
+    ('atom',)
+)

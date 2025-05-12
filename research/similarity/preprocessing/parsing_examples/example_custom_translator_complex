@@ -1,0 +1,56 @@
+.*(Product|product)\":\"(.+).*
+
+(
+    (
+        'repeat_0_inf',
+        ('any',)
+    ), 
+    (
+        'group',
+        (
+            'alt',
+            (
+                (
+                    'altgroup',
+                    (
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',)
+                    )
+                ),
+                (
+                    'altgroup',
+                    (
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',),
+                        ('atom',)
+                    )
+                )
+            )
+        )
+    ),
+    ('escape',),
+    ('atom',),
+    ('escape',),
+    (
+        'group',
+        (
+            (
+                'repeat_1_inf',
+                ('any',)
+            ),
+        )
+    ),
+    (
+        'repeat_0_inf',
+        ('any',)
+    )
+)

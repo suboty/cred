@@ -1,0 +1,45 @@
+(a|(b|c))d
+
+[
+    (
+        SUBPATTERN,
+        (
+            1,
+            0,
+            0,
+            [
+                (
+                    BRANCH,
+                    (
+                        None,
+                        [
+                            [
+                                LITERAL
+                            ],
+                            [
+                                (
+                                    SUBPATTERN,
+                                    (
+                                        2,
+                                        0,
+                                        0,
+                                        [
+                                            (
+                                                IN,
+                                                [
+                                                    LITERAL,
+                                                    LITERAL
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                )
+                            ]
+                        ]
+                    )
+                )
+            ]
+        )
+    ),
+    LITERAL
+]
