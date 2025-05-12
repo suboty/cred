@@ -1,6 +1,24 @@
+import signal
+from contextlib import contextmanager
 from typing import Callable, Optional
 
 import networkx as nx
+
+
+class TimeoutException(Exception):
+    ...
+
+
+@contextmanager
+def time_limit(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 
 class GraphSimilarity:
@@ -58,13 +76,16 @@ class GraphSimilarity:
             kwargs.setdefault('edge_match', edge_match)
 
         if is_optimize:
-            minv = None
-            for v in nx.optimize_graph_edit_distance(
+            gen = nx.optimize_graph_edit_distance(
                 graph1,
                 graph2,
                 **kwargs
-            ):
-                minv = v
+            )
+            try:
+                with time_limit(5):
+                    minv = next(gen)
+            except TimeoutException:
+                pass
             return minv
 
         return nx.graph_edit_distance(
