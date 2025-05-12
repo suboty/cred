@@ -42,11 +42,17 @@ def get_similarity_matrix(
         _i += 1
         if _i % 10 == 0:
             logger.info(f'--- Processed <{_i}> samples')
-        result.append(similarity_func(x, y, **kwargs_func))
-    result = [round(x, 2) for x in result]
+        result.append((
+            x,
+            y,
+            round(
+                similarity_func(x, y, **kwargs_func),
+                2
+            )
+        ))
     os.makedirs('results', exist_ok=True)
     with open(Path('results', f'{name}_results.similarity'), 'w') as res_file:
-        result = [str(x)+'\n' for x in result]
+        result = ["|".join([str(y) for y in x])+'\n' for x in result]
         res_file.writelines(result)
     return result
 
@@ -154,10 +160,6 @@ if __name__ == '__main__':
             logger.warning('Skip. Not enough regexes')
             continue
         else:
-            os.makedirs('results', exist_ok=True)
-            with open(Path('results', f'{key}_regexes.samples'), 'w') as file:
-                file.writelines([x + '\n' for x in str_regexes])
-
             logger.info(f'After parsing work with <{len(str_regexes)}> samples')
 
         # Regex as a string
