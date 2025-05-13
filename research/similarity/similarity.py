@@ -43,11 +43,12 @@ def get_similarity_matrix(
 ):
     if kwargs_func is None:
         kwargs_func = {}
-    result = []
+    mem = []
     _i = 0
     for i_x, x in enumerate(_regexes):
+        mem.append(i_x)
         for i_y, y in enumerate(_regexes):
-            if i_x == i_y:
+            if i_x == i_y or i_y in mem:
                 continue
             _i += 1
             if _i % 10 == 0:
