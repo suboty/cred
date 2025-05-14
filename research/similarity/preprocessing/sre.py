@@ -191,5 +191,8 @@ if __name__ == '__main__':
     print(f'Post AST: {processed_ast}')
 
     _, test_ast_graph = parser.get_graph(processed_ast)
-    networkx.draw_networkx(test_ast_graph)
+    networkx.draw_networkx(
+        test_ast_graph,
+        node_color='#aed6f1'
+    )
     plt.show()

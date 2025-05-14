@@ -479,5 +479,8 @@ if __name__ == '__main__':
     print(f'Post AST: {processed_ast}')
 
     test_ast_graph = translator.get_graph(processed_ast)
-    networkx.draw_networkx(test_ast_graph)
+    networkx.draw_networkx(
+        test_ast_graph,
+        node_color='#aed6f1'
+    )
     plt.show()
