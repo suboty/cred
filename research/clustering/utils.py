@@ -421,6 +421,12 @@ def run_bert(
             savepath=savepath,
         )
 
+        np.savetxt(
+            fname=Path('vectors', f'{exp_name}_{data[2]}_{_be.name}.csv'),
+            X=embeddings,
+            delimiter=","
+        )
+
         clustered_preds = _km(
             data=embeddings,
             pipeline_name=f'{data[2]}_' + _be.name,
@@ -501,6 +507,12 @@ def run_tf_idf(
             n_neighbors=50,
             umap_min_dist=0.25,
             savepath=savepath,
+        )
+
+        np.savetxt(
+            fname=Path('vectors', f'{exp_name}_{data[2]}_{tf_idf_method}.csv'),
+            X=tokens_matrix,
+            delimiter=","
         )
 
         clustered_preds = km_object(

@@ -278,9 +278,13 @@ if __name__ == '__main__':
 
     alg_config = load_yml_config()
 
+    # for vectors saving
+    os.makedirs('vectors', exist_ok=True)
+
     # run clustering
     if 'tf_idf' in args.algName and alg_config.get('tf_idf'):
         iter_tf_idf(
+            path_to_encoders=Path('encoders'),
             methods_list=alg_config.get('tf_idf'),
             input_data=input_data,
             _verbose=args.verbose,
@@ -300,6 +304,7 @@ if __name__ == '__main__':
 
     if 'bert' in args.algName and alg_config.get('bert'):
         iter_bert(
+            path_to_encoders=Path('encoders'),
             methods_list=alg_config.get('bert'),
             input_data=input_data,
             _filter=args.filter,
