@@ -426,6 +426,11 @@ def run_bert(
             X=embeddings,
             delimiter=","
         )
+        np.savetxt(
+            fname=Path('vectors', f'{exp_name}_{data[2]}_{_be.name}_umap.csv'),
+            X=umap,
+            delimiter=","
+        )
 
         clustered_preds = _km(
             data=embeddings,
@@ -512,6 +517,11 @@ def run_tf_idf(
         np.savetxt(
             fname=Path('vectors', f'{exp_name}_{data[2]}_{tf_idf_method}.csv'),
             X=tokens_matrix,
+            delimiter=","
+        )
+        np.savetxt(
+            fname=Path('vectors', f'{exp_name}_{data[2]}_{tf_idf_method}_umap.csv'),
+            X=umap,
             delimiter=","
         )
 
