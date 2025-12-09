@@ -67,43 +67,42 @@ class BertEmbeddings:
         sentence_embeddings = []
         new_dialects = []
         new_ids = []
+
         for i, string in tqdm(enumerate(strings)):
             t_input = self.tokenizer(
                 string,
                 padding=True,
+                truncation=True,
                 return_tensors="pt"
             )
 
             try:
                 with torch.no_grad():
-                    last_hidden_state = self.model(**t_input, output_hidden_states=True).hidden_states[-1]
+                    outputs = self.model(**t_input, output_hidden_states=True)
+                    last_hidden_state = outputs.hidden_states[-1]
 
-                weights_for_non_padding = t_input.attention_mask * torch.arange(start=1,
-                                                                                end=last_hidden_state.shape[
-                                                                                        1] + 1).unsqueeze(0)
+                token_embeddings = last_hidden_state
+                attention_mask = t_input['attention_mask'].unsqueeze(-1).expand(token_embeddings.size()).float()
 
-                sum_embeddings = torch.sum(last_hidden_state * weights_for_non_padding.unsqueeze(-1), dim=1)
-                num_of_none_padding_tokens = torch.sum(weights_for_non_padding, dim=-1).unsqueeze(-1)
-                sentence_embedding = sum_embeddings / num_of_none_padding_tokens
+                sum_embeddings = torch.sum(token_embeddings * attention_mask, dim=1)
+                valid_tokens = attention_mask.sum(dim=1).clamp(min=1e-9)
+                sentence_embedding = sum_embeddings / valid_tokens
 
-                sentence_embeddings.append(
-                    sentence_embedding.detach().numpy()
-                )
-                new_dialects.append(
-                    dialects[i]
-                )
-                new_ids.append(
-                    ids[i]
-                )
+                sentence_embedding = torch.nn.functional.normalize(sentence_embedding, p=2, dim=1)
+
+                sentence_embeddings.append(sentence_embedding.cpu().numpy())
+                new_dialects.append(dialects[i])
+                new_ids.append(ids[i])
+
             except Exception as e:
                 self.errors += 1
                 if self.verbose:
                     logger.warning(
-                        f'Warning! Error <{e}> while making tensor with expression with length: {len(string)}'
+                        f'Warning! Error <{e}> while making tensor with expression length: {len(string)}'
                     )
 
         if self.errors > 0:
-            logger.warning(f'{self.errors} regexes has too much length')
+            logger.warning(f'{self.errors} regexes exceeded max length')
         self.errors = 0
 
         return np.array(sentence_embeddings), new_dialects, new_ids
