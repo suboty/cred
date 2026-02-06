@@ -164,6 +164,7 @@ if __name__ == '__main__':
         os.makedirs(Path('tmp', 'clustering_reports'), exist_ok=True)
     if os.environ.get('isRegexesSaving').lower() == 'true':
         os.makedirs(Path('tmp', 'clusters'), exist_ok=True)
+        os.makedirs(Path('tmp', 'regexes'), exist_ok=True)
 
     # disable warnings from scikit-learn and umap-learn
     warnings.filterwarnings("ignore")
@@ -212,6 +213,8 @@ if __name__ == '__main__':
 
     # 1 (original regexes)
     list_of_regexes = dataset[regex_column].tolist()
+    with open(Path('tmp', 'regexes', 'list_of_regexes.txt'), 'w') as f:
+        f.writelines([x+'\n\n' for x in list_of_regexes])
     ids = data_to_db(
         db=db,
         regexes=list_of_regexes,
@@ -224,6 +227,8 @@ if __name__ == '__main__':
         need_equivalent=args.equivalent,
         need_nearly_equivalent=args.nearly_equivalent
     )
+    with open(Path('tmp', 'regexes', 'pre_list_of_regexes.txt'), 'w') as f:
+        f.writelines([x+'\n\n' for x in pre_list_of_regexes])
     pre_ids = data_to_db(
         db=db,
         regexes=pre_list_of_regexes,
@@ -236,6 +241,8 @@ if __name__ == '__main__':
         regex_list=list_of_regexes,
         dialects=labels
     )
+    with open(Path('tmp', 'regexes', 'ast_regex.txt'), 'w') as f:
+        f.writelines([x+'\n\n' for x in ast_regex])
     ast_ids = data_to_db(
         db=db,
         regexes=ast_regex,
@@ -248,6 +255,8 @@ if __name__ == '__main__':
         regex_list=pre_list_of_regexes,
         dialects=labels
     )
+    with open(Path('tmp', 'regexes', 'pre_ast_regex.txt'), 'w') as f:
+        f.writelines([x+'\n\n' for x in pre_ast_regex])
     pre_ast_ids = data_to_db(
         db=db,
         regexes=pre_ast_regex,
