@@ -1,6 +1,5 @@
 import os
 import argparse
-from pathlib import Path
 from typing import List, Callable, Dict, Optional
 
 import numpy as np
@@ -69,7 +68,7 @@ def get_similarity_matrix(
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='cred-clustering')
+    parser = argparse.ArgumentParser(prog='cred-similarity')
 
     # regex source
     parser.add_argument('--regexSource', type=str, default='regex101')

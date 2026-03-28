@@ -4,19 +4,19 @@ import sqlite3
 
 
 database_queries = [
-    # get all regexes
+    # get all regexes (1)
     """select r.__REGEX_COLUMN__ 
     from regexes r 
     where r.__REGEX_COLUMN__ not in ('', ' ')
     and r.__REGEX_COLUMN__ is not null;""",
 
-    # get completely similar regexes
+    # get completely similar regexes (2)
     """select r.__REGEX_COLUMN__, count(*) 
     from regexes r 
     group by r.__REGEX_COLUMN__ 
     order by 2 desc;""",
 
-    # get similar regexes with same construction
+    # get similar regexes with same construction (3)
     """select r.__REGEX_COLUMN__, count(*) 
     from (select lower(__REGEX_COLUMN__) as __REGEX_COLUMN__ from regexes ) as r 
     where r.__REGEX_COLUMN__ like '%kwargs_construction%'
@@ -24,7 +24,7 @@ database_queries = [
     order by 2 desc;""",
 
     # get similar regexes with same constructions
-    # with construction percentage filter
+    # with construction percentage filter (4)
     """with vars as (select 'kwargs_construction' as pattern)
     select
         r.__REGEX_COLUMN__,
@@ -40,7 +40,13 @@ database_queries = [
         r.__REGEX_COLUMN__ like format("%s%s%s", '%', vars.pattern, '%')
         and r.pattern_percentage between __THRESHOLD_LOWER__ and __THRESHOLD_UPPER__
     group by r.__REGEX_COLUMN__
-    order by 2 desc, 3 desc;"""
+    order by 2 desc, 3 desc;""",
+
+    # get all regexes with dialect (only regex101) (5)
+    """select r.__REGEX_COLUMN__, r.dialect
+    from regexes r 
+    where r.__REGEX_COLUMN__ not in ('', ' ')
+    and r.__REGEX_COLUMN__ is not null;""",
 ]
 
 
@@ -52,6 +58,8 @@ def get_data_from_database(
     sql_query = database_queries[query_index]
     match database:
         case 'regexlib':
+            if query_index == 4:
+                raise NotImplementedError
             sql_query = sql_query.replace('__REGEX_COLUMN__', 'pattern')
         case 'regex101':
             sql_query = sql_query.replace('__REGEX_COLUMN__', 'regex')
