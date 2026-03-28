@@ -417,17 +417,13 @@ def run_bert(
             name=f'{data[2]}_' + _be.name,
             dialects=labels,
             n_neighbors=50,
+            n_components=64,
             umap_min_dist=0.25,
             savepath=savepath,
         )
 
         np.savetxt(
             fname=Path('vectors', f'{exp_name}_{data[2]}_{_be.name}.csv'),
-            X=embeddings,
-            delimiter=","
-        )
-        np.savetxt(
-            fname=Path('vectors', f'{exp_name}_{data[2]}_{_be.name}_umap.csv'),
             X=umap,
             delimiter=","
         )
@@ -510,17 +506,13 @@ def run_tf_idf(
             name=f'{data[2]}_' + f'tf_idf_{tf_idf_method}',
             dialects=data[1],
             n_neighbors=50,
+            n_components=64,
             umap_min_dist=0.25,
             savepath=savepath,
         )
 
         np.savetxt(
             fname=Path('vectors', f'{exp_name}_{data[2]}_{tf_idf_method}.csv'),
-            X=tokens_matrix,
-            delimiter=","
-        )
-        np.savetxt(
-            fname=Path('vectors', f'{exp_name}_{data[2]}_{tf_idf_method}_umap.csv'),
             X=umap,
             delimiter=","
         )
