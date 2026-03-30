@@ -2,6 +2,7 @@ import warnings
 from pathlib import Path
 
 from tqdm import tqdm
+import numpy as np
 
 from logger import logger
 from get_data import get_data_from_database
@@ -9,6 +10,7 @@ from generator import Generator
 from generator.get_replacements_by_sre import generate
 from preprocessing.sre import SreParser
 from preprocessing.custom import CustomTranslator
+from complexity import measure_complexity_reduction
 
 
 if __name__ == '__main__':
@@ -20,7 +22,7 @@ if __name__ == '__main__':
         query_index=4,
     )
 
-    generate(
+    replacements = generate(
         [x[0] for x in data],
         min_frequency=5,
         logger=logger,
@@ -33,6 +35,14 @@ if __name__ == '__main__':
 
     # get dialects and regexes
     regexes = [x[0] for x in data]
+
+    complexity_results = []
+    for regex in tqdm(regexes):
+        complexity_results.append(round(measure_complexity_reduction(
+            regex,
+            replacements
+        ).get('complexity_reduction', 0.), 2))
+
     dialects = []
     original_regexes = []
     repl_regexes = []
@@ -104,4 +114,9 @@ if __name__ == '__main__':
     logger.error(
         f'Replacements failed with SRE Parser: {repl_failed_sp}, '
         f'{round(repl_failed_sp / len(sp_results), 2) * 100}%'
+    )
+
+    logger.warning(
+        f'Replacements reduce complexity: '
+        f'{round(np.mean([x for x in complexity_results if x != 0.]), 2)}'
     )

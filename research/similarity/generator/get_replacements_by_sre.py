@@ -933,3 +933,5 @@ def generate(
         print("Top-5 replacements:")
         for i, (original, simplified, category, count) in enumerate(replacements[:5]):
             print(f"{i + 1}. {original} -> {simplified} (frequency: {count})")
+
+    return replacements
