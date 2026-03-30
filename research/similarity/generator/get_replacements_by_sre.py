@@ -927,11 +927,11 @@ def generate(
     replacements = generate_replacements(stats, min_frequency)
 
     with open(path, 'w', encoding='utf-8') as f:
-        f.write(format_replacements(replacements))
+        f.write(format_replacements(replacements, verbose))
 
     if verbose:
-        print("Top-5 replacements:")
+        logger.debug("Top-5 replacements:")
         for i, (original, simplified, category, count) in enumerate(replacements[:5]):
-            print(f"{i + 1}. {original} -> {simplified} (frequency: {count})")
+            logger.debug(f"{i + 1}. {original} -> {simplified} (frequency: {count})")
 
     return replacements

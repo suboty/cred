@@ -20,6 +20,7 @@ class Generator:
             data = repl_file.read().split('\n')
         replacements, reg_replacements = [], []
         for repl in data:
+            repl = re.sub(r'#.*', '', repl)
             if ' r->r ' in repl:
                 reg_replacements.append(tuple(repl.split(' r->r ')))
             elif ' -> ' in repl:

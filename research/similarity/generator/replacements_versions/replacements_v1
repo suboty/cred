@@ -1,29 +1,24 @@
-{0,1} -> ?
-[0-9] -> \d
-[\s] -> \s
-[\d] -> \d
-[A-Za-z0-9] -> \w
-[\w] -> \w
-{1} ->
-[A-Z] -> \w
-[A-Za-z0-9_] -> \w
-[a-z] -> \w
-[a-zA-Z] -> \w
-| ->
-| ->
-[A-Za-z] -> \w
-[^a-z] -> \W
-|| ->
-|| ->
-[^\s] -> \S
-[^0-9] -> \D
-[^\d] -> \D
-||||||||| ->
-||||||||| ->
-(s)? -> s?
-||||| ->
-||||| ->
-|(v|embed?)/| -> |(v|embed?)/
-|||| ->
-|||| ->
-[^a-zA-Z] -> \W
+{0,1} -> ?  # quantifier_optional, frequency: 3556
+[0-9] -> \d  # char_class_digit, frequency: 2824
+[\s] -> \s  # char_class_space, frequency: 1091
+[\d] -> \d  # char_class_digit, frequency: 917
+[A-Za-z0-9] -> \w  # char_class_alnum, frequency: 650
+[\w] -> \w  # char_class_word, frequency: 331
+{1} ->   # redundant_quantifier, frequency: 309
+[A-Z] -> \w  # char_class_upper_expand, frequency: 267
+[A-Za-z0-9_] -> \w  # char_class_word, frequency: 249
+[a-z] -> \w  # char_class_lower_expand, frequency: 230
+[a-zA-Z] -> \w  # char_class_letters_expand, frequency: 198
+| ->   # repeated_alternatives / duplicate_alternatives, frequency: 158
+[A-Za-z] -> \w  # char_class_letters_expand, frequency: 82
+[^a-z] -> \W  # char_class_non_lower, frequency: 23
+|| ->   # repeated_alternatives / duplicate_alternatives, frequency: 16
+[^\s] -> \S  # inverted_space, frequency: 15
+[^0-9] -> \D  # char_class_non_digit, frequency: 11
+[^\d] -> \D  # inverted_digit, frequency: 10
+||||||||| ->   # repeated_alternatives, frequency: 10
+(s)? -> s?  # alternatives_optional, frequency: 8
+||||| ->   # repeated_alternatives, frequency: 7
+|(v|embed?)/| -> |(v|embed?)/  # duplicate_alternatives, frequency: 6
+|||| ->   # repeated_alternatives / duplicate_alternatives, frequency: 6
+[^a-zA-Z] -> \W  # char_class_non_letters, frequency: 5

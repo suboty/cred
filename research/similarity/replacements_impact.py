@@ -26,7 +26,8 @@ if __name__ == '__main__':
         [x[0] for x in data],
         min_frequency=5,
         logger=logger,
-        path=Path('generator', 'replacements')
+        path=Path('generator', 'replacements'),
+        verbose=True,
     )
 
     sp = SreParser()
