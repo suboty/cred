@@ -37,6 +37,7 @@ if __name__ == '__main__':
     regexes = [x[0] for x in data]
 
     complexity_results = []
+    logger.info('Calculate complexity...')
     for regex in tqdm(regexes):
         complexity_results.append(round(measure_complexity_reduction(
             regex,
@@ -61,6 +62,7 @@ if __name__ == '__main__':
     sp_results = []
     ct_results = []
 
+    logger.info('Calculate replacements impact...')
     for i, dialect in enumerate(tqdm(dialects)):
         # Custom Translator
         try:
@@ -118,5 +120,5 @@ if __name__ == '__main__':
 
     logger.warning(
         f'Replacements reduce complexity: '
-        f'{round(np.mean([x for x in complexity_results if x != 0.]), 2)}'
+        f'{round(np.mean([x for x in complexity_results if x != 0.]), 2)}%'
     )
