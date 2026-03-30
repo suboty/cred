@@ -39,10 +39,14 @@ if __name__ == '__main__':
     complexity_results = []
     logger.info('Calculate complexity...')
     for regex in tqdm(regexes):
-        complexity_results.append(round(measure_complexity_reduction(
+        _res = measure_complexity_reduction(
             regex,
             replacements
-        ).get('complexity_reduction', 0.), 2))
+        )
+        complexity_results.append((
+            round(_res.get('complexity_reduction', 0.), 2),
+            round(_res.get('depth_reduction', 0.), 2)
+        ))
 
     dialects = []
     original_regexes = []
@@ -120,5 +124,10 @@ if __name__ == '__main__':
 
     logger.warning(
         f'Replacements reduce complexity: '
-        f'{round(np.mean([x for x in complexity_results if x != 0.]), 2)}%'
+        f'{round(np.mean([x[0] for x in complexity_results if x[0] != 0.]), 2)}%'
+    )
+
+    logger.warning(
+        f'Replacements reduce depth: '
+        f'{round(np.mean([x[1] for x in complexity_results if x[1] != 0.]), 2)}%'
     )
