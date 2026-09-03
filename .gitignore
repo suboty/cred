@@ -29,3 +29,6 @@
 
 # public repositories
 *html-to-pdf
+
+# envs
+*.env
