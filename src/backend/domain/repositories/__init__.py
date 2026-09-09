@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 __all__ = [
     'CreateSchema', 'UpdateSchema', 'ReadSchema', 'FilterSchema',
-    'AbstractRepository'
+    'AbstractRepository', 'DataBaseModel'
 ]
 
 
@@ -14,14 +14,21 @@ CreateSchema = TypeVar('CreateSchema', bound=BaseModel)
 UpdateSchema = TypeVar('UpdateSchema', bound=BaseModel)
 ReadSchema = TypeVar('ReadSchema', bound=BaseModel)
 FilterSchema = TypeVar('FilterSchema', bound=BaseModel)
+DataBaseModel = TypeVar('DataBaseModel')
 
 
 class AbstractRepository(
     ABC,
-    Generic[CreateSchema, UpdateSchema, ReadSchema, FilterSchema]
+    Generic[
+        CreateSchema,
+        UpdateSchema,
+        ReadSchema,
+        FilterSchema,
+        DataBaseModel
+    ]
 ):
     @abstractmethod
-    async def create(self, obj: CreateSchema) -> ReadSchema:
+    async def create(self, obj: CreateSchema) -> ReadSchema | None:
         pass
 
     @abstractmethod
@@ -39,11 +46,15 @@ class AbstractRepository(
         pass
 
     @abstractmethod
-    async def bulk_create(self, objects: list[CreateSchema]) -> list[ReadSchema]:
+    async def bulk_create(self, objects: list[CreateSchema]) -> list[ReadSchema | None]:
         pass
 
     @abstractmethod
-    async def bulk_update(self, updates: list[UpdateSchema]) -> list[ReadSchema]:
+    async def bulk_update(
+            self, 
+            updates: list[UpdateSchema],
+            obj_filter: FilterSchema | None
+    ) -> list[ReadSchema | None]:
         pass
 
     @abstractmethod
@@ -54,7 +65,7 @@ class AbstractRepository(
             sort_field: str | None = None,
             sort_descending: bool | None = None,
             obj_filter: FilterSchema | None = None,
-    ) -> Tuple[list[ReadSchema], int]:
+    ) -> Tuple[list[ReadSchema] | None, int]:
         pass
 
     @abstractmethod
@@ -64,5 +75,5 @@ class AbstractRepository(
             sort_descending: bool | None = None,
             obj_filter: FilterSchema | None = None,
             limit: int | None = None,
-    ) -> list[ReadSchema]:
+    ) -> list[ReadSchema] | None:
         pass
