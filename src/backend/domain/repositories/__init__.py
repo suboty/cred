@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, TypeVar, Generic
+from typing import TypeVar, Generic
 
 from pydantic import BaseModel
 
@@ -65,7 +65,7 @@ class AbstractRepository(
             sort_field: str | None = None,
             sort_descending: bool | None = None,
             obj_filter: FilterSchema | None = None,
-    ) -> Tuple[list[ReadSchema] | None, int]:
+    ) -> tuple[list[ReadSchema] | None, int]:
         pass
 
     @abstractmethod
