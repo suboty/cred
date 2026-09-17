@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
 
-from src.backend.logger import logger
-from src.backend.domain.repositories import *
+from logger import logger
+from domain.repositories import *
 
 
 class RepositoryException(Exception):

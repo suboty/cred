@@ -1,8 +1,8 @@
 from dependency_injector import containers, providers
-from src.backend.infrastructure.config import (
+from infrastructure.config import (
     db_settings,
 )
-from src.backend.infrastructure.psql.db import Database
+from infrastructure.psql.db import Database
 
 
 class DatabaseContainer(containers.DeclarativeContainer):

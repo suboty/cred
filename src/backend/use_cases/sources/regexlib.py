@@ -1,8 +1,8 @@
 from abc import ABC
 
-from src.backend.use_cases import UseCase
-from src.backend.domain.services.sources.regexlib import RegexLibService
-from src.backend.domain.entities.sources.regexlib import *
+from use_cases import UseCase
+from domain.services.sources.regexlib import RegexLibService
+from domain.entities.sources.regexlib import *
 
 
 class BaseRegexLibUseCase(UseCase, ABC):

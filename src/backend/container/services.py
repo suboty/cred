@@ -1,8 +1,8 @@
 from dependency_injector import containers, providers
 
-from src.backend.domain.services.regexes import RegexesService
-from src.backend.domain.services.sources.regexlib import RegexLibService
-from src.backend.domain.services.sources.regex101 import Regex101Service
+from domain.services.regexes import RegexesService
+from domain.services.sources.regexlib import RegexLibService
+from domain.services.sources.regex101 import Regex101Service
 
 
 class ServiceContainer(containers.DeclarativeContainer):

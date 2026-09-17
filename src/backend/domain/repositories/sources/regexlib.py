@@ -1,8 +1,8 @@
 from abc import ABC
 
-from src.backend.domain.repositories import AbstractRepository
-from src.backend.domain.entities.sources.regexlib import *
-from src.backend.infrastructure.psql.models.sources.regexlib import RegexLibModel
+from domain.repositories import AbstractRepository
+from domain.entities.sources.regexlib import *
+from infrastructure.psql.models.sources.regexlib import RegexLibModel
 
 
 class RegexLibRepositoryInterface(

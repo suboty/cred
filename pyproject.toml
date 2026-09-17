@@ -16,7 +16,8 @@ dependencies = [
     "celery (>=5.6.3,<6.0.0)",
     "python-dotenv (>=1.2.3,<2.0.0)",
     "dependency-injector (>=4.49.1,<5.0.0)",
-    "uliweb-alembic (>=0.6.9,<0.7.0)"
+    "uliweb-alembic (>=0.6.9,<0.7.0)",
+    "uvicorn (>=0.53.0,<0.54.0)"
 ]
 
 

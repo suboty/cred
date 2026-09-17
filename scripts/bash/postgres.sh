@@ -1,5 +1,5 @@
 #!/bin/sh
-sudo docker run \
+docker run \
   --name postgres-db-cred \
   -p 15432:5432 \
   -e POSTGRES_USER=demo_user \

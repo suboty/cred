@@ -1,8 +1,8 @@
 from abc import ABC
 
-from src.backend.use_cases import UseCase
-from src.backend.domain.services.regexes import RegexesService
-from src.backend.domain.entities.regexes import *
+from use_cases import UseCase
+from domain.services.regexes import RegexesService
+from domain.entities.regexes import *
 
 
 __all__ = [

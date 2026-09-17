@@ -3,9 +3,9 @@ from datetime import datetime
 from sqlalchemy import String, DateTime, BigInteger, func, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.backend.infrastructure.config import db_settings
-from src.backend.infrastructure.psql.db import Base
-from src.backend.domain.entities.regexes import Sources
+from infrastructure.config import db_settings
+from infrastructure.psql.db import Base
+from domain.entities.regexes import Sources
 
 
 

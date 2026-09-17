@@ -1,8 +1,8 @@
-from src.backend.infrastructure.psql.repositories import SQLAlchemyRepository
+from infrastructure.psql.repositories import SQLAlchemyRepository
 
-from src.backend.domain.entities.sources.regex101 import *
-from src.backend.domain.repositories.sources.regex101 import Regex101RepositoryInterface
-from src.backend.infrastructure.psql.models.sources.regex101 import Regex101Model
+from domain.entities.sources.regex101 import *
+from domain.repositories.sources.regex101 import Regex101RepositoryInterface
+from infrastructure.psql.models.sources.regex101 import Regex101Model
 
 
 class Regex101SqlAlchemyRepository(

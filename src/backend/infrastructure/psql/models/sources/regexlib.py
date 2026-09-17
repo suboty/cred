@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy import String, DateTime, BigInteger, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.backend.infrastructure.config import db_settings
-from src.backend.infrastructure.psql.db import Base
+from infrastructure.config import db_settings
+from infrastructure.psql.db import Base
 
 
 class RegexLibModel(Base):

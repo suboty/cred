@@ -1,5 +1,5 @@
-from src.backend.domain.repositories.sources.regex101 import Regex101RepositoryInterface
-from src.backend.domain.entities.sources.regex101 import *
+from domain.repositories.sources.regex101 import Regex101RepositoryInterface
+from domain.entities.sources.regex101 import *
 
 
 class Regex101Service:

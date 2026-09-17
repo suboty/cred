@@ -1,5 +1,5 @@
-from src.backend.domain.repositories.regexes import RegexesRepositoryInterface
-from src.backend.domain.entities.regexes import *
+from domain.repositories.regexes import RegexesRepositoryInterface
+from domain.entities.regexes import *
 
 
 class RegexesService:

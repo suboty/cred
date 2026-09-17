@@ -1,8 +1,8 @@
-from src.backend.infrastructure.psql.repositories import SQLAlchemyRepository
+from infrastructure.psql.repositories import SQLAlchemyRepository
 
-from src.backend.domain.entities.regexes import *
-from src.backend.domain.repositories.regexes import RegexesRepositoryInterface
-from src.backend.infrastructure.psql.models.regexes import RegexesModel
+from domain.entities.regexes import *
+from domain.repositories.regexes import RegexesRepositoryInterface
+from infrastructure.psql.models.regexes import RegexesModel
 
 
 class RegexesSqlAlchemyRepository(

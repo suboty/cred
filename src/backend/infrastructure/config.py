@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
 
@@ -10,7 +12,8 @@ class DbSettings(BaseSettings):
     DB_POOL_RECYCLE_SEC: int = 3600
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="allow"
+        env_file=Path("src", "backend", ".env"),
+        env_file_encoding="utf-8", extra="allow"
     )
 
 
@@ -22,7 +25,8 @@ class AppSettings(BaseSettings):
     PROJECT_VERSION: str = "0.1.0"
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="allow"
+        env_file=Path("src", "backend", ".env"),
+        env_file_encoding="utf-8", extra="allow"
     )
 
 

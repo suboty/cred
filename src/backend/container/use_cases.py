@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from src.backend.use_cases.regexes import (
+from use_cases.regexes import (
     CreateRegexesUseCase,
     GetRegexesUseCase,
     UpdateRegexesUseCase,
@@ -11,7 +11,7 @@ from src.backend.use_cases.regexes import (
     GetFilteredRegexesUseCase,
 )
 
-from src.backend.use_cases.sources.regex101 import (
+from use_cases.sources.regex101 import (
     CreateRegex101UseCase,
     GetRegex101UseCase,
     UpdateRegex101UseCase,
@@ -22,7 +22,7 @@ from src.backend.use_cases.sources.regex101 import (
     GetFilteredRegex101UseCase,
 )
 
-from src.backend.use_cases.sources.regexlib import (
+from use_cases.sources.regexlib import (
     CreateRegexLibUseCase,
     GetRegexLibUseCase,
     UpdateRegexLibUseCase,

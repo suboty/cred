@@ -1,9 +1,9 @@
 from dependency_injector import containers, providers
 
-from src.backend.container.databases import DatabaseContainer
-from src.backend.container.repositories import RepositoryContainer
-from src.backend.container.services import ServiceContainer
-from src.backend.container.use_cases import UseCaseContainer
+from container.databases import DatabaseContainer
+from container.repositories import RepositoryContainer
+from container.services import ServiceContainer
+from container.use_cases import UseCaseContainer
 
 
 class Container(containers.DeclarativeContainer):

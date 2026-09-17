@@ -1,5 +1,5 @@
-from src.backend.domain.repositories.sources.regexlib import RegexLibRepositoryInterface
-from src.backend.domain.entities.sources.regexlib import *
+from domain.repositories.sources.regexlib import RegexLibRepositoryInterface
+from domain.entities.sources.regexlib import *
 
 
 class RegexLibService:
