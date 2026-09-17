@@ -3,10 +3,7 @@ Common Regular Expression Dataset
 
 ## TODO
 ### Backend
-- Services
-- Use-cases
-- Repositories for SQLAlchemy
 - Celery tasks
-- API
+- Parsing sources
 ### Frontend
 - all
