@@ -13,15 +13,10 @@ from infrastructure.web.api.exceptions import FormFieldValidationException
 
 
 container = init_container()
-app_manager_service = container.services.app_manager_service()
-fastapi_user_container = container.user.fastapi_user_container()
-http_metrics_service = container.services.http_metrics_service()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI): # noqa
-    fastapi_user_container.role_router.enable_async_mode()
-    fastapi_user_container.manager_router.enable_async_mode()
     yield
 
 app = FastAPI(
@@ -31,9 +26,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(api_router, prefix='/api')
-
-
-http_metrics_service.add_metric_middleware(app)
 
 app.add_middleware(
     CORSMiddleware, # noqa
@@ -52,13 +44,6 @@ async def validation_exception_handler(_: Request, exc: FormFieldValidationExcep
 @app.exception_handler(HTTPException)
 async def http_validation_exception_handler(_: Request, exc: HTTPException):
     content = {"detail": exc.detail}
-
-    if await app_manager_service.is_app_on_debug():
-        traceback_data = "".join(
-            traceback.format_exception(type(exc), value=exc, tb=exc.__traceback__)
-        )
-        content["traceback"] = traceback_data
-
     return JSONResponse(status_code=exc.status_code, content=content)
 
 

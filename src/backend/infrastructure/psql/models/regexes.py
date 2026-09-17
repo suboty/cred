@@ -18,7 +18,7 @@ class RegexesModel(Base):
     source: Mapped[Sources] = mapped_column(String, nullable=False)
 
     params: Mapped[dict] = mapped_column(JSON, nullable=False)
-    metadata: Mapped[dict] = mapped_column(JSON, nullable=False)
+    regex_metadata: Mapped[dict] = mapped_column(JSON, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

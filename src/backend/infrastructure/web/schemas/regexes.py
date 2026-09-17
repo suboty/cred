@@ -20,7 +20,7 @@ class _RegexBase(BaseModel):
     regex: str
     source: Sources
     params: dict[Any, Any]
-    metadata: dict[Any, Any]
+    regex_metadata: dict[Any, Any]
 
 
 class RegexResponse(_RegexBase):
