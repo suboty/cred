@@ -8,7 +8,7 @@ from domain.services.sources.regex101 import Regex101Service
 class ServiceContainer(containers.DeclarativeContainer):
     repositories = providers.DependenciesContainer()
 
-    regex_service = providers.Factory(
+    regexes_service = providers.Factory(
         RegexesService,
         regexes_repository=repositories.regex_repository,
     )

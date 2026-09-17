@@ -24,13 +24,14 @@ router = APIRouter()
 )
 @inject
 async def get_regex(
-        filter_schema: Regex101FilterSchema | None = None,
+        regex_id: int,
+        filter_schema: Regex101FilterSchema = Depends(),
         use_case: GetRegex101UseCase = Depends(
             Provide[Container.use_cases.get_regex101_use_case]
         ),
 ) -> Any:
     try:
-        return await use_case.execute(obj_filter=filter_schema)
+        return await use_case.execute(obj_id=regex_id, obj_filter=filter_schema)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -75,7 +76,7 @@ async def create_regex(
 @inject
 async def update_regex(
         request_body: Regex101UpdateRequest,
-        filter_schema: Regex101FilterSchema | None = None,
+        filter_schema: Regex101FilterSchema = Depends(),
         use_case: UpdateRegex101UseCase = Depends(
             Provide[Container.use_cases.update_regex101_use_case]
         ),
@@ -103,7 +104,7 @@ async def update_regex(
 @inject
 async def delete_regex(
         regex_id: int,
-        filter_schema: Regex101FilterSchema | None = None,
+        filter_schema: Regex101FilterSchema = Depends(),
         use_case: DeleteRegex101UseCase = Depends(
             Provide[Container.use_cases.delete_regex101_use_case]
         ),
@@ -164,7 +165,7 @@ async def bulk_creating_regexes(
 @inject
 async def bulk_updating_regexes(
         objects: list[Regex101UpdateRequest],
-        filter_schema: Regex101FilterSchema | None = None,
+        filter_schema: Regex101FilterSchema = Depends(),
         use_case: BulkUpdateRegex101UseCase = Depends(
             Provide[Container.use_cases.bulk_update_regex101_use_case]
         ),
@@ -198,7 +199,7 @@ async def get_paginated_regexes(
         size: int = 10,
         sort_field: str | None = None,
         sort_descending: bool | None = None,
-        obj_filter: Regex101FilterSchema | None = None,
+        obj_filter: Regex101FilterSchema = Depends(),
         use_case: GetPaginatedRegex101UseCase = Depends(
             Provide[Container.use_cases.get_paginated_regex101_use_case]
         ),
@@ -218,7 +219,7 @@ async def get_paginated_regexes(
         ) from e
 
 
-@router.get(
+@router.post(
     "/filtered",
     summary="Get filtered list of regexes from regex101",
     responses={
@@ -230,7 +231,7 @@ async def get_paginated_regexes(
 async def get_filtered_regexes(
         sort_field: str | None = None,
         sort_descending: bool | None = None,
-        obj_filter: Regex101FilterSchema | None = None,
+        obj_filter: Regex101FilterSchema = Depends(),
         limit: int | None = None,
         use_case: GetFilteredRegex101UseCase = Depends(
             Provide[Container.use_cases.get_filtered_regex101_use_case]

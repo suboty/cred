@@ -32,7 +32,7 @@ class AbstractRepository(
         pass
 
     @abstractmethod
-    async def get(self, obj_filter: FilterSchema | None) -> ReadSchema | None:
+    async def get(self, obj_id: int, obj_filter: FilterSchema | None) -> ReadSchema | None:
         pass
 
     @abstractmethod

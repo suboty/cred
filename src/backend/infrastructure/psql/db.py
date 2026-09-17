@@ -63,6 +63,10 @@ class Database:
             scopefunc=current_task,
         )
 
+    async def create_all(self) -> None:
+        async with self._async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all) # noqa
+
     def get_session(self) -> AsyncSession:
         return self._session_factory()
 

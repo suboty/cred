@@ -17,9 +17,14 @@ class CreateRegexLibUseCase(BaseRegexLibUseCase):
 
 class GetRegexLibUseCase(BaseRegexLibUseCase):
     async def execute(
-            self, obj_filter: RegexLibFilterSchema | None = None
+            self,
+            obj_id: int,
+            obj_filter: RegexLibFilterSchema | None = None
     ) -> RegexLib | None:
-        return await self.regexlib_service.get(obj_filter=obj_filter)
+        return await self.regexlib_service.get(
+            obj_id=obj_id,
+            obj_filter=obj_filter
+        )
 
 
 class UpdateRegexLibUseCase(BaseRegexLibUseCase):

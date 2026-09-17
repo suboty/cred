@@ -35,8 +35,7 @@ class RegexLibUpdate(_RegexLibBase):
 
 
 class RegexLibFilterSchema(BaseModel):
-    id: int
-    rating: int
-    is_dirty: int
-    key_words_in_title: str
-    key_words_in_description: str
+    rating: int = None
+    is_dirty: int = None
+    key_words_in_title: str = None
+    key_words_in_description: str = None

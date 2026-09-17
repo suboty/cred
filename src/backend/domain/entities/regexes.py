@@ -36,5 +36,4 @@ class RegexUpdate(_RegexBase):
 
 
 class RegexesFilterSchema(BaseModel):
-    id: int
-    source: str
+    source: str | None = None

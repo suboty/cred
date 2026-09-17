@@ -31,9 +31,8 @@ class Regex101Update(_Regex101Base):
 
 
 class Regex101FilterSchema(BaseModel):
-    id: int
-    flags: str
-    delimiter: str
-    dialect: str
-    key_words_in_title: str
-    key_words_in_description: str
+    flags: str = None
+    delimiter: str = None
+    dialect: str = None
+    key_words_in_title: str = None
+    key_words_in_description: str = None

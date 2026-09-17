@@ -24,13 +24,14 @@ router = APIRouter()
 )
 @inject
 async def get_regex(
-        filter_schema: RegexLibFilterSchema | None = None,
+        regex_id: int,
+        filter_schema: RegexLibFilterSchema = Depends(),
         use_case: GetRegexLibUseCase = Depends(
             Provide[Container.use_cases.get_regexlib_use_case]
         ),
 ) -> Any:
     try:
-        return await use_case.execute(obj_filter=filter_schema)
+        return await use_case.execute(obj_id=regex_id, obj_filter=filter_schema)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -75,7 +76,7 @@ async def create_regex(
 @inject
 async def update_regex(
         request_body: RegexLibUpdateRequest,
-        filter_schema: RegexLibFilterSchema | None = None,
+        filter_schema: RegexLibFilterSchema = Depends(),
         use_case: UpdateRegexLibUseCase = Depends(
             Provide[Container.use_cases.update_regexlib_use_case]
         ),
@@ -103,7 +104,7 @@ async def update_regex(
 @inject
 async def delete_regex(
         regex_id: int,
-        filter_schema: RegexLibFilterSchema | None = None,
+        filter_schema: RegexLibFilterSchema = Depends(),
         use_case: DeleteRegexLibUseCase = Depends(
             Provide[Container.use_cases.delete_regexlib_use_case]
         ),
@@ -164,7 +165,7 @@ async def bulk_creating_regexes(
 @inject
 async def bulk_updating_regexes(
         objects: list[RegexLibUpdateRequest],
-        filter_schema: RegexLibFilterSchema | None = None,
+        filter_schema: RegexLibFilterSchema = Depends(),
         use_case: BulkUpdateRegexLibUseCase = Depends(
             Provide[Container.use_cases.bulk_update_regexlib_use_case]
         ),
@@ -198,7 +199,7 @@ async def get_paginated_regexes(
         size: int = 10,
         sort_field: str | None = None,
         sort_descending: bool | None = None,
-        obj_filter: RegexLibFilterSchema | None = None,
+        obj_filter: RegexLibFilterSchema = Depends(),
         use_case: GetPaginatedRegexLibUseCase = Depends(
             Provide[Container.use_cases.get_paginated_regexlib_use_case]
         ),
@@ -230,7 +231,7 @@ async def get_paginated_regexes(
 async def get_filtered_regexes(
         sort_field: str | None = None,
         sort_descending: bool | None = None,
-        obj_filter: RegexLibFilterSchema | None = None,
+        obj_filter: RegexLibFilterSchema = Depends(),
         limit: int | None = None,
         use_case: GetFilteredRegexLibUseCase = Depends(
             Provide[Container.use_cases.get_filtered_regexlib_use_case]

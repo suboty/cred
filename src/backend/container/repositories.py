@@ -15,17 +15,17 @@ class RepositoryContainer(containers.DeclarativeContainer):
 
     regex_repository = providers.Factory(
         RegexesSqlAlchemyRepository,
-        session_contextmanager=db.psql_db_client.provided.session,
+        session_factory=db.psql_db_client.provided.session,
     )
 
     # sources
 
     regex101_repository = providers.Factory(
         Regex101SqlAlchemyRepository,
-        session_contextmanager=db.psql_db_client.provided.session,
+        session_factory=db.psql_db_client.provided.session,
     )
 
     regexlib_repository = providers.Factory(
         RegexLibSqlAlchemyRepository,
-        session_contextmanager=db.psql_db_client.provided.session,
+        session_factory=db.psql_db_client.provided.session,
     )

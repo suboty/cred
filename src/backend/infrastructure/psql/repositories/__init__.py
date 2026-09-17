@@ -95,12 +95,15 @@ class SQLAlchemyRepository(
                 ) from e
 
     async def get(
-            self, obj_filter: FilterSchema | None = None
+            self, obj_id: int, obj_filter: FilterSchema | None = None
     ) -> ReadSchema | None:
         async with self._get_session() as db_session:
             try:
                 query = select(self.model)
                 query = self._apply_filters(query, obj_filter)
+                query = query.where(
+                    *[getattr(self.model, 'id') == obj_id]
+                )
                 result = await db_session.execute(query)
                 db_obj = result.scalar_one_or_none()
                 return self._convert(db_obj) if db_obj else None

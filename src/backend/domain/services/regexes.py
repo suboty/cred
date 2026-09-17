@@ -12,8 +12,15 @@ class RegexesService:
     async def create(self, obj: RegexCreate) -> Regex | None:
         return await self.regexes_repository.create(obj=obj)
 
-    async def get(self, obj_filter: RegexesFilterSchema | None) -> Regex | None:
-        return await self.regexes_repository.get(obj_filter=obj_filter)
+    async def get(
+            self,
+            obj_id: int,
+            obj_filter: RegexesFilterSchema | None
+    ) -> Regex | None:
+        return await self.regexes_repository.get(
+            obj_id=obj_id,
+            obj_filter=obj_filter
+        )
 
     async def update(
             self, obj: RegexUpdate, obj_filter: RegexesFilterSchema | None

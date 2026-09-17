@@ -12,8 +12,15 @@ class RegexLibService:
     async def create(self, obj: RegexLibCreate) -> RegexLib | None:
         return await self.regexlib_repository.create(obj=obj)
 
-    async def get(self, obj_filter: RegexLibFilterSchema | None) -> RegexLib | None:
-        return await self.regexlib_repository.get(obj_filter=obj_filter)
+    async def get(
+            self,
+            obj_id: int,
+            obj_filter: RegexLibFilterSchema | None
+    ) -> RegexLib | None:
+        return await self.regexlib_repository.get(
+            obj_id=obj_id,
+            obj_filter=obj_filter
+        )
 
     async def update(
             self, obj: RegexLibUpdate, obj_filter: RegexLibFilterSchema | None

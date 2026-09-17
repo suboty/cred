@@ -24,13 +24,14 @@ router = APIRouter()
 )
 @inject
 async def get_regex(
-        filter_schema: RegexesFilterSchema | None = None,
+        regex_id: int,
+        filter_schema: RegexesFilterSchema = Depends(),
         use_case: GetRegexesUseCase = Depends(
             Provide[Container.use_cases.get_regexes_use_case]
         ),
 ) -> Any:
     try:
-        return await use_case.execute(obj_filter=filter_schema)
+        return await use_case.execute(obj_id=regex_id, obj_filter=filter_schema)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -75,7 +76,7 @@ async def create_regex(
 @inject
 async def update_regex(
         request_body: RegexUpdateRequest,
-        filter_schema: RegexesFilterSchema | None = None,
+        filter_schema: RegexesFilterSchema = Depends(),
         use_case: UpdateRegexesUseCase = Depends(
             Provide[Container.use_cases.update_regexes_use_case]
         ),
@@ -103,7 +104,7 @@ async def update_regex(
 @inject
 async def delete_regex(
         regex_id: int,
-        filter_schema: RegexesFilterSchema | None = None,
+        filter_schema: RegexesFilterSchema = Depends(),
         use_case: DeleteRegexesUseCase = Depends(
             Provide[Container.use_cases.delete_regexes_use_case]
         ),
@@ -162,7 +163,7 @@ async def bulk_creating_regexes(
 @inject
 async def bulk_updating_regexes(
         objects: list[RegexUpdateRequest],
-        filter_schema: RegexesFilterSchema | None = None,
+        filter_schema: RegexesFilterSchema = Depends(),
         use_case: BulkUpdateRegexesUseCase = Depends(
             Provide[Container.use_cases.bulk_create_regexes_use_case]
         ),
@@ -196,7 +197,7 @@ async def get_paginated_regexes(
         size: int = 10,
         sort_field: str | None = None,
         sort_descending: bool | None = None,
-        obj_filter: RegexesFilterSchema | None = None,
+        obj_filter: RegexesFilterSchema = Depends(),
         use_case: GetPaginatedRegexesUseCase = Depends(
             Provide[Container.use_cases.get_paginated_regexes_use_case]
         ),
@@ -228,7 +229,7 @@ async def get_paginated_regexes(
 async def get_filtered_regexes(
         sort_field: str | None = None,
         sort_descending: bool | None = None,
-        obj_filter: RegexesFilterSchema | None = None,
+        obj_filter: RegexesFilterSchema = Depends(),
         limit: int | None = None,
         use_case: GetFilteredRegexesUseCase = Depends(
             Provide[Container.use_cases.get_filtered_regexes_use_case]

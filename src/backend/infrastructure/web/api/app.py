@@ -17,7 +17,10 @@ container = init_container()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI): # noqa
+    db = container.db.psql_db_client()
+    await db.create_all()
     yield
+    await db._async_engine.dispose() # noqa
 
 app = FastAPI(
     title=app_settings.PROJECT_NAME,
@@ -50,3 +53,6 @@ async def http_validation_exception_handler(_: Request, exc: HTTPException):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request): # noqa
     return RedirectResponse(url="/docs")
+
+
+container.wire(packages=["infrastructure.web.api", __name__])

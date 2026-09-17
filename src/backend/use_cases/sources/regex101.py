@@ -17,9 +17,14 @@ class CreateRegex101UseCase(BaseRegex101UseCase):
 
 class GetRegex101UseCase(BaseRegex101UseCase):
     async def execute(
-            self, obj_filter: Regex101FilterSchema | None = None
+            self,
+            obj_id: int,
+            obj_filter: Regex101FilterSchema | None = None
     ) -> Regex101 | None:
-        return await self.regex101_service.get(obj_filter=obj_filter)
+        return await self.regex101_service.get(
+            obj_id=obj_id,
+            obj_filter=obj_filter
+        )
 
 
 class UpdateRegex101UseCase(BaseRegex101UseCase):

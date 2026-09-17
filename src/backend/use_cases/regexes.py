@@ -24,9 +24,12 @@ class CreateRegexesUseCase(BaseRegexUseCase):
 
 class GetRegexesUseCase(BaseRegexUseCase):
     async def execute(
-            self, obj_filter: RegexesFilterSchema | None = None
+            self, obj_id: int, obj_filter: RegexesFilterSchema | None = None
     ) -> Regex | None:
-        return await self.regexes_service.get(obj_filter=obj_filter)
+        return await self.regexes_service.get(
+            obj_id=obj_id,
+            obj_filter=obj_filter
+        )
 
 
 class UpdateRegexesUseCase(BaseRegexUseCase):

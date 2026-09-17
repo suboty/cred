@@ -12,8 +12,15 @@ class Regex101Service:
     async def create(self, obj: Regex101Create) -> Regex101 | None:
         return await self.regex101_repository.create(obj=obj)
 
-    async def get(self, obj_filter: Regex101FilterSchema | None) -> Regex101 | None:
-        return await self.regex101_repository.get(obj_filter=obj_filter)
+    async def get(
+            self,
+            obj_id: int,
+            obj_filter: Regex101FilterSchema | None
+    ) -> Regex101 | None:
+        return await self.regex101_repository.get(
+            obj_id=obj_id,
+            obj_filter=obj_filter
+        )
 
     async def update(
             self, obj: Regex101Update, obj_filter: Regex101FilterSchema | None
