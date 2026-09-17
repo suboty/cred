@@ -15,3 +15,15 @@ class DbSettings(BaseSettings):
 
 
 db_settings = DbSettings()  # type: ignore
+
+
+class AppSettings(BaseSettings):
+    PROJECT_NAME: str = "CRED-API"
+    PROJECT_VERSION: str = "0.1.0"
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="allow"
+    )
+
+
+app_settings = AppSettings()

@@ -31,6 +31,7 @@ class Regex101Update(_Regex101Base):
 
 
 class Regex101FilterSchema(BaseModel):
+    id: int
     flags: str
     delimiter: str
     dialect: str

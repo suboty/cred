@@ -9,3 +9,6 @@ poetry-show:
 
 poetry-add:
 	$(POETRY) $(POETRY_PATH) add $(package)
+
+poetry-install:
+	$(POETRY) $(POETRY_PATH) install --no-root

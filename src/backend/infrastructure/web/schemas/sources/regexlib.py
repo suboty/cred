@@ -4,7 +4,8 @@ from pydantic import BaseModel
 
 
 __all__ = [
-    'RegexLib', 'RegexLibCreate', 'RegexLibUpdate', 'RegexLibFilterSchema'
+    'RegexLibResponse', 'RegexLibCreateRequest',
+    'RegexLibUpdateRequest',
 ]
 
 
@@ -21,22 +22,14 @@ class _RegexLibBase(BaseModel):
     source_date_modified: datetime
 
 
-class RegexLib(_RegexLibBase):
+class RegexLibResponse(_RegexLibBase):
     created_at: datetime
     updated_at: datetime
 
 
-class RegexLibCreate(_RegexLibBase):
+class RegexLibCreateRequest(_RegexLibBase):
     ...
 
 
-class RegexLibUpdate(_RegexLibBase):
+class RegexLibUpdateRequest(_RegexLibBase):
     id: int
-
-
-class RegexLibFilterSchema(BaseModel):
-    id: int
-    rating: int
-    is_dirty: int
-    key_words_in_title: str
-    key_words_in_description: str

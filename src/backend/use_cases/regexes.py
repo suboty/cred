@@ -5,6 +5,13 @@ from src.backend.domain.services.regexes import RegexesService
 from src.backend.domain.entities.regexes import *
 
 
+__all__ = [
+    'CreateRegexesUseCase', 'GetRegexesUseCase', 'UpdateRegexesUseCase',
+    'DeleteRegexesUseCase', 'BulkCreateRegexesUseCase', 'BulkUpdateRegexesUseCase',
+    'GetPaginatedRegexesUseCase', 'GetFilteredRegexesUseCase'
+]
+
+
 class BaseRegexUseCase(UseCase, ABC):
     def __init__(self, regexes_service: RegexesService):
         self.regexes_service = regexes_service

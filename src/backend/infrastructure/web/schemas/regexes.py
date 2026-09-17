@@ -6,7 +6,8 @@ from pydantic import BaseModel
 
 
 __all__ = [
-    'Sources', 'Regex', 'RegexCreate', 'RegexUpdate', 'RegexesFilterSchema'
+    'Sources', 'RegexResponse', 'RegexCreateRequest',
+    'RegexUpdateRequest',
 ]
 
 
@@ -22,19 +23,14 @@ class _RegexBase(BaseModel):
     metadata: dict[Any, Any]
 
 
-class Regex(_RegexBase):
+class RegexResponse(_RegexBase):
     created_at: datetime
     updated_at: datetime
 
 
-class RegexCreate(_RegexBase):
+class RegexCreateRequest(_RegexBase):
     ...
 
 
-class RegexUpdate(_RegexBase):
+class RegexUpdateRequest(_RegexBase):
     id: int
-
-
-class RegexesFilterSchema(BaseModel):
-    id: int
-    source: str
