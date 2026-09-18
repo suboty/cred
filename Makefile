@@ -1,3 +1,9 @@
+ifeq ($(OS),Windows_NT)
+    CD := cd /d
+else
+    CD := cd
+endif
+
 # POETRY
 POETRY := poetry
 POETRY_PATH := --directory ./
@@ -25,3 +31,15 @@ run-local-back:
 		--host 127.0.0.1 \
 		--port 18080 \
 		--reload
+
+migrate:
+	@echo "Running migrations..."
+	$(CD) src/backend/infrastructure/psql/alembic \
+		&& $(POETRY) $(POETRY_PATH) run alembic upgrade head
+	@echo "Migrations completed"
+
+initial-migrate:
+	@echo "Running migrations..."
+	$(CD) src/backend/infrastructure/psql/alembic \
+		&& $(POETRY) $(POETRY_PATH) run alembic revision --autogenerate -m "initial"
+	@echo "Migrations completed"
