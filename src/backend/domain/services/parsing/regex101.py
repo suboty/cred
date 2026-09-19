@@ -23,7 +23,6 @@ class Regex101Parser(HTTPMixin):
         self.current_cursor = os.getenv('CURRENT_CURSOR', '1')
         self.is_end = False
         self.founded_regexes = set()
-        self.new_regexes_count = 0
         self.limit_pages = limit_pages
 
     async def parse(self):
@@ -98,7 +97,7 @@ if __name__ == '__main__':
     async def main():
         a = Regex101Parser(limit_pages=1)
         res = await a.parse()
-        print(len(res))
-        print(res)
+        assert len(res) != 1
+        assert res != set()
 
     asyncio.run(main())
