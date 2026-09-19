@@ -10,6 +10,7 @@ __all__ = [
 
 
 class _Regex101Base(BaseModel):
+    permalink: str
     regex: str
     flags: str | None
     delimiter: str

@@ -17,10 +17,7 @@ container = init_container()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI): # noqa
-    db = container.db.psql_db_client()
-    await db.create_all()
     yield
-    await db._async_engine.dispose() # noqa
 
 app = FastAPI(
     title=app_settings.PROJECT_NAME,

@@ -18,6 +18,7 @@ class Sources(str, Enum):
 class _RegexBase(BaseModel):
     regex: str
     source: Sources
+    regex_id_in_source: int
     params: dict[Any, Any]
     regex_metadata: dict[Any, Any]
 

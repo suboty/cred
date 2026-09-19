@@ -21,11 +21,17 @@ fileConfig(config.config_file_name)
 
 config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
 
-from infrastructure.psql.db import Base  # noqa: E402
-from infrastructure.psql import models  # noqa: E402,F401
+from infrastructure.psql.db import Base
+from infrastructure.psql.models import *  # noqa
 
-target_metadata = Base.metadata
+target_metadata = Base.metadata # noqa
 db_schema = os.environ.get("DB_SCHEMA") or None
+
+
+def include_name(name, type_, parent_names):
+    if type_ == "table" and name == "alembic_version":
+        return False
+    return True
 
 
 def run_migrations_offline():
@@ -34,8 +40,8 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        include_schemas=True,
         version_table_schema=db_schema,
+        include_name=include_name,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -59,6 +65,7 @@ async def run_migrations_online():
             prefix="sqlalchemy.",
             poolclass=pool.NullPool,
             future=True,
+            connect_args={"statement_cache_size": 0}
         )
     )
     async with connectable.connect() as connection:

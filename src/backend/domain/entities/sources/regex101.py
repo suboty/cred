@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 __all__ = [
     'Regex101', 'Regex101Create', 'Regex101Update', 'Regex101FilterSchema'
@@ -9,6 +8,7 @@ __all__ = [
 
 
 class _Regex101Base(BaseModel):
+    permalink: str
     regex: str
     flags: str | None
     delimiter: str
@@ -20,6 +20,8 @@ class _Regex101Base(BaseModel):
 class Regex101(_Regex101Base):
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(frozen=True)
 
 
 class Regex101Create(_Regex101Base):

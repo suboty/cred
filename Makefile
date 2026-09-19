@@ -34,12 +34,12 @@ run-local-back:
 
 migrate:
 	@echo "Running migrations..."
-	$(CD) src/backend/infrastructure/psql/alembic \
+	$(CD) src/backend/infrastructure/psql \
 		&& $(POETRY) $(POETRY_PATH) run alembic upgrade head
 	@echo "Migrations completed"
 
-initial-migrate:
-	@echo "Running migrations..."
-	$(CD) src/backend/infrastructure/psql/alembic \
-		&& $(POETRY) $(POETRY_PATH) run alembic revision --autogenerate -m "initial"
-	@echo "Migrations completed"
+revision:
+	@echo "Running revision..."
+	$(CD) src/backend/infrastructure/psql \
+		&& $(POETRY) $(POETRY_PATH) run alembic revision --autogenerate
+	@echo "Revision completed"

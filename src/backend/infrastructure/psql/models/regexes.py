@@ -15,6 +15,7 @@ class RegexesModel(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     regex: Mapped[str] = mapped_column(String, nullable=False)
+    regex_id_in_source: Mapped[int] = mapped_column(BigInteger, nullable=False)
     source: Mapped[Sources] = mapped_column(String, nullable=False)
 
     params: Mapped[dict] = mapped_column(JSON, nullable=False)

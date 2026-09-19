@@ -12,6 +12,7 @@ class Regex101Model(Base):
     __table_args__ = {"schema": db_settings.DB_SCHEMA}
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    permalink: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     regex: Mapped[str] = mapped_column(String, nullable=False)
     flags: Mapped[str] = mapped_column(String, nullable=True)
     delimiter: Mapped[str] = mapped_column(String, nullable=False)
