@@ -4,13 +4,19 @@ import json
 import xml.etree.ElementTree as ET # noqa
 from enum import Enum
 from typing import Any
+import logging
 
+import zeep
 import aiohttp
 
 from logger import logger
 
 
 class HttpRequestException(Exception):
+    ...
+
+
+class SoapRequestException(Exception):
     ...
 
 
@@ -97,11 +103,13 @@ class HTTPMixin:
                 ) as response:
                     return await self._handle_response(response)
             except aiohttp.ClientError as e:
-                logger.warning(f"Attempt {attempt + 1}/{self.max_retries} failed: {e}")
+                logger.warning(
+                    f"Attempt {attempt + 1}/{self.max_retries} failed: {str(e)[:500]}..."
+                )
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(self.retry_delay * (attempt + 1))
                 else:
-                    raise HttpRequestException(f"Full attempts: {e}") from e
+                    raise HttpRequestException(f"Full attempts: {str(e)[:500]}") from e
         return None
 
     @staticmethod
@@ -119,93 +127,41 @@ class HTTPMixin:
             await self.session.close()
 
 
-class SOAPMixin(HTTPMixin):
-    SOAP11_NS = "http://schemas.xmlsoap.org/soap/envelope/"
-    SOAP12_NS = "http://www.w3.org/2003/05/soap-envelope"
-
+class SOAPMixin:
     def __init__(
             self,
             *args,
-            soap_version: str = "1.1",
-            soap_action: str | None = None,
+            wsdl_link: str,
+            max_retries: int = 3,
+            retry_delay: int = 1,
+            timeout: int = 30,
             **kwargs,
     ):
-        super().__init__(*args, **kwargs)
-        if soap_version not in ("1.1", "1.2"):
-            raise ValueError("soap_version must be '1.1' or '1.2'")
-        self.soap_version = soap_version
-        self.soap_action = soap_action
+        log = logging.getLogger('zeep')
+        log.handlers.clear()
+        log.propagate = False
+        log.disabled = False
 
-    @property
-    def _envelope_ns(self) -> str:
-        return self.SOAP11_NS if self.soap_version == "1.1" else self.SOAP12_NS
-
-    def _build_envelope(self, body: str | ET.Element) -> str:
-        body_xml = (
-            ET.tostring(body, encoding="unicode") if isinstance(body, ET.Element) else body
-        )
-        return (
-            '<?xml version="1.0" encoding="utf-8"?>'
-            f'<soap:Envelope xmlns:soap="{self._envelope_ns}">'
-            f"<soap:Body>{body_xml}</soap:Body>"
-            "</soap:Envelope>"
-        )
-
-    def _build_headers(self, action: str | None) -> dict:
-        action = action or self.soap_action
-        if self.soap_version == "1.1":
-            return {
-                "Content-Type": "text/xml; charset=utf-8",
-                "SOAPAction": f'"{action}"' if action else '""',
-            }
-        ct = "application/soap+xml; charset=utf-8"
-        if action:
-            ct += f'; action="{action}"'
-        return {"Content-Type": ct}
+        self.client = zeep.Client(wsdl=wsdl_link)
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+        self.timeout = timeout
 
     async def soap_request(
             self,
-            url: str,
-            body: str | ET.Element,
-            soap_action: str | None = None,
-            url_params: dict | None = None,
+            *args,
+            soap_action: str,
     ) -> Any:
-        session = await self._get_session()
-        kwargs = {
-            "data": self._build_envelope(body),
-            "params": url_params,
-            "headers": self._build_headers(soap_action),
-        }
-        return await self._request_with_retry(session, "POST", url, kwargs)
-
-    @staticmethod
-    async def _handle_response(response: aiohttp.ClientResponse) -> Any:
-        text = await response.text()
-        try:
-            root = ET.fromstring(text)
-        except ET.ParseError as e:
-            logger.error(f"Wrong XML response: {e}", exc_info=True)
-            logger.error(f"Response: {text[:500]}")
-            raise Exception(f"Wrong XML response: {e}") from e
-
-        for ns in (SOAPMixin.SOAP11_NS, SOAPMixin.SOAP12_NS):
-            body = root.find(f"{{{ns}}}Body")
-            if body is not None:
-                break
-        if body is None:
-            return root
-
-        for ns in (SOAPMixin.SOAP11_NS, SOAPMixin.SOAP12_NS):
-            fault = body.find(f"{{{ns}}}Fault")
-            if fault is not None:
-                raise HttpRequestException(
-                    f"SOAP Fault: {ET.tostring(fault, encoding='unicode')}"
+        for attempt in range(self.max_retries):
+            try:
+                service = getattr(self.client.service, soap_action)
+                return service(*args)
+            except Exception as e:
+                logger.warning(
+                    f"Attempt {attempt + 1}/{self.max_retries} failed: {str(e)[:500]}..."
                 )
-        fault = body.find("Fault")
-        if fault is not None:
-            raise HttpRequestException(
-                f"SOAP Fault: {ET.tostring(fault, encoding='unicode')}"
-            )
-
-        children = list(body)
-        return children[0] if len(children) == 1 else body
+                if attempt < self.max_retries - 1:
+                    await asyncio.sleep(self.retry_delay * (attempt + 1))
+                else:
+                    raise SoapRequestException(f"Full attempts: {str(e)[:500]}...") from e
+        return None

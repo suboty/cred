@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 __all__ = [
     'RegexLib', 'RegexLibCreate', 'RegexLibUpdate', 'RegexLibFilterSchema'
@@ -10,13 +9,13 @@ __all__ = [
 
 class _RegexLibBase(BaseModel):
     source_id: int
-    title: str
-    pattern: str
-    matching_text: str
-    non_matching_text: str
-    description: str
+    title: str | None
+    pattern: str | None
+    matching_text: str | None
+    non_matching_text: str | None
+    description: str | None
     is_dirty: int
-    author_name: str
+    author_name: str | None
     rating: int
     source_date_modified: datetime
 
@@ -24,6 +23,8 @@ class _RegexLibBase(BaseModel):
 class RegexLib(_RegexLibBase):
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(frozen=True)
 
 
 class RegexLibCreate(_RegexLibBase):
