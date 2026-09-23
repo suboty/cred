@@ -43,3 +43,6 @@ revision:
 	$(CD) src/backend/infrastructure/psql \
 		&& $(POETRY) $(POETRY_PATH) run alembic revision --autogenerate
 	@echo "Revision completed"
+
+add_cleaning_for_zeep:
+	sh -x ./scripts/bash/cleaning_for_zeep.sh $(POETRY) $(POETRY_PATH)
