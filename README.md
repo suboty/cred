@@ -4,6 +4,6 @@ Common Regular Expression Dataset
 ## TODO
 ### Backend
 - Celery tasks
-- Parsing sources
+- Use-case for creating new source rows
 ### Frontend
 - all
