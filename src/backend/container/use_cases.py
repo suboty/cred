@@ -20,6 +20,7 @@ from use_cases.sources.regex101 import (
     BulkUpdateRegex101UseCase,
     GetPaginatedRegex101UseCase,
     GetFilteredRegex101UseCase,
+    BulkCreateFromRegex101ParserUseCase
 )
 
 from use_cases.sources.regexlib import (
@@ -31,6 +32,7 @@ from use_cases.sources.regexlib import (
     BulkUpdateRegexLibUseCase,
     GetPaginatedRegexLibUseCase,
     GetFilteredRegexLibUseCase,
+    BulkCreateFromRegexLibParserUseCase
 )
 
 
@@ -105,6 +107,10 @@ class UseCaseContainer(containers.DeclarativeContainer):
         GetFilteredRegex101UseCase,
         regex101_service=services.regex101_service,
     )
+    bulk_create_from_regex101_parser_use_case = providers.Factory(
+        BulkCreateFromRegex101ParserUseCase,
+        regex101_service=services.regex101_service,
+    )
 
     # regexlib
     create_regexlib_use_case = providers.Factory(
@@ -137,5 +143,9 @@ class UseCaseContainer(containers.DeclarativeContainer):
     )
     get_filtered_regexlib_use_case = providers.Factory(
         GetFilteredRegexLibUseCase,
+        regexlib_service=services.regexlib_service,
+    )
+    bulk_create_from_regexlib_parser_use_case = providers.Factory(
+        BulkCreateFromRegexLibParserUseCase,
         regexlib_service=services.regexlib_service,
     )

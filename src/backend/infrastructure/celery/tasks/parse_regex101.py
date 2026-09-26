@@ -8,11 +8,11 @@ from container import Container
 
 @inject
 async def async_regex101_parsing_task(
-        parse_regex101_use_case=Provide[
-            Container.use_cases.parse_regex101_use_case
+        get_filtered_regexlib_use_case=Provide[
+            Container.use_cases.get_filtered_regexlib_use_case
         ],
 ):
-    await parse_regex101_use_case.execute()
+    await get_filtered_regexlib_use_case.execute()
 
 
 @celery.task(bind=True)

@@ -3,7 +3,8 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 __all__ = [
-    'Regex101', 'Regex101Create', 'Regex101Update', 'Regex101FilterSchema'
+    'Regex101', 'Regex101Create', 'Regex101Update',
+    'Regex101FilterSchema', 'Regex101ParsingResult'
 ]
 
 
@@ -38,3 +39,8 @@ class Regex101FilterSchema(BaseModel):
     dialect: str = None
     key_words_in_title: str = None
     key_words_in_description: str = None
+
+
+class Regex101ParsingResult(BaseModel):
+    parsed_regexes: int
+    created_regexes: int

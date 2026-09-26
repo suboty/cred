@@ -1,14 +1,20 @@
 from abc import ABC
+from enum import Enum
 from typing import Callable, AsyncContextManager
 from contextlib import asynccontextmanager
 
-from sqlalchemy import select, delete, and_, func
+from sqlalchemy import select, delete, and_, func, UniqueConstraint, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
 
 from logger import logger
 from domain.repositories import *
+
+
+class BulkLogic(Enum):
+    create_all = "create_all"
+    create_unique = "create_unique"
 
 
 class RepositoryException(Exception):
@@ -170,25 +176,80 @@ class SQLAlchemyRepository(
                     f"Failed to delete object: {str(e)}"
                 ) from e
 
+    def _get_unique_constraints(self) -> list[tuple[str, ...]]:
+        constraints: list[tuple[str, ...]] = []
+        table = self.model.__table__
+        for column in table.columns:
+            if column.unique:
+                constraints.append((column.name,))
+        for constraint in table.constraints:
+            if isinstance(constraint, UniqueConstraint):
+                constraints.append(tuple(c.name for c in constraint.columns))
+        return constraints
+
     async def bulk_create(
-            self, objects: list[CreateSchema]
+            self,
+            objects: list[CreateSchema],
+            type_of_creating: BulkLogic = BulkLogic.create_unique
     ) -> list[ReadSchema | None]:
         async with self._get_session() as db_session:
             try:
-                db_objects = []
-                for obj in objects:
-                    obj_data = obj.model_dump()
-                    db_obj = self.model(**obj_data)
-                    db_objects.append(db_obj)
+                db_objects = [self.model(**obj.model_dump()) for obj in objects]
 
-                db_session.add_all(db_objects)
-                await db_session.flush()
+                if type_of_creating == BulkLogic.create_unique:
+                    unique_constraints = self._get_unique_constraints()
 
-                for db_obj in db_objects:
-                    await db_session.refresh(db_obj)
+                    to_insert: list = []
+                    results: list[ReadSchema | None] = []
 
-                await db_session.commit()
-                return [self._convert(db_obj) for db_obj in db_objects]
+                    for db_obj in db_objects:
+                        conditions = []
+                        for cols in unique_constraints:
+                            if all(getattr(db_obj, c, None) is not None for c in cols):
+                                conditions.append(
+                                    and_(*[
+                                        getattr(self.model, c) == getattr(db_obj, c)
+                                        for c in cols
+                                    ])
+                                )
+
+                        existing = None
+                        if conditions:
+                            stmt = select(
+                                self.model
+                            ).where(or_(*conditions)).limit(1)
+                            existing = (
+                                await db_session.execute(stmt)
+                            ).scalars().first()
+
+                        if existing is not None:
+                            results.append(None)
+                        else:
+                            to_insert.append(db_obj)
+                            results.append(db_obj)
+
+                    if to_insert:
+                        db_session.add_all(to_insert)
+                        await db_session.flush()
+                        for db_obj in to_insert:
+                            await db_session.refresh(db_obj)
+                        await db_session.commit()
+
+                    return [
+                        self._convert(obj) if obj is not None else None
+                        for obj in results
+                    ]
+                elif type_of_creating == BulkLogic.create_all:
+                    db_session.add_all(db_objects)
+                    await db_session.flush()
+
+                    for db_obj in db_objects:
+                        await db_session.refresh(db_obj)
+
+                    await db_session.commit()
+                    return [self._convert(db_obj) for db_obj in db_objects]
+                else:
+                    raise NotImplementedError
 
             except IntegrityError as e:
                 await db_session.rollback()

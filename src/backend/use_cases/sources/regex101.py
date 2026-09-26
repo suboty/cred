@@ -2,6 +2,7 @@ from abc import ABC
 
 from use_cases import UseCase
 from domain.services.sources.regex101 import Regex101Service
+from domain.services.parsing.regex101 import Regex101Parser
 from domain.entities.sources.regex101 import *
 
 
@@ -99,4 +100,20 @@ class GetFilteredRegex101UseCase(BaseRegex101UseCase):
             sort_descending=sort_descending,
             obj_filter=obj_filter,
             limit=limit,
+        )
+
+
+class BulkCreateFromRegex101ParserUseCase(BaseRegex101UseCase):
+    async def execute(
+            self,
+            parser_service: Regex101Parser,
+            limit_pages: int
+    ) -> Regex101ParsingResult:
+        parsed_regexes = await parser_service.parse()
+        created_regexes = await self.regex101_service.bulk_create(
+            objects=[Regex101Create(**x) for x in parsed_regexes]
+        )
+        return Regex101ParsingResult(
+            parsed_regexes=len(parsed_regexes),
+            created_regexes=len(created_regexes)
         )

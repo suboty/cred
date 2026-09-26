@@ -2,6 +2,7 @@ from abc import ABC
 
 from use_cases import UseCase
 from domain.services.sources.regexlib import RegexLibService
+from domain.services.parsing.regexlib import RegexLibParser
 from domain.entities.sources.regexlib import *
 
 
@@ -99,4 +100,20 @@ class GetFilteredRegexLibUseCase(BaseRegexLibUseCase):
             sort_descending=sort_descending,
             obj_filter=obj_filter,
             limit=limit,
+        )
+
+
+class BulkCreateFromRegexLibParserUseCase(BaseRegexLibUseCase):
+    async def execute(
+            self,
+            parser_service: RegexLibParser,
+            limit_pages: int
+    ) -> RegexLibParsingResult:
+        parsed_regexes = await parser_service.parse()
+        created_regexes = await self.regexlib_service.bulk_create(
+            objects=[RegexLibCreate(**x) for x in parsed_regexes]
+        )
+        return RegexLibParsingResult(
+            parsed_regexes=len(parsed_regexes),
+            created_regexes=len(created_regexes)
         )
