@@ -2,8 +2,8 @@ from celery import Celery
 from celery import Task
 
 from logger import logger
-from infrastructure.celery.config import imports as celery_modules
-from infrastructure.celery.config import celery_settings
+from infrastructure.celery_app.config import imports as celery_modules
+from infrastructure.celery_app.config import celery_settings
 from container import init_container
 
 container = init_container()
@@ -22,5 +22,4 @@ class DBSessionTask(Task):
 celery = Celery(
     "service", broker=celery_settings.TASK_BROKER_URL, task_cls=DBSessionTask
 )
-celery.config_from_object("infrastructure.celery.celery_config")
-
+celery.config_from_object("infrastructure.celery_app.config")

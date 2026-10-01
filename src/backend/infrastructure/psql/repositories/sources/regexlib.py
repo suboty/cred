@@ -12,4 +12,4 @@ class RegexLibSqlAlchemyRepository(
     RegexLibRepositoryInterface
 ):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, model=RegexLibModel, entity=Regex101, **kwargs) # noqa
+        super().__init__(*args, model=RegexLibModel, entity=RegexLib, **kwargs) # noqa

@@ -6,7 +6,7 @@ endif
 
 # POETRY
 POETRY := poetry
-POETRY_PATH := --directory ./
+POETRY_PATH := --directory "$(CURDIR)"
 
 poetry-info:
 	$(POETRY) $(POETRY_PATH) env info
@@ -21,12 +21,14 @@ poetry-install:
 	$(POETRY) $(POETRY_PATH) install --no-root
 
 # BACKEND
-APP_EXECUTE_FILE_PATH := src.backend.infrastructure.web.api.app
-BACKEND_PYTHON_PATH := src/backend/
+BACKEND_PYTHON_PATH := $(CURDIR)/src/backend
+APP_EXECUTE_FILE_PATH := infrastructure.web.api.app
+CELERY_APP := infrastructure.celery_app.app.celery
+CELERY_QUEUE := periodic_queue
 
 run-local-back:
-	-sh -x ./scripts/bash/postgres.sh
-	PYTHONPATH=$(BACKEND_PYTHON_PATH) $(POETRY) $(POETRY_PATH) run python3 -m \
+	sh -x ./scripts/bash/postgres.sh
+	PYTHONPATH='$(BACKEND_PYTHON_PATH)' $(POETRY) $(POETRY_PATH) run python3 -m \
 	uvicorn $(APP_EXECUTE_FILE_PATH):app \
 		--host 127.0.0.1 \
 		--port 18080 \
@@ -46,3 +48,19 @@ revision:
 
 add_cleaning_for_zeep:
 	sh -x ./scripts/bash/cleaning_for_zeep.sh $(POETRY) $(POETRY_PATH)
+
+run-beat:
+	sh -x ./scripts/bash/rabbit.sh
+	PYTHONPATH='$(BACKEND_PYTHON_PATH)' $(POETRY) $(POETRY_PATH) run celery \
+		-A $(CELERY_APP) beat \
+		-l info \
+		-s "$(CURDIR)/celerybeat-schedule"
+
+run-worker:
+	sh -x ./scripts/bash/rabbit.sh
+	PYTHONPATH='$(BACKEND_PYTHON_PATH)' $(POETRY) $(POETRY_PATH) run celery \
+		-A $(CELERY_APP) worker \
+		-P solo \
+		-l info \
+		-n cred-worker \
+		-Q $(CELERY_QUEUE)
